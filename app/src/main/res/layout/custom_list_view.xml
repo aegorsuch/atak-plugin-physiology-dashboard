@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="5dp"
+    tools:ignore="UselessParent"
+    style="@style/AppTheme">
+
+    <ImageView
+        android:id="@+id/ssbandIcon"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:padding="10dp"
+        android:src="@drawable/watch"
+        tools:ignore="ContentDescription" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingEnd="30dp">
+
+        <TextView
+            android:id="@+id/textCallsign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="17sp"
+            android:text="Callsign"
+            android:textColor="@color/white"
+            tools:ignore="RtlHardcoded"/>
+
+        <TextView
+            android:id="@+id/textHeartRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textCallsign"
+            android:textSize="15sp"
+            tools:ignore="RtlHardcoded"
+            android:text="HeartRate"/>
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:src="@drawable/battery"
+            android:layout_toStartOf="@id/textBattery"
+            android:foregroundGravity="center"/>
+
+        <TextView
+            android:id="@+id/textBattery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="100%"
+            android:layout_alignParentEnd="true"
+            tools:ignore="RtlHardcoded"/>
+
+        <TextView
+            android:id="@+id/textSerialNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/textBattery"
+            android:textSize="14sp"
+            tools:ignore="RtlHardcoded"
+            android:text="Serial Number"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

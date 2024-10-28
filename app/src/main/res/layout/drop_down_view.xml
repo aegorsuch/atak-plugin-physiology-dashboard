@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Header layout with logo and app name -->
+    <RelativeLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/ssbandLogo"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="logo"
+            android:src="@drawable/ssband"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:layout_toRightOf="@id/ssbandLogo"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/infoString"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="status"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:layout_toRightOf="@id/ssbandLogo"
+            android:layout_below="@id/textView"
+            android:layout_marginTop="15dp"/>
+
+        <!-- Preferences Button at the top right -->
+        <Button
+            android:id="@+id/preferencesButton"
+            android:background="@drawable/settings"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+    <!-- Horizontal line below header -->
+    <RelativeLayout
+        android:id="@+id/hr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        android:background="@android:color/white"
+        android:layout_below="@id/headerLayout" />
+
+    <!-- Device List Container-->
+    <ListView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/hr"
+        tools:context=".MainActivity">
+    </ListView>
+
+    <!-- Connection Status TextView -->
+    <TextView
+        android:id="@+id/connectionStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/connection_Status"
+        android:layout_below="@id/hr"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"/>
+
+    <!-- Device Serial Number TextView -->
+    <TextView
+        android:id="@+id/deviceSerialNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/device_SerialNumber"
+        android:layout_below="@id/connectionStatus"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"/>
+
+    <!-- Self Heart Rate -->
+    <TextView
+        android:id="@+id/selfHeartRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Self HR:"
+        android:layout_below="@id/deviceSerialNumber"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"/>
+    <!-- Heart Rate List TextView -->
+    <TextView
+        android:id="@+id/heartRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:maxLines="10"
+        android:scrollbars="vertical"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:text="@string/heart_rate"
+        android:layout_below="@id/batteryLevel"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"/>
+
+    <!-- Battery level TextView -->
+    <TextView
+        android:id="@+id/batteryLevel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/battery_level"
+        android:layout_below="@id/selfHeartRate"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"/>
+
+</RelativeLayout>

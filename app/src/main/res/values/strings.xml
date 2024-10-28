@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">SlateSafety</string>
+    <!-- description -->
+    <string name="app_desc">SlateSafety plugin integrates SlateSafety Band V2 devices with ATAK.</string>
+    <string name="heart_rate">Heart rate:</string>
+    <string name="no_data">No data</string>
+    <string name="device_SerialNumber">Serial Number:</string>
+    <string name="connection_Status"> Connection Status: Not Connected </string>
+    <!-- application -->
+    <string name="battery_level">Battery Level:</string>
+    <string name="preferences_name">SlateSafety Preferences</string>
+    <string name="preferences_description">SlateSafety Preferences</string>
+
+</resources>
