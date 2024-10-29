@@ -1,11 +1,17 @@
 package com.aitech.atak.ssband.ui;
 
+import static android.view.View.GONE;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.DrawableRes;
 
 import com.aitech.atak.ssband.DeviceData;
 
@@ -47,6 +53,23 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         textCoreBodyTemp.setText(currentDeviceData.coreTemp != null ? currentDeviceData.coreTemp + " °F" : "N/A");
         textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "N/A");
 
+        //set isFalsePositive UI change
+        TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
+        ImageView iconisFalsePositive = convertView.findViewById(R.id.iconisFalsePositive);
+        ImageView iconSsband = convertView.findViewById(R.id.iconSsband);
+        if (currentDeviceData.isFalsePositive) {
+            textisFalsePositive.setVisibility(View.VISIBLE);
+            iconisFalsePositive.setVisibility(View.VISIBLE);
+            iconSsband.setImageResource(R.drawable.watchisfalsepositive);
+        } else {
+            textisFalsePositive.setVisibility(View.GONE);
+            iconisFalsePositive.setVisibility(View.GONE);
+            iconSsband.setImageResource(R.drawable.watch);
+        }
+
+        //Set alert UI changes
+
+        //Set disconnect UI changes
 
         return convertView;
     }
