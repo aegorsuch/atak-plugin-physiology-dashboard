@@ -4,6 +4,12 @@
     <!-- COMMON -->
     <color name="white">#ffffff</color>
     <color name="darker_gray">#121212</color>
+    <color name="light_gray">#A3A3A3</color>
+
+    <!-- ALERT COLORS -->
+    <color name="greenbg">#202BB73B</color>
+    <color name="yellowbg">#20F3DC00</color>
+    <color name="redbg">#20F52D2D</color>
 
     <!-- LED -->
 

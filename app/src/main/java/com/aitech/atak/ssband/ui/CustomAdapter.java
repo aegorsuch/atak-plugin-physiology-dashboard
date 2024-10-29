@@ -36,14 +36,17 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         // Find the TextViews in the layout and populate them with the current device data
         TextView textCallsign = convertView.findViewById(R.id.textCallsign);
         TextView textHeartRate = convertView.findViewById(R.id.textHeartRate);
+        TextView textExertion = convertView.findViewById(R.id.textExertion);
+        TextView textCoreBodyTemp = convertView.findViewById(R.id.textCoreBodyTemp);
         TextView textBattery = convertView.findViewById(R.id.textBattery);
-        TextView textSerialNumber = convertView.findViewById(R.id.textSerialNumber);
 
         // Populate the views with data from DeviceData
         textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "N/A");
         textHeartRate.setText(currentDeviceData.heartRate != null ? currentDeviceData.heartRate + " bpm" : "N/A");
+        textExertion.setText(currentDeviceData.exertion != null ? currentDeviceData.exertion + " %" : "N/A");
+        textCoreBodyTemp.setText(currentDeviceData.coreTemp != null ? currentDeviceData.coreTemp + " °F" : "N/A");
         textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "N/A");
-        textSerialNumber.setText(currentDeviceData.serialNumber != null ? currentDeviceData.serialNumber : "N/A");
+
 
         return convertView;
     }

@@ -56,8 +56,6 @@ public class NumbersViewAdapter extends ArrayAdapter<NumbersView> {
         TextView textBattery = currentItemView.findViewById(R.id.textBattery);
         textBattery.setText(currentNumberPosition.getBatteryText());
 
-        TextView textSerialNumber = currentItemView.findViewById(R.id.textSerialNumber);
-        textSerialNumber.setText(currentNumberPosition.getSerialNumber());
 
         // then return the recyclable view
         return currentItemView;
