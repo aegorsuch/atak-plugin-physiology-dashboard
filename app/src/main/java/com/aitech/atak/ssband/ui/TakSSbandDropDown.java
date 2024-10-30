@@ -11,11 +11,13 @@ import android.widget.TextView; // for displaying text in the dropdown
 import android.widget.Button; //add button widget android
 import android.os.Bundle;
 
-import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.aitech.atak.ssband.AlertLevel;
+import com.aitech.atak.ssband.TakSSbandMapComponent;
 import com.atak.plugins.impl.PluginLayoutInflater;
 import com.atakmap.android.dropdown.DropDownReceiver;
 import com.atakmap.android.maps.MapView;
@@ -25,9 +27,8 @@ import com.atakmap.coremap.cot.event.CotEvent;
 import com.atakmap.coremap.cot.event.CotDetail;
 import com.atakmap.comms.CotServiceRemote;
 import com.atakmap.coremap.maps.time.CoordinatedTime;
-import com.aitech.atak.ssband.TakSSbandMapComponent;
 import com.aitech.atak.ssband.plugin.R;
-import com.aitech.atak.ssband.heartrate.DeviceData;
+import com.aitech.atak.ssband.DeviceData;
 import com.aitech.atak.ssband.preferences.SSbandPreferencesResolver;
 import com.aitech.atak.ssband.services.LicenseManager;
 
@@ -235,26 +236,78 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                     try {
                         int heartRate = Integer.parseInt(heartRateStr);
                         int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
-
+                        TakSSbandMapComponent.testCounter = TakSSbandMapComponent.testCounter + 1;
                         if (serialNumber != null && serialNumber.equals(SSbandPreferencesResolver.resolveDeviceSerialNumber())) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                             callsign = callsign + " (You)";
                             Log.d(TAG, "Recieved Cot - LOCAL  - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
-                            // isLocal = true means that it's local.
-                            DeviceData localDeviceData = new DeviceData(callsign, true, staleTime, serialNumber, false,
-                                    38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
-                                    (double) 65, (double) 3, null, (double) batteryLevel);
-                            deviceDataMap.put(deviceId, localDeviceData); // Store in the map
+                            if (deviceDataMap.containsKey(deviceId)) {
+                                // Update the data. No need to create a new DeviceData
+                                DeviceData localDeviceData = deviceDataMap.get(deviceId);
+                                localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, false,
+                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
+                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                }
+                            } else {
+                                // isLocal = true means that it's local.
+                                DeviceData localDeviceData = new DeviceData(callsign, true, serialNumber, staleTime, false,
+                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
+                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                deviceDataMap.put(deviceId, localDeviceData);// Store in the map
+                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                }
+                            }
                             getMapView().post(this::displayCotDeviceData);
                         } else {
                             Log.d(TAG, "Recieved Cot - REMOTE - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
 
 //                            Log.d(TAG, "Received heart rate data from remote device; storing in deviceDataMap.");
                             // isLocal = false means that it's remote.
-                            DeviceData remoteDeviceData = new DeviceData(callsign, false, staleTime, serialNumber, false,
-                                    38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
-                                    (double) 65, (double) 3, null, (double) batteryLevel);
-                            deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
+                            if (deviceDataMap.containsKey(deviceId)) {
+                                // Update the data. No need to create a new DeviceData
+                                DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
+                                remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, false,
+                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
+                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
+                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding clear event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 110, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding HIGH alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding LOW alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                }
+                            } else {
+                                DeviceData remoteDeviceData = new DeviceData(callsign, false, serialNumber, staleTime, false,
+                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
+                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
+                                Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
+                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding clear event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding HIGH alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding LOW alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                }
+                            }
                             getMapView().post(this::displayCotDeviceData);
                         }
 

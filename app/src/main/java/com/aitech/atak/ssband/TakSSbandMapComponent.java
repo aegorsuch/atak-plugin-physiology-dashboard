@@ -42,6 +42,8 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
     private final static SSbandService ssbandService = new SSbandService();
     private HeartRateCodHandler heartRateCodHandler;
     private ExtendedUserDetails extendedUserDetails;
+    // TODO test only: remove line below
+    public static int testCounter = 0;
 
     @Override
     public void onCreate(final Context context, Intent intent, final MapView view) {
