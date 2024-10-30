@@ -36,6 +36,7 @@ public class DeviceData {
 
     public String model;
     public String callsign;
+    private boolean isStale = false;
     private Boolean isLocal;
     public CoordinatedTime staleTime;
     public String serialNumber;
@@ -127,7 +128,7 @@ public class DeviceData {
         this.serialNumber = serialNumber;
 
         this.isFalsePositive = isFalsePositive;
-        this.coreTemp = coreTemp;
+        this.coreTemp = (coreTemp * 9/5) + 32;
         this.heartRate = heartRate;
         this.exertion = exertion;
         this.hssi = hssi;
@@ -175,5 +176,10 @@ public class DeviceData {
         isLocal = local;
     }
 
+    public void setStale(boolean stale) { isStale = stale;}
+
+    public synchronized boolean isStale() {
+        return isStale;
+    }
 }
 

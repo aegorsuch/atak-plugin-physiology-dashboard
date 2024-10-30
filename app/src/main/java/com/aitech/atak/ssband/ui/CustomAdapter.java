@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 
+import com.aitech.atak.ssband.AlertLevel;
 import com.aitech.atak.ssband.DeviceData;
 
 import com.aitech.atak.ssband.plugin.R;
@@ -80,7 +81,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
 
         //Set alert UI changes
-//        if (baby alert) {
+//        if (currentDeviceData.AlertLevel == AlertLevel.HIGH) {
 //            convertView.setBackgroundResource(R.color.yellowbg);
 //            alertIcon.setVisibility(VISIBLE);
 //            alertIcon.setImageResource(R.drawable.danger);
