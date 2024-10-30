@@ -400,19 +400,28 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
 
     public void removeStaleDevices() {
-//        Log.d(TAG, "Removing stale CoT messages.");
+        Log.d(TAG, "Checking for stale CoT messages.");
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             String deviceId = entry.getKey();
             DeviceData deviceData = entry.getValue();
 
+            long currentTime2 = System.currentTimeMillis(); // Get the current system time
             if (isDeviceStale(deviceData)) {
-                Log.d(TAG, "Device " + deviceId + " is stale, removing it from the map.");
-                removeDeviceFromHash(deviceId); // Using the existing method to remove the device
+                deviceData.setStale(true);
+                long staleTime = deviceData.staleTime.getMilliseconds();
+                Log.d("Stale", "Device " + deviceData.callsign + " is Stale |" + " Current ms: "+ currentTime2 + " Stale ms: " + staleTime);
 
-                // Update the UI to remove the device from the dropdown
+                if (currentTime2 > staleTime + 30000) {
+                    Log.d("Stale", "Device " + deviceId + " has been stale for too long (30 secs), removing it from the map.");
+                    removeDeviceFromHash(deviceId); // Using the existing method to remove the device
+                    getMapView().post(this::displayCotDeviceData);
+                } else {
+                    Log.d("Stale", "Device is stale, but not removable yet");
+                }
+//                removeDeviceFromHash(deviceId); // Using the existing method to remove the device
+//
+//                // Update the UI to remove the device from the dropdown
                 getMapView().post(this::displayCotDeviceData);
-            } else {
-                Log.d("Stale", "Device " + deviceId + " is not stale.");
             }
         }
     }

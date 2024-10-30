@@ -10,6 +10,7 @@
     <color name="greenbg">#202BB73B</color>
     <color name="yellowbg">#20F3DC00</color>
     <color name="redbg">#20F52D2D</color>
+    <color name="graybg">#20BFBFBF</color>
 
     <!-- LED -->
 

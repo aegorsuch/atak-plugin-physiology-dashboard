@@ -1,8 +1,13 @@
 package com.aitech.atak.ssband.ui;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +27,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
 
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
+    private TakSSbandDropDown TakSSbandDropDown;
 
     public CustomAdapter(Context context, ArrayList<DeviceData> deviceDataList) {
         super(context, 0, deviceDataList);
@@ -29,6 +35,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         this.deviceDataList = deviceDataList;
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Inflate the layout if it's not already created
@@ -45,6 +52,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         TextView textExertion = convertView.findViewById(R.id.textExertion);
         TextView textCoreBodyTemp = convertView.findViewById(R.id.textCoreBodyTemp);
         TextView textBattery = convertView.findViewById(R.id.textBattery);
+        TextView textLastConnected = convertView.findViewById(R.id.textLastConnected);
 
         // Populate the views with data from DeviceData
         textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "N/A");
@@ -53,23 +61,49 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         textCoreBodyTemp.setText(currentDeviceData.coreTemp != null ? currentDeviceData.coreTemp + " °F" : "N/A");
         textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "N/A");
 
+        //TODO fix this
+        double staleTimeSeconds = (double) currentDeviceData.staleTime.getMilliseconds() /1000;
+        Log.d("connected", String.valueOf(staleTimeSeconds));
+        textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + staleTimeSeconds + " seconds ago" : "N/A");
+
         //set isFalsePositive UI change
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
-        ImageView iconisFalsePositive = convertView.findViewById(R.id.iconisFalsePositive);
         ImageView iconSsband = convertView.findViewById(R.id.iconSsband);
         if (currentDeviceData.isFalsePositive) {
-            textisFalsePositive.setVisibility(View.VISIBLE);
-            iconisFalsePositive.setVisibility(View.VISIBLE);
+            textisFalsePositive.setVisibility(VISIBLE);
             iconSsband.setImageResource(R.drawable.watchisfalsepositive);
         } else {
             textisFalsePositive.setVisibility(View.GONE);
-            iconisFalsePositive.setVisibility(View.GONE);
             iconSsband.setImageResource(R.drawable.watch);
         }
 
+        ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
+
         //Set alert UI changes
+//        if (baby alert) {
+//            convertView.setBackgroundResource(R.color.yellowbg);
+//            alertIcon.setVisibility(VISIBLE);
+//            alertIcon.setImageResource(R.drawable.danger);
+//        } else if (bigger alert) {
+//            convertView.setBackgroundResource(R.color.redbg);
+//            alertIcon.setVisibility(INVISIBLE);
+//            alertIcon.setImageResource(R.drawable.emergency);
+//        } else {
+//            convertView.setBackgroundResource(R.color.greenbg);
+//            alertIcon.setVisibility(INVISIBLE);
+//        }
 
         //Set disconnect UI changes
+        if (currentDeviceData.isStale()){
+            convertView.setBackgroundResource(R.color.graybg);
+            textLastConnected.setVisibility(VISIBLE);
+            alertIcon.setVisibility(VISIBLE);
+            alertIcon.setImageResource(R.drawable.notconnected);
+        } else {
+            convertView.setBackgroundResource(R.color.greenbg);
+            textLastConnected.setVisibility(GONE);
+            alertIcon.setVisibility(INVISIBLE);
+        }
 
         return convertView;
     }

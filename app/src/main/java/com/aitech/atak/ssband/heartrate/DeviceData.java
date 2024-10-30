@@ -5,6 +5,7 @@ import com.atakmap.coremap.maps.time.CoordinatedTime;
 public class DeviceData {
     public String callsign;
     private Boolean isLocal;
+    private boolean isStale;
     public CoordinatedTime staleTime;
     public String serialNumber;
     // usually false; When a measurement has isFalsePositive set to true,
@@ -45,6 +46,7 @@ public class DeviceData {
         this.vo2 = vo2;
         this.hrv = hrv;
         this.batteryLevel = batteryLevel;
+        this.isStale = isStale;
     }
 
     public boolean isLocal() {
@@ -53,6 +55,12 @@ public class DeviceData {
 
     public void setLocal(boolean local) {
         isLocal = local;
+    }
+
+    public void setStale(boolean stale) { isStale = stale;}
+
+    public synchronized boolean isStale() {
+        return isStale;
     }
 
 }
