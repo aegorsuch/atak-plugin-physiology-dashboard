@@ -25,7 +25,7 @@ import com.aitech.atak.ssband.plugin.R;
 
 import java.util.ArrayList;
 public class CustomAdapter extends ArrayAdapter<DeviceData> {
-
+    public static final String TAG = "TakSSbandCustomAdapter";
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
     private TakSSbandDropDown TakSSbandDropDown;
@@ -80,30 +80,29 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
 
-        //Set alert UI changes
-//        if (currentDeviceData.AlertLevel == AlertLevel.HIGH) {
-//            convertView.setBackgroundResource(R.color.yellowbg);
-//            alertIcon.setVisibility(VISIBLE);
-//            alertIcon.setImageResource(R.drawable.danger);
-//        } else if (bigger alert) {
-//            convertView.setBackgroundResource(R.color.redbg);
-//            alertIcon.setVisibility(INVISIBLE);
-//            alertIcon.setImageResource(R.drawable.emergency);
-//        } else {
-//            convertView.setBackgroundResource(R.color.greenbg);
-//            alertIcon.setVisibility(INVISIBLE);
-//        }
-
-        //Set disconnect UI changes
-        if (currentDeviceData.isStale()){
+        if (!currentDeviceData.isStale()) {
+            //Set alert UI changes
+            if (currentDeviceData.highestAlertLevel == AlertLevel.LOW) {
+                convertView.setBackgroundResource(R.color.yellowbg);
+                alertIcon.setVisibility(VISIBLE);
+                alertIcon.setImageResource(R.drawable.danger);
+                Log.d(TAG, "low alert UI run on " + currentDeviceData.callsign);
+            } else if (currentDeviceData.highestAlertLevel == AlertLevel.HIGH) {
+                convertView.setBackgroundResource(R.color.redbg);
+                alertIcon.setVisibility(VISIBLE);
+                alertIcon.setImageResource(R.drawable.emergency);
+                Log.d(TAG, "high alert UI run " + currentDeviceData.callsign);
+            } else if (currentDeviceData.highestAlertLevel == AlertLevel.NONE) {
+                convertView.setBackgroundResource(R.color.greenbg);
+                alertIcon.setVisibility(INVISIBLE);
+                Log.d(TAG, "none alert UI run " + currentDeviceData.callsign);
+            //Set disconnect UI changes
+            }
+        } else if (currentDeviceData.isStale()){
             convertView.setBackgroundResource(R.color.graybg);
             textLastConnected.setVisibility(VISIBLE);
             alertIcon.setVisibility(VISIBLE);
             alertIcon.setImageResource(R.drawable.notconnected);
-        } else {
-            convertView.setBackgroundResource(R.color.greenbg);
-            textLastConnected.setVisibility(GONE);
-            alertIcon.setVisibility(INVISIBLE);
         }
 
         return convertView;

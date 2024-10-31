@@ -165,7 +165,7 @@ public class DeviceData {
             this.highestAlertLevel = AlertLevel.NONE;
         }
         this.alertOrClearEventsEQ.add(event);
-        Log.d(TAG, "alertOrClearEventsEQ: size(" + alertOrClearEventsEQ.size() + "); isAlerting: " + this.isAlerting + " highestAlertLevel: " + highestAlertLevel + "; numberOfActiveAlerts: " + numberOfActiveAlerts + "; timeHighestAlertLevel: " + ((null == timeHighestAlertLevel)?"null": timeHighestAlertLevel.toString()));
+        Log.d(TAG, this.callsign + " alertOrClearEventsEQ: size(" + alertOrClearEventsEQ.size() + "); isAlerting: " + this.isAlerting + " highestAlertLevel: " + highestAlertLevel + "; numberOfActiveAlerts: " + numberOfActiveAlerts + "; timeHighestAlertLevel: " + ((null == timeHighestAlertLevel)?"null": timeHighestAlertLevel.toString()));
     }
 
     public boolean isLocal() {

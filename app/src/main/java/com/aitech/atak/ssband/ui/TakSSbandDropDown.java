@@ -422,6 +422,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 //
 //                // Update the UI to remove the device from the dropdown
                 getMapView().post(this::displayCotDeviceData);
+            } else {
+                deviceData.setStale(false);
             }
         }
     }

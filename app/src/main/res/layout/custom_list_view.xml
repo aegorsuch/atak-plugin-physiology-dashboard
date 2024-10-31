@@ -18,7 +18,7 @@
         android:src="@drawable/danger"
         tools:ignore="ContentDescription"
         android:layout_gravity="center_vertical"
-        android:visibility="visible"/>
+        android:visibility="invisible"/>
 
     <LinearLayout
         android:id="@+id/nameAndAlerts"
