@@ -34,6 +34,7 @@ public class DeviceData {
         }
     }
 
+    public String model;
     public String callsign;
     private Boolean isLocal;
     public CoordinatedTime staleTime;
@@ -64,7 +65,8 @@ public class DeviceData {
     public EvictingQueue<AlertOrClearEvent> alertOrClearEventsEQ = EvictingQueue.create(10);
 
     // We should never have to call this in run time but it can happen.
-    public DeviceData(String callsign, Boolean isLocal, String serialNumber) {
+    public DeviceData(String model, String callsign, Boolean isLocal, String serialNumber) {
+        this.model = model;
         this.callsign = callsign;
         this.isLocal = isLocal;
         this.serialNumber = serialNumber;
@@ -88,9 +90,10 @@ public class DeviceData {
         // We already created alertOrClearEvents
     }
     // call this for biometrics
-    public DeviceData(String callsign, Boolean isLocal, String serialNumber, CoordinatedTime staleTime,
+    public DeviceData(String model, String callsign, Boolean isLocal, String serialNumber, CoordinatedTime staleTime,
                       Boolean isFalsePositive, Double coreTemp, Double heartRate, Double exertion,
                       Double hssi, Double cadence, Double caloricBurnRate, Double hrlv, Double vo2, Double hrv, Double batteryLevel) {
+        this.model = model;
         this.callsign = callsign;
         this.isLocal = isLocal;
         this.serialNumber = serialNumber;

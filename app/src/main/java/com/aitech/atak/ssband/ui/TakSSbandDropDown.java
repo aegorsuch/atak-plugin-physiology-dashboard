@@ -237,6 +237,17 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                         int heartRate = Integer.parseInt(heartRateStr);
                         int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
                         TakSSbandMapComponent.testCounter = TakSSbandMapComponent.testCounter + 1;
+                        String modelStr = statusDetail.getAttribute("model");
+                        Boolean isFalsePositive = Boolean.valueOf(statusDetail.getAttribute("isFalsePositive"));
+                        String coreTempStr = statusDetail.getAttribute("coreTemp");
+                        String exertionStr = statusDetail.getAttribute("exertion");
+                        String hssiStr = statusDetail.getAttribute("hssi");
+                        String cadenceStr = statusDetail.getAttribute("cadence");
+                        String caloricBurnRateStr = statusDetail.getAttribute("caloricBurnRate");
+                        String hrlvStr = statusDetail.getAttribute("hrlv");
+                        String vo2Str = statusDetail.getAttribute("vo2");
+                        String hrvStr = statusDetail.getAttribute("hrv");
+
                         if (serialNumber != null && serialNumber.equals(SSbandPreferencesResolver.resolveDeviceSerialNumber())) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                             callsign = callsign + " (You)";
@@ -244,21 +255,39 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                             if (deviceDataMap.containsKey(deviceId)) {
                                 // Update the data. No need to create a new DeviceData
                                 DeviceData localDeviceData = deviceDataMap.get(deviceId);
-                                localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, false,
-                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
-                                        (double) 65, (double) 3, null, (double) batteryLevel);
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
-                                    localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
-                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
-                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                if (null != localDeviceData) {
+                                    localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
+                                            ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                            (double) heartRate,
+                                            ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                            ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                            ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                            ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                            ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                            ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                            ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                            (double) batteryLevel);
+                                    if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                        localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
+                                    } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                        localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                    } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                        localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                    }
                                 }
                             } else {
                                 // isLocal = true means that it's local.
-                                DeviceData localDeviceData = new DeviceData(callsign, true, serialNumber, staleTime, false,
-                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
-                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                DeviceData localDeviceData = new DeviceData(modelStr, callsign, true, serialNumber, staleTime, isFalsePositive,
+                                        ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                        (double) heartRate,
+                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                        (double) batteryLevel);
                                 deviceDataMap.put(deviceId, localDeviceData);// Store in the map
                                 if ((TakSSbandMapComponent.testCounter % 36) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
@@ -277,9 +306,17 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                             if (deviceDataMap.containsKey(deviceId)) {
                                 // Update the data. No need to create a new DeviceData
                                 DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
-                                remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, false,
-                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
-                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
+                                        ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                        (double) heartRate,
+                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                        (double) batteryLevel);
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
                                 if ((TakSSbandMapComponent.testCounter % 36) == 0) {
                                     Log.d(TAG, deviceId + ": Adding clear event");
@@ -292,9 +329,17 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }
                             } else {
-                                DeviceData remoteDeviceData = new DeviceData(callsign, false, serialNumber, staleTime, false,
-                                        38.53, (double) heartRate, (double) 20, (double) 100, (double) 0, (double) 195,
-                                        (double) 65, (double) 3, null, (double) batteryLevel);
+                                DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
+                                        ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                        (double) heartRate,
+                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                        (double) batteryLevel);
                                 deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
                                 if ((TakSSbandMapComponent.testCounter % 36) == 0) {
