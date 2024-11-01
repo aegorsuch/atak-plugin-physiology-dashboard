@@ -66,9 +66,9 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "- - -");
 
         //TODO fix this
-        double staleTimeSeconds = (double) currentDeviceData.staleTime.getMilliseconds() /1000;
+        long staleTimeSeconds = (currentDeviceData.staleTime.getMilliseconds() /1000) % 60;
         Log.d("connected", String.valueOf(staleTimeSeconds));
-        textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + "x" + " seconds ago" : "- - -");
+        textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + staleTimeSeconds + " seconds ago" : "- - -");
 
         //set isFalsePositive UI change
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);

@@ -51,7 +51,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private final Map<String, Integer> heartRateData = new ConcurrentHashMap<>();
     private final Map<String, DeviceData> deviceDataMap = new ConcurrentHashMap<>();
     private DeviceData localDeviceData;
-    private DeviceData remoteDeviceData;
 
     private ArrayList<DeviceData> arrayList;
     private CustomAdapter customAdapter;
@@ -109,10 +108,12 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         // Iterate over the map and add local device first, followed by remote devices
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             DeviceData data = entry.getValue();
-            if (data.isLocal() && data.highestAlertLevel == AlertLevel.HIGH) {
+//            arrayList.sort(data.alertLevelComparator);
+
+            if ((data.highestAlertLevel == AlertLevel.HIGH)) {
                 // Add local device at the top
                 arrayList.add(0, data);
-            } else if (data.isLocal() && data.highestAlertLevel == AlertLevel.LOW) {
+            } else if (data.highestAlertLevel == AlertLevel.LOW) {
                 arrayList.add(0, data);
             } else {
                 // Add remote devices afterward
@@ -120,13 +121,11 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
             }
 
         }
-//        arrayList.sort(localDeviceData.alertLevelComparator);
 
 //        Log.d(TAG, "Updating DropDown with device data");
 
         // Update the adapter to reflect the new data
         customAdapter.notifyDataSetChanged();
-//        arrayList.sort(localDeviceData.alertLevelComparator);
 
     }
 
@@ -364,8 +363,10 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }
+
                             }
                             getMapView().post(this::displayCotDeviceData);
+
                         }
 
                     } catch (NumberFormatException e) {
@@ -379,6 +380,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
             Log.e(TAG, "Received CoT event with null detail or License is Invalid");
         }
     }
+
 
     public boolean isDeviceStale(DeviceData deviceData) {
         long currentTime = System.currentTimeMillis(); // Get the current system time
