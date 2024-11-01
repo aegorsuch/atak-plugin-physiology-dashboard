@@ -5,6 +5,7 @@ import android.util.Log;
 import com.atakmap.coremap.maps.time.CoordinatedTime;
 import com.google.common.collect.EvictingQueue;
 
+import java.util.Comparator;
 import java.util.Date;
 
 public class DeviceData {
@@ -128,7 +129,7 @@ public class DeviceData {
         this.serialNumber = serialNumber;
 
         this.isFalsePositive = isFalsePositive;
-        this.coreTemp = (coreTemp * 9/5) + 32;
+        this.coreTemp = coreTemp;
         this.heartRate = heartRate;
         this.exertion = exertion;
         this.hssi = hssi;
@@ -181,5 +182,27 @@ public class DeviceData {
     public synchronized boolean isStale() {
         return isStale;
     }
+
+    public int getAlertLevelPriority(AlertLevel highestAlertLevel) {
+        switch (highestAlertLevel) {
+            case HIGH:
+                return 1;
+            case LOW:
+                return 2;
+            case NONE:
+                return 3;
+            default:
+                return Integer.MAX_VALUE; // For any undefined alert levels
+        }
+    }
+
+   public Comparator<DeviceData> alertLevelComparator = new Comparator<DeviceData>() {
+        @Override
+        public int compare(DeviceData o1, DeviceData o2) {
+            int priority1 = getAlertLevelPriority(o1.highestAlertLevel);
+            int priority2 = getAlertLevelPriority(o2.highestAlertLevel);
+            return Integer.compare(priority1, priority2);
+        }
+    };
 }
 

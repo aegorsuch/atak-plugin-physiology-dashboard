@@ -24,6 +24,8 @@ import com.aitech.atak.ssband.DeviceData;
 import com.aitech.atak.ssband.plugin.R;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+
 public class CustomAdapter extends ArrayAdapter<DeviceData> {
     public static final String TAG = "TakSSbandCustomAdapter";
     private final Context context;
@@ -47,6 +49,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         // Get the current DeviceData object
         DeviceData currentDeviceData = deviceDataList.get(position);
 
+
         // Find the TextViews in the layout and populate them with the current device data
         TextView textCallsign = convertView.findViewById(R.id.textCallsign);
         TextView textHeartRate = convertView.findViewById(R.id.textHeartRate);
@@ -56,16 +59,16 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         TextView textLastConnected = convertView.findViewById(R.id.textLastConnected);
 
         // Populate the views with data from DeviceData
-        textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "N/A");
-        textHeartRate.setText(currentDeviceData.heartRate != null ? currentDeviceData.heartRate + " bpm" : "N/A");
-        textExertion.setText(currentDeviceData.exertion != null ? currentDeviceData.exertion + " %" : "N/A");
-        textCoreBodyTemp.setText(currentDeviceData.coreTemp != null ? currentDeviceData.coreTemp + " °F" : "N/A");
-        textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "N/A");
+        textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "- - -");
+        textHeartRate.setText(currentDeviceData.heartRate != null ? currentDeviceData.heartRate + " bpm" : "- - -");
+        textExertion.setText(currentDeviceData.exertion != null ? currentDeviceData.exertion + " %" : "- - -");
+        textCoreBodyTemp.setText(currentDeviceData.coreTemp != null ? currentDeviceData.coreTemp * 9/5 + 32 + " °F" : "- - -");
+        textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "- - -");
 
         //TODO fix this
         double staleTimeSeconds = (double) currentDeviceData.staleTime.getMilliseconds() /1000;
         Log.d("connected", String.valueOf(staleTimeSeconds));
-        textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + staleTimeSeconds + " seconds ago" : "N/A");
+        textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + "x" + " seconds ago" : "- - -");
 
         //set isFalsePositive UI change
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
@@ -81,6 +84,9 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
 
         if (!currentDeviceData.isStale()) {
+            textLastConnected.setVisibility(GONE);
+            convertView.setBackgroundResource(R.color.greenbg);
+            alertIcon.setVisibility(INVISIBLE);
             //Set alert UI changes
             if (currentDeviceData.highestAlertLevel == AlertLevel.LOW) {
                 convertView.setBackgroundResource(R.color.yellowbg);
@@ -92,10 +98,6 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
                 alertIcon.setVisibility(VISIBLE);
                 alertIcon.setImageResource(R.drawable.emergency);
                 Log.d(TAG, "high alert UI run " + currentDeviceData.callsign);
-            } else if (currentDeviceData.highestAlertLevel == AlertLevel.NONE) {
-                convertView.setBackgroundResource(R.color.greenbg);
-                alertIcon.setVisibility(INVISIBLE);
-                Log.d(TAG, "none alert UI run " + currentDeviceData.callsign);
             //Set disconnect UI changes
             }
         } else if (currentDeviceData.isStale()){
@@ -103,6 +105,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
             textLastConnected.setVisibility(VISIBLE);
             alertIcon.setVisibility(VISIBLE);
             alertIcon.setImageResource(R.drawable.notconnected);
+            Log.d(TAG, "disconnect UI run " + currentDeviceData.callsign);
         }
 
         return convertView;

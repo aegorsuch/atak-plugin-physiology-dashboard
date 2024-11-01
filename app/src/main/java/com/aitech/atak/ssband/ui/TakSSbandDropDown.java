@@ -12,8 +12,10 @@ import android.widget.Button; //add button widget android
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.aitech.atak.ssband.AlertLevel;
@@ -49,6 +51,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private final Map<String, Integer> heartRateData = new ConcurrentHashMap<>();
     private final Map<String, DeviceData> deviceDataMap = new ConcurrentHashMap<>();
     private DeviceData localDeviceData;
+    private DeviceData remoteDeviceData;
 
     private ArrayList<DeviceData> arrayList;
     private CustomAdapter customAdapter;
@@ -97,6 +100,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         }
     }
 
+
     //Where device data is populated to display - NOT devices directly connected to the viewable device
     public void displayCotDeviceData() {
         // Clear the arrayList to avoid duplicates
@@ -105,19 +109,25 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         // Iterate over the map and add local device first, followed by remote devices
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             DeviceData data = entry.getValue();
-            if (data.isLocal()) {
+            if (data.isLocal() && data.highestAlertLevel == AlertLevel.HIGH) {
                 // Add local device at the top
+                arrayList.add(0, data);
+            } else if (data.isLocal() && data.highestAlertLevel == AlertLevel.LOW) {
                 arrayList.add(0, data);
             } else {
                 // Add remote devices afterward
                 arrayList.add(data);
             }
+
         }
+//        arrayList.sort(localDeviceData.alertLevelComparator);
 
 //        Log.d(TAG, "Updating DropDown with device data");
 
         // Update the adapter to reflect the new data
         customAdapter.notifyDataSetChanged();
+//        arrayList.sort(localDeviceData.alertLevelComparator);
+
     }
 
     public void removeDeviceFromHash(String deviceId) {
@@ -340,6 +350,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                         ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
+                                arrayList.add(remoteDeviceData);
+
                                 deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
                                 if ((TakSSbandMapComponent.testCounter % 36) == 0) {
