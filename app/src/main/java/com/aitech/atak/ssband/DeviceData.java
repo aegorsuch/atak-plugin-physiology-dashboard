@@ -5,6 +5,7 @@ import android.util.Log;
 import com.atakmap.coremap.maps.time.CoordinatedTime;
 import com.google.common.collect.EvictingQueue;
 
+import java.util.Comparator;
 import java.util.Date;
 
 public class DeviceData {
@@ -36,6 +37,7 @@ public class DeviceData {
 
     public String model;
     public String callsign;
+    private boolean isStale = false;
     private Boolean isLocal;
     public CoordinatedTime staleTime;
     public String serialNumber;
@@ -164,7 +166,7 @@ public class DeviceData {
             this.highestAlertLevel = AlertLevel.NONE;
         }
         this.alertOrClearEventsEQ.add(event);
-        Log.d(TAG, "alertOrClearEventsEQ: size(" + alertOrClearEventsEQ.size() + "); isAlerting: " + this.isAlerting + " highestAlertLevel: " + highestAlertLevel + "; numberOfActiveAlerts: " + numberOfActiveAlerts + "; timeHighestAlertLevel: " + ((null == timeHighestAlertLevel)?"null": timeHighestAlertLevel.toString()));
+        Log.d(TAG, this.callsign + " alertOrClearEventsEQ: size(" + alertOrClearEventsEQ.size() + "); isAlerting: " + this.isAlerting + " highestAlertLevel: " + highestAlertLevel + "; numberOfActiveAlerts: " + numberOfActiveAlerts + "; timeHighestAlertLevel: " + ((null == timeHighestAlertLevel)?"null": timeHighestAlertLevel.toString()));
     }
 
     public boolean isLocal() {
@@ -175,5 +177,32 @@ public class DeviceData {
         isLocal = local;
     }
 
+    public void setStale(boolean stale) { isStale = stale;}
+
+    public synchronized boolean isStale() {
+        return isStale;
+    }
+
+    public int getAlertLevelPriority(AlertLevel highestAlertLevel) {
+        switch (highestAlertLevel) {
+            case HIGH:
+                return 1;
+            case LOW:
+                return 2;
+            case NONE:
+                return 3;
+            default:
+                return Integer.MAX_VALUE; // For any undefined alert levels
+        }
+    }
+
+   public Comparator<DeviceData> alertLevelComparator = new Comparator<DeviceData>() {
+        @Override
+        public int compare(DeviceData o1, DeviceData o2) {
+            int priority1 = getAlertLevelPriority(o1.highestAlertLevel);
+            int priority2 = getAlertLevelPriority(o2.highestAlertLevel);
+            return Integer.compare(priority1, priority2);
+        }
+    };
 }
 

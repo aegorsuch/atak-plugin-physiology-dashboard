@@ -12,8 +12,10 @@ import android.widget.Button; //add button widget android
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.aitech.atak.ssband.AlertLevel;
@@ -97,6 +99,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         }
     }
 
+
     //Where device data is populated to display - NOT devices directly connected to the viewable device
     public void displayCotDeviceData() {
         // Clear the arrayList to avoid duplicates
@@ -105,19 +108,25 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         // Iterate over the map and add local device first, followed by remote devices
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             DeviceData data = entry.getValue();
-            if (data.isLocal()) {
+//            arrayList.sort(data.alertLevelComparator);
+
+            if ((data.highestAlertLevel == AlertLevel.HIGH)) {
                 // Add local device at the top
+                arrayList.add(0, data);
+            } else if (data.highestAlertLevel == AlertLevel.LOW) {
                 arrayList.add(0, data);
             } else {
                 // Add remote devices afterward
                 arrayList.add(data);
             }
+
         }
 
 //        Log.d(TAG, "Updating DropDown with device data");
 
         // Update the adapter to reflect the new data
         customAdapter.notifyDataSetChanged();
+
     }
 
     public void removeDeviceFromHash(String deviceId) {
@@ -340,6 +349,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                         ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
+                                arrayList.add(remoteDeviceData);
+
                                 deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
                                 if ((TakSSbandMapComponent.testCounter % 36) == 0) {
@@ -352,8 +363,10 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }
+
                             }
                             getMapView().post(this::displayCotDeviceData);
+
                         }
 
                     } catch (NumberFormatException e) {
@@ -367,6 +380,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
             Log.e(TAG, "Received CoT event with null detail or License is Invalid");
         }
     }
+
 
     public boolean isDeviceStale(DeviceData deviceData) {
         long currentTime = System.currentTimeMillis(); // Get the current system time
@@ -400,19 +414,30 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
 
     public void removeStaleDevices() {
-//        Log.d(TAG, "Removing stale CoT messages.");
+        Log.d(TAG, "Checking for stale CoT messages.");
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             String deviceId = entry.getKey();
             DeviceData deviceData = entry.getValue();
 
+            long currentTime2 = System.currentTimeMillis(); // Get the current system time
             if (isDeviceStale(deviceData)) {
-                Log.d(TAG, "Device " + deviceId + " is stale, removing it from the map.");
-                removeDeviceFromHash(deviceId); // Using the existing method to remove the device
+                deviceData.setStale(true);
+                long staleTime = deviceData.staleTime.getMilliseconds();
+                Log.d("Stale", "Device " + deviceData.callsign + " is Stale |" + " Current ms: "+ currentTime2 + " Stale ms: " + staleTime);
 
-                // Update the UI to remove the device from the dropdown
+                if (currentTime2 > staleTime + 30000) {
+                    Log.d("Stale", "Device " + deviceId + " has been stale for too long (30 secs), removing it from the map.");
+                    removeDeviceFromHash(deviceId); // Using the existing method to remove the device
+                    getMapView().post(this::displayCotDeviceData);
+                } else {
+                    Log.d("Stale", "Device is stale, but not removable yet");
+                }
+//                removeDeviceFromHash(deviceId); // Using the existing method to remove the device
+//
+//                // Update the UI to remove the device from the dropdown
                 getMapView().post(this::displayCotDeviceData);
             } else {
-                Log.d("Stale", "Device " + deviceId + " is not stale.");
+                deviceData.setStale(false);
             }
         }
     }

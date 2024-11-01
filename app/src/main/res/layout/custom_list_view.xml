@@ -5,24 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingVertical="5dp"
+    android:paddingVertical="10dp"
     tools:ignore="UselessParent"
+    android:background="@color/greenbg"
     style="@style/AppTheme">
 
     <ImageView
-        android:id="@+id/ssbandIcon"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:padding="10dp"
-        android:src="@drawable/watch"
-        tools:ignore="ContentDescription" />
+        android:id="@+id/alertIcon"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/danger"
+        tools:ignore="ContentDescription"
+        android:layout_gravity="center_vertical"
+        android:visibility="invisible"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingEnd="30dp">
+    <LinearLayout
+        android:id="@+id/nameAndAlerts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/textCallsign"
@@ -34,20 +37,94 @@
             tools:ignore="RtlHardcoded"/>
 
         <TextView
-            android:id="@+id/textHeartRate"
+            android:id="@+id/textisFalsePositive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textCallsign"
-            android:textSize="15sp"
+            android:textSize="13sp"
+            android:text="Band not worn properly, readings may be incorrect"
+            android:textColor="@color/light_gray"
             tools:ignore="RtlHardcoded"
-            android:text="HeartRate"/>
+            android:paddingBottom="7dp"
+            android:drawableStart="@drawable/isfalsepositive"
+            android:visibility = "gone"/>
+
+        <TextView
+            android:id="@+id/textLastConnected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:text="Last connected X minutes ago"
+            android:textColor="@color/light_gray"
+            tools:ignore="RtlHardcoded"
+            android:paddingBottom="7dp"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/healthData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/iconHeartRate"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/heartrate"
+                android:layout_marginEnd="5dp"/>
+
+            <TextView
+                android:id="@+id/textHeartRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                tools:ignore="RtlHardcoded"
+                android:text="- - -"
+                android:layout_marginEnd="15dp" />
+
+            <ImageView
+                android:id="@+id/iconExertion"
+                android:layout_width="30dp"
+                android:layout_height="25dp"
+                android:src="@drawable/exertion" />
+
+            <TextView
+                android:id="@+id/textExertion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                tools:ignore="RtlHardcoded"
+                android:text="- - -"
+                android:layout_marginEnd="15dp"/>
+
+            <ImageView
+                android:id="@+id/iconCoreBodyTemp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/corebodytemp" />
+
+            <TextView
+                android:id="@+id/textCoreBodyTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                tools:ignore="RtlHardcoded"
+                android:text="- - -"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="10dp"
+        android:orientation="vertical">
 
         <ImageView
-            android:layout_width="25dp"
-            android:layout_height="20dp"
-            android:src="@drawable/battery"
-            android:layout_toStartOf="@id/textBattery"
-            android:foregroundGravity="center"/>
+            android:id="@+id/iconSsband"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:src="@drawable/watch"
+            android:layout_alignParentEnd="true"/>
 
         <TextView
             android:id="@+id/textBattery"
@@ -55,19 +132,13 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="100%"
-            android:layout_alignParentEnd="true"
-            tools:ignore="RtlHardcoded"/>
-
-        <TextView
-            android:id="@+id/textSerialNumber"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/textBattery"
-            android:textSize="14sp"
             tools:ignore="RtlHardcoded"
-            android:text="Serial Number"/>
-
+            android:layout_below="@id/iconSsband"
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:backgroundTint="@color/white"/>-->
 
 </LinearLayout>

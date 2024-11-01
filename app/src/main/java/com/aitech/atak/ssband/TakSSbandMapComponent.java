@@ -108,7 +108,7 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
                         context.getResources().getString(R.string.preferences_name),
                         context.getResources().getString(R.string.preferences_description),
                         PREFERENCES_KEYS,
-                        context.getResources().getDrawable(R.drawable.ssband, null),
+                        context.getResources().getDrawable(R.drawable.slatesafety_shield, null),
                         new SSbandPreferenceFragment(context))
         );
     }

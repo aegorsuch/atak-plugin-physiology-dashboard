@@ -19,7 +19,7 @@
             android:layout_height="32dp"
             android:layout_marginEnd="8dp"
             android:contentDescription="logo"
-            android:src="@drawable/ssband"
+            android:src="@drawable/slatesafety_shield"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"/>
 
