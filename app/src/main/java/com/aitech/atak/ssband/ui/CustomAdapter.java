@@ -25,6 +25,7 @@ import com.aitech.atak.ssband.plugin.R;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Locale;
 
 public class CustomAdapter extends ArrayAdapter<DeviceData> {
     public static final String TAG = "CustomAdapter";
@@ -60,10 +61,10 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
 
         // Populate the views with data from DeviceData
         textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "- - -");
-        textHeartRate.setText(currentDeviceData.heartRate != null ? currentDeviceData.heartRate + " bpm" : "- - -");
-        textExertion.setText(currentDeviceData.exertion != null ? currentDeviceData.exertion + " %" : "- - -");
-        textCoreBodyTemp.setText(currentDeviceData.coreTemp != null ? currentDeviceData.coreTemp * 9/5 + 32 + " °F" : "- - -");
-        textBattery.setText(currentDeviceData.batteryLevel != null ? currentDeviceData.batteryLevel + "%" : "- - -");
+        textHeartRate.setText(currentDeviceData.heartRate != null ? (int) Math.round(currentDeviceData.heartRate) + " bpm" : "- - -");
+        textExertion.setText(currentDeviceData.exertion != null ? (int) Math.round(currentDeviceData.exertion) + " %" : "- - -");
+        textCoreBodyTemp.setText((currentDeviceData.coreTemp != null) ? String.format(Locale.ENGLISH, "%.2f", currentDeviceData.coreTemp * 9 / 5. + 32) + " °F" : "- - -");
+        textBattery.setText(currentDeviceData.batteryLevel != null ? (int) Math.floor(currentDeviceData.batteryLevel) + "%" : "- - -");
 
         //TODO fix this
         long staleTimeSeconds = (currentDeviceData.staleTime.getMilliseconds() /1000) % 60;
