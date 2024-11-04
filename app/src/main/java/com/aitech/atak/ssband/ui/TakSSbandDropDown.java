@@ -124,6 +124,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
 //        Log.d(TAG, "Updating DropDown with device data");
 
+
         // Update the adapter to reflect the new data
         customAdapter.notifyDataSetChanged();
 
@@ -379,6 +380,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         } else {
             Log.e(TAG, "Received CoT event with null detail or License is Invalid");
         }
+
     }
 
 
