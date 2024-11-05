@@ -11,11 +11,11 @@ import java.util.Date;
 public class DeviceData {
     public static final String TAG = "TakSSbandDeviceData";
     class Location {
-        double lat;
-        double lon;
-        double height;
-        double accuracy;
-        double speed;
+        Double lat;
+        Double lon;
+        Double height;
+        Double accuracy;
+        Double speed;
     }
     class AlertOrClearEvent {
         boolean isAlert; // true if alert event, false if clear event
