@@ -15,16 +15,12 @@ import com.atakmap.android.preference.PluginPreferenceFragment;
 import com.aitech.atak.ssband.TakSSbandMapComponent;
 import com.aitech.atak.ssband.plugin.R;
 
-import com.aitech.atak.ssband.services.SSbandService;
-
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.atakmap.android.gui.PanSwitchPreference;
 import com.aitech.atak.ssband.services.LicenseManager;
-
-import java.util.prefs.Preferences;
 
 public class SSbandPreferenceFragment extends PluginPreferenceFragment {
 
@@ -65,20 +61,12 @@ public class SSbandPreferenceFragment extends PluginPreferenceFragment {
 
                 if (!LicenseManager.isLicenseValid()) {
                     Log.d(TAG, "License Key Invalid!");
-                    TakSSbandMapComponent.getSSbandService().disposeSSband();
-                    TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key Invalid.");
+                    TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key invalid");
                     TakSSbandMapComponent.getTakSSbandDropDown().stopScheduler();
                     TakSSbandMapComponent.getTakSSbandDropDown().removeDevices();
                     TakSSbandMapComponent.getTakSSbandDropDown().unregisterCotStreamListener(); // Unregister the listener
                 } else {
-                    if (newValueBoolean) {
-                        Log.d(TAG, "Enable SSband Connections.");
-                        TakSSbandMapComponent.getSSbandService().initializeSSband();
-                    } else {
-                        Log.d(TAG, "Disable SSband Connections.");
-                        TakSSbandMapComponent.getSSbandService().disposeSSband();
-                        TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("SSband Connections Disabled.");
-                    }
+                    TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key valid");
                 }
                 return true;
             }
@@ -133,24 +121,15 @@ public class SSbandPreferenceFragment extends PluginPreferenceFragment {
                     return true;
                 }
 
-                // Dispose and validate the new license
-                TakSSbandMapComponent.getSSbandService().disposeSSband();
+                // Validate the new license
                 LicenseManager.validateLicense(newPreferenceValue);
 
                 if (LicenseManager.isLicenseValid()) {
                     Log.d(TAG, "License Key is valid. Checking ssband enable prefs");
-                    if (SSbandPreferencesResolver.resolveSSbandConnectionEnabled()) {
-                        Log.d(TAG, "SSband Connections are Enabled. Initializing");
-                        TakSSbandMapComponent.getSSbandService().initializeSSband();
-                    } else {
-                        Log.d(TAG, "SSband Connections are Disabled.");
-                        TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("SSband Connections Disabled.");
-                        TakSSbandMapComponent.getSSbandService().disposeSSband();
-                    }
+                    TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License key valid");
                 } else {
                     Log.d(TAG, "License Key is invalid. Clearing CoT messages & UI");
-                    TakSSbandMapComponent.getSSbandService().disposeSSband();
-                    TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key Invalid.");
+                    TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key invalid");
                     TakSSbandMapComponent.getTakSSbandDropDown().stopScheduler();
                     TakSSbandMapComponent.getTakSSbandDropDown().removeDevices();
                     TakSSbandMapComponent.getTakSSbandDropDown().unregisterCotStreamListener(); // Unregister the listener

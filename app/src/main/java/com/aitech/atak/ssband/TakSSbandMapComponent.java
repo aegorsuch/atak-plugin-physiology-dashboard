@@ -14,8 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.preference.PreferenceManager;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.atakmap.android.contact.ContactLocationView;
@@ -28,8 +26,6 @@ import com.aitech.atak.ssband.events.TakSSbandEventController;
 import com.aitech.atak.ssband.heartrate.ExtendedUserDetails;
 import com.aitech.atak.ssband.heartrate.HeartRateCodHandler;
 import com.aitech.atak.ssband.plugin.R;
-import com.aitech.atak.ssband.preferences.SSbandPreferenceFragment;
-import com.aitech.atak.ssband.services.SSbandService;
 import com.aitech.atak.ssband.ui.TakSSbandDropDown;
 import com.aitech.atak.ssband.preferences.SSbandPreferencesResolver;
 
@@ -39,7 +35,6 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
     private TakSSbandEventController takSSbandEventController;
     private static TakSSbandDropDown takSSbandDropDown;        // will have to make this public so we can access the updateHeartRate functionality
     private final String TAG = "TakSSbandMapComponent";
-    private final static SSbandService ssbandService = new SSbandService();
     private HeartRateCodHandler heartRateCodHandler;
     private ExtendedUserDetails extendedUserDetails;
     // TODO test only: remove line below
@@ -59,25 +54,12 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
         registerPreferences();
 
         // this is run once once bc onCreate(). Check the license, check if SSband is enabled in prefs.
-        ssbandService.addViewContexts(view.getContext(), context);
         if (licenseKeyCheck()) {
-            Log.d(TAG, "License Key is valid. Checking if SSband is enabled");
-            if (enableSSbandConnection) {
-                Log.d(TAG, "SSband is enabled. Initializing Services...");
-                TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("Scanning...");
-
-                ssbandService.initializeSSband();
-            } else {
-                Log.d(TAG, "SSband Services are disabled in preferences.");
-                TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("SSband Connections Disabled.");
-
-                getTakSSbandDropDown().displayConnectionStatus("SSband Services are Disabled in Preferences");
-            }
+            Log.d(TAG, "License Key is valid.");
+            TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key valid");
         } else {
-            Log.d(TAG, "License Key is invalid. Will not initialize SSband Services");
-            TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key invalid.");
-            ssbandService.disposeSSband();
-            getTakSSbandDropDown().displayConnectionStatus("SSband Services are disabled due to License Incompatibility. Check your license in Preferences!");
+            Log.d(TAG, "License Key is invalid.");
+            TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key invalid");
         }
     }
 
@@ -89,13 +71,7 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
         context.unregisterReceiver(takSSbandEventController);
         CotDetailManager.getInstance().unregisterHandler(heartRateCodHandler);
         ContactLocationView.unregister(extendedUserDetails);
-        ssbandService.disposeSSband();
         ToolsPreferenceFragment.unregister(PREFERENCES_KEYS);
-    }
-
-    // make SSbandService accessible to SSbandPreferenceFragment so we can start/stop services based on the Connections
-    public static SSbandService getSSbandService() {
-        return ssbandService;
     }
 
     public static TakSSbandDropDown getTakSSbandDropDown() {

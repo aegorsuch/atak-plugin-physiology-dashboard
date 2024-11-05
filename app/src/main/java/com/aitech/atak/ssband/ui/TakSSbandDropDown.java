@@ -204,11 +204,13 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                 }
                 if (!SSbandPreferencesResolver.resolveSSbandConnectionEnabled()) {
                     Log.d(TAG, "SSband Preferences are disabled, updating UI");
-                    displayInfoOnUI("SSband Connections Disabled");
+                    // TODO: Do we need resolveSSbandConnectionEnabled()
+                    //displayInfoOnUI("Connections Disabled");
                 }
+                displayInfoOnUI("License Key valid");
             } else {
-                Log.d(TAG, "License is invalid");
-                displayInfoOnUI("License Key Invalid.");
+                Log.d(TAG, "License Key is invalid");
+                displayInfoOnUI("License Key invalid");
                 stopScheduler();
                 unregisterCotStreamListener(); // Ensure listener is unregistered
 
@@ -526,7 +528,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
             // License invalid, unregister listener and stop scheduler
             unregisterCotStreamListener();
             stopScheduler();
-            displayInfoOnUI("License Key Invalid.");
+            displayInfoOnUI("License Key invalid");
         }
 
         // Update UI elements as needed

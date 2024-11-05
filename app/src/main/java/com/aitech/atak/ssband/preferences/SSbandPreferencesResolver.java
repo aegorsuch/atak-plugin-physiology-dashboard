@@ -42,7 +42,7 @@ public class SSbandPreferencesResolver {
     }
 
     public static boolean resolveLicenseKeyCheck() {
-        // return true if the license key in prefs equals TOMMY
+        // return true if the license key in prefs equals "AscentFreeLicense"
         String licenseKeyValue = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getString(LICENSE_KEY_AIT, "Enter License Key");
         LicenseManager.validateLicense(licenseKeyValue);
         return LicenseManager.isLicenseValid();
