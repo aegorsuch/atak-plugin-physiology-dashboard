@@ -65,13 +65,6 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/iconHeartRate"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:src="@drawable/heartrate"
-                android:layout_marginEnd="5dp"/>
-
             <TextView
                 android:id="@+id/textHeartRate"
                 android:layout_width="wrap_content"
@@ -79,13 +72,9 @@
                 android:textSize="15sp"
                 tools:ignore="RtlHardcoded"
                 android:text="- - -"
-                android:layout_marginEnd="15dp" />
-
-            <ImageView
-                android:id="@+id/iconExertion"
-                android:layout_width="30dp"
-                android:layout_height="25dp"
-                android:src="@drawable/exertion" />
+                android:layout_marginEnd="15dp"
+                android:drawableStart="@drawable/heartrate"
+                android:drawablePadding="5dp"/>
 
             <TextView
                 android:id="@+id/textExertion"
@@ -94,21 +83,19 @@
                 android:textSize="15sp"
                 tools:ignore="RtlHardcoded"
                 android:text="- - -"
-                android:layout_marginEnd="15dp"/>
-
-            <ImageView
-                android:id="@+id/iconCoreBodyTemp"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/corebodytemp" />
+                android:layout_marginEnd="15dp"
+                android:drawableStart="@drawable/exertion"
+                android:drawablePadding="5dp"/>
 
             <TextView
                 android:id="@+id/textCoreBodyTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawableStart="@drawable/corebodytemp"
+                android:text="- - -"
                 android:textSize="15sp"
                 tools:ignore="RtlHardcoded"
-                android:text="- - -"/>
+                android:drawablePadding="5dp"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -120,10 +107,11 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/iconSsband"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:src="@drawable/watch"
+            android:id="@+id/iconWearableLogo"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/biostrap"
+            android:layout_marginEnd="10dp"
             android:layout_alignParentEnd="true"/>
 
         <TextView
@@ -133,8 +121,10 @@
             android:textSize="16sp"
             android:text="100%"
             tools:ignore="RtlHardcoded"
-            android:layout_below="@id/iconSsband"
-            android:layout_alignParentEnd="true"/>
+            android:layout_below="@id/iconWearableLogo"
+            android:layout_alignParentEnd="true"
+            android:drawableStart="@drawable/battery"
+            android:drawablePadding="5dp"/>
     </RelativeLayout>
 <!--    <LinearLayout-->
 <!--        android:layout_width="match_parent"-->

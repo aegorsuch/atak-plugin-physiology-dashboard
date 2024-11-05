@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class CustomAdapter extends ArrayAdapter<DeviceData> {
-    public static final String TAG = "TakSSbandCustomAdapter";
+    public static final String TAG = "CustomAdapter";
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
     private TakSSbandDropDown TakSSbandDropDown;
@@ -68,17 +68,19 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         //TODO fix this
         long staleTimeSeconds = (currentDeviceData.staleTime.getMilliseconds() /1000) % 60;
         Log.d("connected", String.valueOf(staleTimeSeconds));
+
         textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + staleTimeSeconds + " seconds ago" : "- - -");
 
         //set isFalsePositive UI change
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
-        ImageView iconSsband = convertView.findViewById(R.id.iconSsband);
-        if (currentDeviceData.isFalsePositive) {
-            textisFalsePositive.setVisibility(VISIBLE);
-            iconSsband.setImageResource(R.drawable.watchisfalsepositive);
+        ImageView iconWearableLogo = convertView.findViewById(R.id.iconWearableLogo);
+
+        if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
+            iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
         } else {
-            textisFalsePositive.setVisibility(View.GONE);
-            iconSsband.setImageResource(R.drawable.watch);
+            iconWearableLogo.setImageResource(R.drawable.biostrap);
+            textExertion.setVisibility(GONE);
+            textCoreBodyTemp.setVisibility(GONE);
         }
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
@@ -87,6 +89,11 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
             textLastConnected.setVisibility(GONE);
             convertView.setBackgroundResource(R.color.greenbg);
             alertIcon.setVisibility(INVISIBLE);
+            if (currentDeviceData.isFalsePositive) {
+                textisFalsePositive.setVisibility(VISIBLE);
+            } else {
+                textisFalsePositive.setVisibility(View.GONE);
+            }
             //Set alert UI changes
             if (currentDeviceData.highestAlertLevel == AlertLevel.LOW) {
                 convertView.setBackgroundResource(R.color.yellowbg);
