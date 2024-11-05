@@ -1,64 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.atakmap.android.gui.PanSwitchPreference
-        android:defaultValue="false"
-        android:key="com.aitech.atak.ssband.preferences.ENABLE_BT_CONNECTIONS"
-        android:summary="When enabled, device will connect with SlateSafety Band V2s"
-        android:title="Enable SlateSafety Connections" />
-
     <com.atakmap.android.gui.PanEditTextPreference
         android:defaultValue="None"
         android:key="com.aitech.atak.ssband.preferences.LICENSE_KEY_AIT"
-        android:summary="Enter your license key to enable your SlateSafety Band V2"
+        android:summary="Enter your license key to enable display of biometrics"
         android:title="License Key" />
-
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="None"
-        android:key="com.aitech.atak.ssband.preferences.DEVICE_SERIAL_NUMBER"
-        android:summary="The Serial Number can be found on the back of your SlateSafety Band V2"
-        android:title="SlateSafety Device Serial Number" />
-
-    <com.atakmap.android.gui.PanSwitchPreference
-        android:defaultValue="false"
-        android:key="com.aitech.atak.ssband.preferences.ENABLE_WIPE"
-        android:summary="When enabled device will be wiped after clicking the button 10 times"
-        android:title="Enable device wipe" />
-
-    <com.atakmap.android.gui.PanSwitchPreference
-        android:defaultValue="false"
-        android:key="com.aitech.atak.ssband.preferences.ENABLE_ALERTS"
-        android:summary="When enabled alerts will be triggered in case of too low/high heart rate"
-        android:title="Enable TAK alerts" />
-
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="5"
-        android:key="com.aitech.atak.ssband.preferences.UPDATE_HR_INTERVAL"
-        android:summary="Heart rate gathering interval [s]"
-        android:title="Heart rate data interval" />
-
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="25"
-        android:key="com.aitech.atak.ssband.preferences.AGE"
-        android:summary="Your age"
-        android:title="Age" />
-
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="60"
-        android:key="com.aitech.atak.ssband.preferences.HIGH_HEART_RATE_PERIOD"
-        android:summary="Number of seconds after which an alarm will be generated in case of an elevated heart rate"
-        android:title="High Heart Rate Period [s]" />
-
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="60"
-        android:key="com.aitech.atak.ssband.preferences.LOW_HEART_RATE_PERIOD"
-        android:summary="Number of seconds after which an alarm will be generated in case of a low heart rate"
-        android:title="Low Heart Rate Period [s]" />
-
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="30"
-        android:key="com.aitech.atak.ssband.preferences.LOW_HEART_RATE"
-        android:summary="Heart rate considered as dangerously low"
-        android:title="Low Heart Rate (BPM)" />
 
 </PreferenceScreen>
