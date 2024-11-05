@@ -4,6 +4,8 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
+import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
@@ -22,6 +25,7 @@ import com.aitech.atak.ssband.AlertLevel;
 import com.aitech.atak.ssband.DeviceData;
 
 import com.aitech.atak.ssband.plugin.R;
+import com.atakmap.app.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,6 +63,14 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         TextView textBattery = convertView.findViewById(R.id.textBattery);
         TextView textLastConnected = convertView.findViewById(R.id.textLastConnected);
 
+        LinearLayout expandedHealthData = convertView.findViewById(R.id.expandedHealthData);
+        ImageView toggle = convertView.findViewById(R.id.toggle);
+
+        TextView textCaloricBurnRate = convertView.findViewById(R.id.textCaloricBurnRate);
+        TextView textHrlv = convertView.findViewById(R.id.textHrlv);
+        TextView textVo2 = convertView.findViewById(R.id.textVo2);
+        TextView textHrv = convertView.findViewById(R.id.textHrv);
+
         // Populate the views with data from DeviceData
         textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "- - -");
         textHeartRate.setText(currentDeviceData.heartRate != null ? (int) Math.round(currentDeviceData.heartRate) + " bpm" : "- - -");
@@ -66,7 +78,11 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         textCoreBodyTemp.setText((currentDeviceData.coreTemp != null) ? String.format(Locale.ENGLISH, "%.2f", currentDeviceData.coreTemp * 9 / 5. + 32) + " °F" : "- - -");
         textBattery.setText(currentDeviceData.batteryLevel != null ? (int) Math.floor(currentDeviceData.batteryLevel) + "%" : "- - -");
 
-        //TODO fix this
+        textCaloricBurnRate.setText(currentDeviceData.caloricBurnRate != null ? (int) Math.floor(currentDeviceData.caloricBurnRate) + "%" : "- - -");
+        textHrlv.setText(currentDeviceData.hrlv != null ? (int) Math.floor(currentDeviceData.hrlv) + "%" : "- - -");
+        textVo2.setText(currentDeviceData.vo2 != null ? (int) Math.floor(currentDeviceData.vo2) + "%" : "- - -");
+        textHrv.setText(currentDeviceData.hrv != null ? (int) Math.floor(currentDeviceData.hrv) + "%" : "- - -");
+
         long staleTimeSeconds = (currentDeviceData.staleTime.getMilliseconds() /1000) % 60;
         Log.d("connected", String.valueOf(staleTimeSeconds));
 
@@ -82,7 +98,26 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
             iconWearableLogo.setImageResource(R.drawable.biostrap);
             textExertion.setVisibility(GONE);
             textCoreBodyTemp.setVisibility(GONE);
+//            expandedHealthData.setVisibility(GONE);
         }
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // try launching the preferences page activity
+                if (expandedHealthData.getVisibility() == GONE) {
+                    try {
+                        expandedHealthData.setVisibility(VISIBLE);
+                        toggle.setImageResource(R.drawable.arrow_down);
+                    } catch (NumberFormatException e) {
+                        Log.d(TAG, "Error executing onClick action");
+                    }
+                } else {
+                    expandedHealthData.setVisibility(GONE);
+                    toggle.setImageResource(R.drawable.arrow);
+                }
+            }
+        });
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
 
