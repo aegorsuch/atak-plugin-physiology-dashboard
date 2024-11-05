@@ -2,11 +2,8 @@ package com.aitech.atak.ssband;
 
 import static android.content.Context.RECEIVER_EXPORTED;
 import static com.aitech.atak.ssband.events.Events.HR_RECEIVED;
-import static com.aitech.atak.ssband.preferences.SSbandPreferences.ENABLE_BT_CONNECTIONS;
 import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
-import static com.aitech.atak.ssband.preferences.SSbandPreferencesResolver.resolveDeviceSerialNumber;
 import static com.aitech.atak.ssband.ui.TakSSbandDropDown.SHOW_DROP_DOWN;
-import static com.aitech.atak.ssband.preferences.SSbandPreferencesResolver.resolveSSbandConnectionEnabled;
 
 import com.aitech.atak.ssband.preferences.SSbandPreferenceFragment;
 
@@ -44,8 +41,6 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
     public void onCreate(final Context context, Intent intent, final MapView view) {
         this.context = context;
         context.setTheme(R.style.ATAKPluginTheme);
-        // find out if ssband is enabled from the preferences
-        boolean enableSSbandConnection = resolveSSbandConnectionEnabled();
 
         registerTakSSbandDropDown(context, view);         // register the Drop Down menu for the plugin, where preferences button, heart rate, etc are displayed to the user.
         registerHeartRateCotHandler();

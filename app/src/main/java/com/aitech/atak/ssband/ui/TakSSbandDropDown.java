@@ -55,12 +55,12 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private ArrayList<DeviceData> arrayList;
     private CustomAdapter customAdapter;
     private ListView listView;
+    private String selfTitle;
+
 
     public TakSSbandDropDown(final MapView mapView, final Context context) {
         super(mapView);
         dropDownView = PluginLayoutInflater.inflate(context, R.layout.drop_down_view);
-
-        localDeviceSerialNumber = SSbandPreferencesResolver.resolveDeviceSerialNumber();
 
         // Initialize the arrayList and customAdapter
         arrayList = new ArrayList<>();
@@ -182,6 +182,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         final String action = intent.getAction();
         Log.d(TAG, "onReceive action: " + action);
         if (action == null) return;
+        selfTitle = getMapView().getDeviceCallsign();
 
         if (action.equals(SHOW_DROP_DOWN)) {
             if (!isClosed()) {
@@ -190,7 +191,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                 return;
             }
             showDropDown(dropDownView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false, this);
-
             if (LicenseManager.isLicenseValid()) {
                 if (cotStreamListener == null) {
                     cotStreamListener = new CotStreamListener(context, "SSbandListener", new CotServiceRemote.CotEventListener() {
@@ -201,11 +201,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                             cotReceiver(detail, cotEvent);
                         }
                     });
-                }
-                if (!SSbandPreferencesResolver.resolveSSbandConnectionEnabled()) {
-                    Log.d(TAG, "SSband Preferences are disabled, updating UI");
-                    // TODO: Do we need resolveSSbandConnectionEnabled()
-                    //displayInfoOnUI("Connections Disabled");
                 }
                 displayInfoOnUI("License Key valid");
             } else {
@@ -260,7 +255,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                         String vo2Str = statusDetail.getAttribute("vo2");
                         String hrvStr = statusDetail.getAttribute("hrv");
 
-                        if (serialNumber != null && serialNumber.equals(SSbandPreferencesResolver.resolveDeviceSerialNumber())) {
+                        //Log.d(TAG, "selfTitle = (" + selfTitle + ")");
+                        if ((null != selfTitle) && selfTitle.equals(callsign)) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                             callsign = callsign + " (You)";
                             Log.d(TAG, "Recieved Cot - LOCAL  - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
