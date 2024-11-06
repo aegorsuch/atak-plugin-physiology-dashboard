@@ -21,8 +21,8 @@ public class DeviceData {
         boolean isAlert; // true if alert event, false if clear event
         AlertLevel alertLevel; // Only valid if isAlert == true
         String type; // could be "HEART_RATE", "CORE_TEMP, "EXERTION", "HRLV"
-        double limit;
-        int durationMins; // Duration that limit has to be exceeded or not for alert or clear to be invoked
+        Double limit;
+        Integer durationMins; // Duration that limit has to be exceeded or not for alert or clear to be invoked
         Location location;
 
         public AlertOrClearEvent(boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {

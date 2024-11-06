@@ -75,58 +75,5 @@
         tools:context=".MainActivity">
     </ListView>
 
-    <!-- Connection Status TextView -->
-    <TextView
-        android:id="@+id/connectionStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/connection_Status"
-        android:layout_below="@id/hr"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"/>
-
-    <!-- Device Serial Number TextView -->
-    <TextView
-        android:id="@+id/deviceSerialNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/device_SerialNumber"
-        android:layout_below="@id/connectionStatus"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"/>
-
-    <!-- Self Heart Rate -->
-    <TextView
-        android:id="@+id/selfHeartRate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Self HR:"
-        android:layout_below="@id/deviceSerialNumber"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"/>
-    <!-- Heart Rate List TextView -->
-    <TextView
-        android:id="@+id/heartRate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="false"
-        android:maxLines="10"
-        android:scrollbars="vertical"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:text="@string/heart_rate"
-        android:layout_below="@id/batteryLevel"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"/>
-
-    <!-- Battery level TextView -->
-    <TextView
-        android:id="@+id/batteryLevel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/battery_level"
-        android:layout_below="@id/selfHeartRate"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"/>
 
 </RelativeLayout>

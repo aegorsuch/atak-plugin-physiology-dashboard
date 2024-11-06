@@ -12,8 +12,8 @@
 
     <ImageView
         android:id="@+id/alertIcon"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_margin="10dp"
         android:src="@drawable/danger"
         tools:ignore="ContentDescription"
@@ -24,14 +24,14 @@
         android:id="@+id/nameAndAlerts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="4dp">
 
         <TextView
             android:id="@+id/textCallsign"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="17sp"
+            android:textSize="14sp"
             android:text="Callsign"
             android:textColor="@color/white"
             tools:ignore="RtlHardcoded"/>
@@ -63,13 +63,14 @@
             android:id="@+id/healthData"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingTop="5dp">
 
             <TextView
                 android:id="@+id/textHeartRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:textSize="12sp"
                 tools:ignore="RtlHardcoded"
                 android:text="- - -"
                 android:layout_marginEnd="15dp"
@@ -80,7 +81,7 @@
                 android:id="@+id/textExertion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:textSize="12sp"
                 tools:ignore="RtlHardcoded"
                 android:text="- - -"
                 android:layout_marginEnd="15dp"
@@ -93,10 +94,68 @@
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/corebodytemp"
                 android:text="- - -"
-                android:textSize="15sp"
+                android:textSize="12sp"
+                android:gravity="center_vertical"
                 tools:ignore="RtlHardcoded"
-                android:drawablePadding="5dp"/>
+                android:drawablePadding="0dp"/>
         </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/expandedHealthData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/textCaloricBurnRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                tools:ignore="RtlHardcoded"
+                android:text="- - -"
+                android:layout_marginEnd="15dp"
+                android:drawableStart="@drawable/calories"
+                android:drawablePadding="5dp"/>
+
+            <TextView
+                android:id="@+id/textHrlv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                tools:ignore="RtlHardcoded"
+                android:text="- - -"
+                android:layout_marginEnd="15dp"
+                android:drawableStart="@drawable/hrlv"
+                android:drawablePadding="5dp"
+                android:layout_toEndOf="@id/textCaloricBurnRate"/>
+
+            <TextView
+                android:id="@+id/textVo2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vo2"
+                android:text="- - -"
+                android:textSize="12sp"
+                tools:ignore="RtlHardcoded"
+                android:layout_marginEnd="15dp"
+                android:drawablePadding="5dp"
+                android:layout_toEndOf="@id/textHrlv"/>
+
+            <TextView
+                android:id="@+id/textHrv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/hrv"
+                android:text="- - -"
+                android:textSize="12sp"
+                tools:ignore="RtlHardcoded"
+                android:drawablePadding="5dp"
+                android:layout_marginTop="3dp"
+                android:layout_below="@id/textCaloricBurnRate"/>
+        </RelativeLayout>
+
     </LinearLayout>
 
     <RelativeLayout
@@ -108,23 +167,32 @@
 
         <ImageView
             android:id="@+id/iconWearableLogo"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:src="@drawable/biostrap"
-            android:layout_marginEnd="10dp"
-            android:layout_alignParentEnd="true"/>
+            android:layout_marginEnd="7dp"
+            android:layout_toLeftOf="@id/toggle"/>
 
         <TextView
             android:id="@+id/textBattery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:text="100%"
             tools:ignore="RtlHardcoded"
             android:layout_below="@id/iconWearableLogo"
-            android:layout_alignParentEnd="true"
+            android:layout_toLeftOf="@id/toggle"
             android:drawableStart="@drawable/battery"
             android:drawablePadding="5dp"/>
+
+        <ImageView
+            android:id="@+id/toggle"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/arrow"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"/>
     </RelativeLayout>
 <!--    <LinearLayout-->
 <!--        android:layout_width="match_parent"-->
