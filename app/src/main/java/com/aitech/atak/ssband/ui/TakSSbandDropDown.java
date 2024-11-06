@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.util.Log;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView; // for displaying text in the dropdown
 import android.widget.Button; //add button widget android
 import android.os.Bundle;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -56,20 +58,75 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private CustomAdapter customAdapter;
     private ListView listView;
     private String selfTitle;
+    private CustomExpandableAdapter customExpandableAdapter;
+    private ExpandableListView expandableListView;
 
 
     public TakSSbandDropDown(final MapView mapView, final Context context) {
         super(mapView);
-        dropDownView = PluginLayoutInflater.inflate(context, R.layout.drop_down_view);
+        //dropDownView = PluginLayoutInflater.inflate(context, R.layout.drop_down_view);
+        dropDownView = PluginLayoutInflater.inflate(context, R.layout.drop_down_expandable_list_view);
 
         // Initialize the arrayList and customAdapter
         arrayList = new ArrayList<>();
+        /*
         customAdapter = new CustomAdapter(context, arrayList);
+
         // Find the ListView and set the adapter
         listView = dropDownView.findViewById(R.id.listView);
         listView.setAdapter(customAdapter);
+         */
+
+        customExpandableAdapter = new CustomExpandableAdapter(context, arrayList);
+        expandableListView = (ExpandableListView) dropDownView.findViewById(R.id.expandableListView);
+        expandableListView.setAdapter(customExpandableAdapter);
+
+        //expand all the Groups
+        expandAll();
+
+        // setOnChildClickListener listener for child row click
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                //get the group header
+                DeviceData deviceData = arrayList.get(groupPosition);
+                //get the child info
+                DeviceData.AlertOrClearEvent alertOrClearEvent =  ((DeviceData.AlertOrClearEvent) deviceData.alertOrClearEventsEQ.toArray()[childPosition]);
+                //display it or do something with it
+                Log.d(TAG, "Clicked on position (" + childPosition + "): " + (alertOrClearEvent.isAlert?"ALERT Event":"CLEAR Event") + " with AlertLevel " + alertOrClearEvent.alertLevel + " and type " + alertOrClearEvent.type);
+                return false;
+            }
+        });
+        // setOnGroupClickListener listener for group heading click
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                //get the group header
+                DeviceData deviceData = arrayList.get(groupPosition);
+                //display it or do something with it
+                Log.d(TAG, "Clicked on group postion (" + groupPosition + ") device =" + deviceData.callsign);
+                return false;
+            }
+        });
+
 
         startScheduler();
+    }
+
+    //method to expand all groups
+    private void expandAll() {
+        int count = customExpandableAdapter.getGroupCount();
+        for (int i = 0; i < count; i++){
+            expandableListView.expandGroup(i);
+        }
+    }
+
+    //method to collapse all groups
+    private void collapseAll() {
+        int count = customExpandableAdapter.getGroupCount();
+        for (int i = 0; i < count; i++){
+            expandableListView.collapseGroup(i);
+        }
     }
 
     private void loadSSbandPreferencesButton(Context context) {
@@ -126,8 +183,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
 
         // Update the adapter to reflect the new data
-        customAdapter.notifyDataSetChanged();
-
+        //customAdapter.notifyDataSetChanged();
+        customExpandableAdapter.notifyDataSetChanged();
     }
 
     public void removeDeviceFromHash(String deviceId) {
