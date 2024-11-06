@@ -140,34 +140,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         }
     }
 
-    public void displayDeviceSerialNumber(String deviceSerialNumber) {
-        String displaySerialNumber = "Serial Number: " + deviceSerialNumber;
-        Log.d(TAG, displaySerialNumber);
-        TextView textView = dropDownView.findViewById(R.id.deviceSerialNumber);
-        textView.setText(displaySerialNumber);
-    }
-
-    public void displayConnectionStatus(String connectionStatus) {
-        String displayConnectionStatus = "Connection Status: " + connectionStatus;
-        Log.d(TAG, displayConnectionStatus);
-        TextView textView = dropDownView.findViewById(R.id.connectionStatus);
-        textView.setText(displayConnectionStatus);
-    }
-
-    public void displayBatteryLevel(Integer batteryLevel, boolean displayBattery) {
-        if (!displayBattery) {
-            String batteryLevelDisplay = "Battery Level:";
-            Log.d(TAG, batteryLevelDisplay);
-            TextView textView = dropDownView.findViewById(R.id.batteryLevel);
-            textView.setText(batteryLevelDisplay);
-        } else {
-            String batteryLevelDisplay = "Battery Level: " + batteryLevel.toString() + "%";
-            Log.d(TAG, batteryLevelDisplay);
-            TextView textView = dropDownView.findViewById(R.id.batteryLevel);
-            textView.setText(batteryLevelDisplay);
-        }
-    }
-
     public void displayInfoOnUI(String info) {
         getMapView().post(() -> {
             TextView textView = dropDownView.findViewById(R.id.infoString);

@@ -78,43 +78,49 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         textCoreBodyTemp.setText((currentDeviceData.coreTemp != null) ? String.format(Locale.ENGLISH, "%.2f", currentDeviceData.coreTemp * 9 / 5. + 32) + " °F" : "- - -");
         textBattery.setText(currentDeviceData.batteryLevel != null ? (int) Math.floor(currentDeviceData.batteryLevel) + "%" : "- - -");
 
-        textCaloricBurnRate.setText(currentDeviceData.caloricBurnRate != null ? (int) Math.floor(currentDeviceData.caloricBurnRate) + "%" : "- - -");
-        textHrlv.setText(currentDeviceData.hrlv != null ? (int) Math.floor(currentDeviceData.hrlv) + "%" : "- - -");
-        textVo2.setText(currentDeviceData.vo2 != null ? (int) Math.floor(currentDeviceData.vo2) + "%" : "- - -");
-        textHrv.setText(currentDeviceData.hrv != null ? (int) Math.floor(currentDeviceData.hrv) + "%" : "- - -");
+        textCaloricBurnRate.setText(currentDeviceData.caloricBurnRate != null ? (int) Math.floor(currentDeviceData.caloricBurnRate) + " kCal/hr" : "- - -");
+        textHrlv.setText(currentDeviceData.hrlv != null ? (int) Math.round(currentDeviceData.hrlv) + "%" : "- - -");
+        textVo2.setText(currentDeviceData.vo2 != null ? (int) Math.round(currentDeviceData.vo2) + " ml/(kg * min)" : "- - -");
+        textHrv.setText(currentDeviceData.hrv != null ? (int) Math.round(currentDeviceData.hrv) + " ms" : "- - -");
 
         long staleTimeSeconds = (currentDeviceData.staleTime.getMilliseconds() /1000) % 60;
         Log.d("connected", String.valueOf(staleTimeSeconds));
 
         textLastConnected.setText(currentDeviceData.staleTime != null ? "Last connected " + staleTimeSeconds + " seconds ago" : "- - -");
 
-        //set isFalsePositive UI change
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
         ImageView iconWearableLogo = convertView.findViewById(R.id.iconWearableLogo);
 
         if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
             iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
+            textExertion.setVisibility(VISIBLE);
+            textCoreBodyTemp.setVisibility(VISIBLE);
+            toggle.setVisibility(VISIBLE);
         } else {
             iconWearableLogo.setImageResource(R.drawable.biostrap);
+            toggle.setVisibility(INVISIBLE);
             textExertion.setVisibility(GONE);
             textCoreBodyTemp.setVisibility(GONE);
-//            expandedHealthData.setVisibility(GONE);
+            expandedHealthData.setVisibility(GONE);
+
         }
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // try launching the preferences page activity
-                if (expandedHealthData.getVisibility() == GONE) {
-                    try {
-                        expandedHealthData.setVisibility(VISIBLE);
-                        toggle.setImageResource(R.drawable.arrow_down);
-                    } catch (NumberFormatException e) {
-                        Log.d(TAG, "Error executing onClick action");
+                if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
+                    if (expandedHealthData.getVisibility() == GONE) {
+                        try {
+                            expandedHealthData.setVisibility(VISIBLE);
+                            toggle.setImageResource(R.drawable.arrow_down);
+                        } catch (NumberFormatException e) {
+                            Log.d(TAG, "Error executing onClick action");
+                        }
+                    } else {
+                        expandedHealthData.setVisibility(GONE);
+                        toggle.setImageResource(R.drawable.arrow);
                     }
-                } else {
-                    expandedHealthData.setVisibility(GONE);
-                    toggle.setImageResource(R.drawable.arrow);
                 }
             }
         });
@@ -125,6 +131,8 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
             textLastConnected.setVisibility(GONE);
             convertView.setBackgroundResource(R.color.greenbg);
             alertIcon.setVisibility(INVISIBLE);
+
+            //set isFalsePositive UI change
             if (currentDeviceData.isFalsePositive) {
                 textisFalsePositive.setVisibility(VISIBLE);
             } else {
@@ -141,8 +149,8 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
                 alertIcon.setVisibility(VISIBLE);
                 alertIcon.setImageResource(R.drawable.emergency);
                 Log.d(TAG, "high alert UI run " + currentDeviceData.callsign);
-            //Set disconnect UI changes
             }
+        //Set disconnect UI changes
         } else if (currentDeviceData.isStale()){
             convertView.setBackgroundResource(R.color.graybg);
             textLastConnected.setVisibility(VISIBLE);
