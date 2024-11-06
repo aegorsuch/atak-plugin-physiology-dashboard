@@ -3,6 +3,7 @@ package com.aitech.atak.ssband.ui;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.view.View.getDefaultSize;
 
 import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
 
@@ -17,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
@@ -63,7 +65,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         TextView textBattery = convertView.findViewById(R.id.textBattery);
         TextView textLastConnected = convertView.findViewById(R.id.textLastConnected);
 
-        LinearLayout expandedHealthData = convertView.findViewById(R.id.expandedHealthData);
+        RelativeLayout expandedHealthData = convertView.findViewById(R.id.expandedHealthData);
         ImageView toggle = convertView.findViewById(R.id.toggle);
 
         TextView textCaloricBurnRate = convertView.findViewById(R.id.textCaloricBurnRate);
