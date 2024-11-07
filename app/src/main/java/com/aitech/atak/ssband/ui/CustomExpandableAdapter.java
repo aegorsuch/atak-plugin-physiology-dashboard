@@ -20,7 +20,9 @@ import com.aitech.atak.ssband.AlertLevel;
 import com.aitech.atak.ssband.DeviceData;
 import com.aitech.atak.ssband.plugin.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 public class CustomExpandableAdapter extends BaseExpandableListAdapter {
@@ -28,6 +30,7 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
     private TakSSbandDropDown TakSSbandDropDown;
+    private boolean isSlateSafety = false;
 
     public CustomExpandableAdapter(Context context, ArrayList<DeviceData> deviceDataList) {
         this.context = context;
@@ -191,10 +194,12 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
 
         if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
             iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
+            isSlateSafety = true;
         } else {
             iconWearableLogo.setImageResource(R.drawable.biostrap);
             textExertion.setVisibility(GONE);
             textCoreBodyTemp.setVisibility(GONE);
+            isSlateSafety = false;
         }
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
@@ -241,6 +246,21 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
 
         DeviceData currentDeviceData = deviceDataList.get(groupPosition);
 
+        if (!currentDeviceData.isStale()) {
+            convertView.setBackgroundResource(R.color.greenbg);
+            //Set alert UI changes
+            if (currentDeviceData.highestAlertLevel == AlertLevel.LOW) {
+                convertView.setBackgroundResource(R.color.yellowbg);
+                Log.d(TAG, "low alert UI run on " + currentDeviceData.callsign);
+            } else if (currentDeviceData.highestAlertLevel == AlertLevel.HIGH) {
+                convertView.setBackgroundResource(R.color.redbg);
+                Log.d(TAG, "high alert UI run " + currentDeviceData.callsign);
+                //Set disconnect UI changes
+            }
+        } else if (currentDeviceData.isStale()){
+            convertView.setBackgroundResource(R.color.graybg);
+        }
+
         TextView textCaloricBurnRate = convertView.findViewById(R.id.textCaloricBurnRate);
         TextView textHrlv = convertView.findViewById(R.id.textHrlv);
         TextView textVo2 = convertView.findViewById(R.id.textVo2);
@@ -251,35 +271,40 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         textVo2.setText(currentDeviceData.vo2 != null ? (int) Math.round(currentDeviceData.vo2) + " ml/(kg * min)" : "- - -");
         textHrv.setText(currentDeviceData.hrv != null ? (int) Math.round(currentDeviceData.hrv) + " ms" : "- - -");
 
-        TextView alertOrClearEventTextView = (TextView) convertView.findViewById(R.id.alertOrClearEvent);
-        TextView alertPriorityTextView = (TextView) convertView.findViewById(R.id.alertPriority);
+        TextView alertOrClearEventTextView = convertView.findViewById(R.id.alertOrClearEvent);
+        TextView alertPriorityTextView = convertView.findViewById(R.id.alertPriority);
+        TextView alertCauseTextView = convertView.findViewById(R.id.alertCause);
+        TextView alertTimeTextView = convertView.findViewById(R.id.alertTime);
         RelativeLayout expandedData = convertView.findViewById(R.id.expandedHealthData);
 
         if (childPosition == 0) {
             alertOrClearEventTextView.setText("");
             alertPriorityTextView.setText("");
+            alertCauseTextView.setText("");
+            alertTimeTextView.setText("");
             expandedData.setVisibility(VISIBLE);
 
         } else {
-            DeviceData.AlertOrClearEvent alertOrClearEvent = (DeviceData.AlertOrClearEvent) deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition-1];
-            if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(R.layout.custom_child_view, parent, false);
-            }
+            DeviceData.AlertOrClearEvent alertOrClearEvent = (DeviceData.AlertOrClearEvent) deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition - 1];
 
             expandedData.setVisibility(GONE);
 
             if (alertOrClearEvent.isAlert) {
                 alertOrClearEventTextView.setText("ALERT ");
+                alertCauseTextView.setText(alertOrClearEvent.type);
             } else {
                 alertOrClearEventTextView.setText("CLEAR ");
             }
             alertPriorityTextView.setText(alertOrClearEvent.alertLevel.toString());
+            alertTimeTextView.setText(String.valueOf(alertOrClearEvent.timestamp));
         }
+
         return convertView;
     }
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+        return false;
     }
+
 }

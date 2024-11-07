@@ -24,8 +24,10 @@ public class DeviceData {
         public Double limit;
         public Integer durationMins; // Duration that limit has to be exceeded or not for alert or clear to be invoked
         public Location location;
+        public Date timestamp;
 
-        public AlertOrClearEvent(boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+        public AlertOrClearEvent(Date timestamp, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+            this.timestamp = timestamp;
             this.isAlert = isAlert;
             this.alertLevel = alertLevel;
             this.type = type;
@@ -142,7 +144,7 @@ public class DeviceData {
     }
 
     public void addAlertOrClearEvent(Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
-        AlertOrClearEvent event = new AlertOrClearEvent(isAlert, alertLevel, type, limit, durationMins, location);
+        AlertOrClearEvent event = new AlertOrClearEvent(time, isAlert, alertLevel, type, limit, durationMins, location);
         if (isAlert) {
             if (!this.isAlerting) {
                 this.numberOfActiveAlerts = 1;

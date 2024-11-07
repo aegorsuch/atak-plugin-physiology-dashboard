@@ -4,6 +4,7 @@ import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_K
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.TimingLogger;
 import android.view.View;
 import android.util.Log;
 import android.widget.ExpandableListView;

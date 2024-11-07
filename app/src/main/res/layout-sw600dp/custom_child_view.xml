@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingHorizontal="75dp"
+    android:paddingVertical="5dp">
 
     <RelativeLayout
         android:id="@+id/expandedHealthData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
         android:gravity="center_vertical"
         android:visibility="gone">
 
@@ -51,23 +52,39 @@
             android:textSize="15sp"
             android:drawablePadding="5dp"
             android:layout_toEndOf="@id/textVo2"/>
+
     </RelativeLayout>
 
     <TextView
         android:id="@+id/alertOrClearEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:paddingLeft="35sp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text = "oogabooga"/>
 
     <TextView
         android:id="@+id/alertPriority"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/alertOrClearEvent"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="alert priority"
+        android:layout_toEndOf="@id/alertOrClearEvent"/>
+
+    <TextView
+        android:id="@+id/alertCause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="alert cause"
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:id="@+id/alertTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="alert time"
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

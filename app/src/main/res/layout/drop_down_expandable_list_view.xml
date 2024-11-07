@@ -72,8 +72,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/hr"
-        android:divider="#f00"
-        android:childDivider="#0f0"
         android:dividerHeight="1dp"
         tools:context=".MainActivity">
     </ExpandableListView>
