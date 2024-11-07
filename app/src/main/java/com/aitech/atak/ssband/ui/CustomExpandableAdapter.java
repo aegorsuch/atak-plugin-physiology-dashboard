@@ -121,7 +121,7 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return deviceDataList.get(groupPosition).alertOrClearEventsEQ.size();
+        return deviceDataList.get(groupPosition).alertOrClearEventsEQ.size() + 1;
     }
 
     @Override
@@ -131,6 +131,9 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
+        if (childPosition == 0) {
+            return deviceDataList.get(groupPosition);
+        }
         return deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition];
     }
 
@@ -230,18 +233,28 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        DeviceData.AlertOrClearEvent alertOrClearEvent = (DeviceData.AlertOrClearEvent) deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition];
+        // Inflate the layout if it's not already created
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.custom_child_view, parent, false);
         }
         TextView alertOrClearEventTextView = (TextView) convertView.findViewById(R.id.alertOrClearEvent);
-        if (alertOrClearEvent.isAlert) {
-            alertOrClearEventTextView.setText("ALERT ");
-        } else {
-            alertOrClearEventTextView.setText("CLEAR ");
-        }
         TextView alertPriorityTextView = (TextView) convertView.findViewById(R.id.alertPriority);
-        alertPriorityTextView.setText(alertOrClearEvent.alertLevel.toString());
+        if (childPosition == 0) {
+            alertOrClearEventTextView.setText("Previous alerts (ordered by time):");
+            alertPriorityTextView.setText("");
+        } else {
+            DeviceData.AlertOrClearEvent alertOrClearEvent = (DeviceData.AlertOrClearEvent) deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition-1];
+            if (convertView == null) {
+                convertView = LayoutInflater.from(context).inflate(R.layout.custom_child_view, parent, false);
+            }
+
+            if (alertOrClearEvent.isAlert) {
+                alertOrClearEventTextView.setText("ALERT ");
+            } else {
+                alertOrClearEventTextView.setText("CLEAR ");
+            }
+            alertPriorityTextView.setText(alertOrClearEvent.alertLevel.toString());
+        }
         return convertView;
     }
 
