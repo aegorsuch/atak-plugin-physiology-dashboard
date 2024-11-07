@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.aitech.atak.ssband.AlertLevel;
@@ -237,16 +238,35 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.custom_child_view, parent, false);
         }
+
+        DeviceData currentDeviceData = deviceDataList.get(groupPosition);
+
+        TextView textCaloricBurnRate = convertView.findViewById(R.id.textCaloricBurnRate);
+        TextView textHrlv = convertView.findViewById(R.id.textHrlv);
+        TextView textVo2 = convertView.findViewById(R.id.textVo2);
+        TextView textHrv = convertView.findViewById(R.id.textHrv);
+
+        textCaloricBurnRate.setText(currentDeviceData.caloricBurnRate != null ? (int) Math.floor(currentDeviceData.caloricBurnRate) + " kCal/hr" : "- - -");
+        textHrlv.setText(currentDeviceData.hrlv != null ? (int) Math.round(currentDeviceData.hrlv) + "%" : "- - -");
+        textVo2.setText(currentDeviceData.vo2 != null ? (int) Math.round(currentDeviceData.vo2) + " ml/(kg * min)" : "- - -");
+        textHrv.setText(currentDeviceData.hrv != null ? (int) Math.round(currentDeviceData.hrv) + " ms" : "- - -");
+
         TextView alertOrClearEventTextView = (TextView) convertView.findViewById(R.id.alertOrClearEvent);
         TextView alertPriorityTextView = (TextView) convertView.findViewById(R.id.alertPriority);
+        RelativeLayout expandedData = convertView.findViewById(R.id.expandedHealthData);
+
         if (childPosition == 0) {
-            alertOrClearEventTextView.setText("Previous alerts (ordered by time):");
+            alertOrClearEventTextView.setText("");
             alertPriorityTextView.setText("");
+            expandedData.setVisibility(VISIBLE);
+
         } else {
             DeviceData.AlertOrClearEvent alertOrClearEvent = (DeviceData.AlertOrClearEvent) deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition-1];
             if (convertView == null) {
                 convertView = LayoutInflater.from(context).inflate(R.layout.custom_child_view, parent, false);
             }
+
+            expandedData.setVisibility(GONE);
 
             if (alertOrClearEvent.isAlert) {
                 alertOrClearEventTextView.setText("ALERT ");

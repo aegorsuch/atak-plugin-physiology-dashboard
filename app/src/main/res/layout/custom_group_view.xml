@@ -170,8 +170,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/biostrap"
-            android:layout_marginEnd="7dp"
-            android:layout_toLeftOf="@id/toggle"/>
+            android:layout_marginEnd="7dp"/>
 
         <TextView
             android:id="@+id/textBattery"
@@ -181,18 +180,10 @@
             android:text="100%"
             tools:ignore="RtlHardcoded"
             android:layout_below="@id/iconWearableLogo"
-            android:layout_toLeftOf="@id/toggle"
             android:drawableStart="@drawable/battery"
             android:drawablePadding="5dp"/>
 
-        <ImageView
-            android:id="@+id/toggle"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/arrow"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"/>
+
     </RelativeLayout>
 <!--    <LinearLayout-->
 <!--        android:layout_width="match_parent"-->
