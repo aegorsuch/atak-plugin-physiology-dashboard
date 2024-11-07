@@ -11,19 +11,19 @@ import java.util.Date;
 public class DeviceData {
     public static final String TAG = "TakSSbandDeviceData";
     class Location {
-        double lat;
-        double lon;
-        double height;
-        double accuracy;
-        double speed;
+        Double lat;
+        Double lon;
+        Double height;
+        Double accuracy;
+        Double speed;
     }
-    class AlertOrClearEvent {
-        boolean isAlert; // true if alert event, false if clear event
-        AlertLevel alertLevel; // Only valid if isAlert == true
-        String type; // could be "HEART_RATE", "CORE_TEMP, "EXERTION", "HRLV"
-        Double limit;
-        Integer durationMins; // Duration that limit has to be exceeded or not for alert or clear to be invoked
-        Location location;
+    public class AlertOrClearEvent {
+        public boolean isAlert; // true if alert event, false if clear event
+        public AlertLevel alertLevel; // Only valid if isAlert == true
+        public String type; // could be "HEART_RATE", "CORE_TEMP, "EXERTION", "HRLV"
+        public Double limit;
+        public Integer durationMins; // Duration that limit has to be exceeded or not for alert or clear to be invoked
+        public Location location;
 
         public AlertOrClearEvent(boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
             this.isAlert = isAlert;
@@ -167,6 +167,10 @@ public class DeviceData {
         }
         this.alertOrClearEventsEQ.add(event);
         Log.d(TAG, this.callsign + " alertOrClearEventsEQ: size(" + alertOrClearEventsEQ.size() + "); isAlerting: " + this.isAlerting + " highestAlertLevel: " + highestAlertLevel + "; numberOfActiveAlerts: " + numberOfActiveAlerts + "; timeHighestAlertLevel: " + ((null == timeHighestAlertLevel)?"null": timeHighestAlertLevel.toString()));
+
+        for (int i=0; i < alertOrClearEventsEQ.size(); i++) {
+            Log.d(TAG, "alertOrClearEventsEQ[" + i + "] = " + ((AlertOrClearEvent) this.alertOrClearEventsEQ.toArray()[i]).type);
+        }
     }
 
     public boolean isLocal() {
