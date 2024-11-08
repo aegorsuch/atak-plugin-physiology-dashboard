@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingStart="45dp"
+    android:paddingEnd = "10dp"
+    android:paddingVertical="5dp">
 
     <TextView
         android:id="@+id/alertOrClearEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:paddingLeft="35sp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:drawablePadding="5dp"
+        android:textSize="12sp"
+        android:text = "oogabooga"/>
 
     <TextView
         android:id="@+id/alertPriority"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/alertOrClearEvent"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="alert priority"
+        android:textSize="12sp"
+        android:layout_toEndOf="@id/alertOrClearEvent"/>
+
+    <TextView
+        android:id="@+id/alertCause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="alert cause"
+        android:textSize="12sp"
+        android:layout_centerHorizontal="true"
+        android:paddingStart="35dp"/>
+
+    <TextView
+        android:id="@+id/alertTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="alert time"
+        android:textSize="12sp"
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>
