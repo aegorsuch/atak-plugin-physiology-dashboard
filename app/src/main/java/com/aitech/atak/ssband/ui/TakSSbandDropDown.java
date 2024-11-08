@@ -98,8 +98,10 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                 return false;
             }
         });
+
         // setOnGroupClickListener listener for group heading click
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
                 //get the group header
@@ -108,8 +110,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                 Log.d(TAG, "Clicked on group postion (" + groupPosition + ") device =" + deviceData.callsign);
                 return false;
             }
-        });
 
+        });
 
         startScheduler();
     }

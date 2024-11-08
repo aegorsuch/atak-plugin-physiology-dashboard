@@ -4,63 +4,13 @@
     android:paddingHorizontal="75dp"
     android:paddingVertical="5dp">
 
-    <RelativeLayout
-        android:id="@+id/expandedHealthData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/textCaloricBurnRate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:text="- - -"
-            android:layout_marginEnd="15dp"
-            android:drawableStart="@drawable/calories"
-            android:drawablePadding="5dp"/>
-
-        <TextView
-            android:id="@+id/textHrlv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:text="- - -"
-            android:layout_marginEnd="15dp"
-            android:drawableStart="@drawable/hrlv"
-            android:drawablePadding="5dp"
-            android:layout_toEndOf="@id/textCaloricBurnRate"/>
-
-        <TextView
-            android:id="@+id/textVo2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/vo2"
-            android:text="- - -"
-            android:textSize="15sp"
-            android:layout_marginEnd="15dp"
-            android:layout_toEndOf="@id/textHrlv"
-            android:drawablePadding="5dp"/>
-
-        <TextView
-            android:id="@+id/textHrv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/hrv"
-            android:text="- - -"
-            android:textSize="15sp"
-            android:drawablePadding="5dp"
-            android:layout_toEndOf="@id/textVo2"/>
-
-    </RelativeLayout>
-
     <TextView
         android:id="@+id/alertOrClearEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:drawablePadding="5dp"
         android:text = "oogabooga"/>
 
     <TextView
