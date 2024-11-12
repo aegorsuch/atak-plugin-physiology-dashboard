@@ -154,6 +154,26 @@
                 android:layout_toEndOf="@id/textVo2"/>
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/previousAlert"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+            <View
+                android:layout_width="400dp"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Previous Alerts:"
+                android:layout_marginTop="10dp"/>
+
+        </LinearLayout>
+
+
     </LinearLayout>
 
     <RelativeLayout

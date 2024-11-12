@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -45,6 +46,7 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
     private TakSSbandDropDown TakSSbandDropDown;
     private boolean isSlateSafety = false;
     private RelativeLayout expandedData;
+    private LinearLayout previousAlertText;
 
     public CustomExpandableAdapter(Context context, ArrayList<DeviceData> deviceDataList) {
         this.context = context;
@@ -181,6 +183,7 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         DeviceData currentDeviceData = deviceDataList.get(groupPosition);
 
         expandedData = convertView.findViewById(R.id.expandedHealthData);
+        previousAlertText = convertView.findViewById(R.id.previousAlert);
 
         // Find the TextViews in the layout and populate them with the current device data
         TextView textCallsign = convertView.findViewById(R.id.textCallsign);
@@ -218,10 +221,14 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
             iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
             isSlateSafety = true;
+            textExertion.setVisibility(VISIBLE);
+            textCoreBodyTemp.setVisibility(VISIBLE);
             if (isExpanded) {
                 expandedData.setVisibility(VISIBLE);
+                previousAlertText.setVisibility(VISIBLE);
             } else {
                 expandedData.setVisibility(GONE);
+                previousAlertText.setVisibility(GONE);
             }
         } else {
             iconWearableLogo.setImageResource(R.drawable.biostrap);
@@ -229,8 +236,12 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
             textCoreBodyTemp.setVisibility(GONE);
             expandedData.setVisibility(GONE);
             isSlateSafety = false;
+            if (isExpanded) {
+                previousAlertText.setVisibility(VISIBLE);
+            } else {
+                previousAlertText.setVisibility(GONE);
+            }
         }
-
 
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);

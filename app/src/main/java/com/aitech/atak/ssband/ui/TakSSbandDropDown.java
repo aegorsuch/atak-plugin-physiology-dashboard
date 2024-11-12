@@ -9,6 +9,7 @@
 
 package com.aitech.atak.ssband.ui;
 
+import static android.view.View.VISIBLE;
 import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
 
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.util.TimingLogger;
 import android.view.View;
 import android.util.Log;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView; // for displaying text in the dropdown
 import android.widget.Button; //add button widget android
@@ -107,7 +109,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                 return false;
             }
         });
-
         // setOnGroupClickListener listener for group heading click
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 
