@@ -36,6 +36,7 @@ import com.aitech.atak.ssband.plugin.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -330,6 +331,7 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
                 alertOrClearEventTextView.setText("Alert(s) Cleared");
                 alertCauseTextView.setVisibility(INVISIBLE);
                 alertPriorityTextView.setVisibility(INVISIBLE);
+                alertPriorityTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
             }
 
         return convertView;
