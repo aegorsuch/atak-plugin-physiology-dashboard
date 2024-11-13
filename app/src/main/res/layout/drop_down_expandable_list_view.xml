@@ -19,7 +19,7 @@
             android:layout_height="32dp"
             android:layout_marginEnd="8dp"
             android:contentDescription="logo"
-            android:src="@drawable/slatesafety_shield"
+            android:src="@drawable/aitbiometricslogo"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"/>
 
@@ -72,8 +72,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/hr"
-        android:divider="#f00"
-        android:childDivider="#0f0"
         android:dividerHeight="1dp"
         tools:context=".MainActivity">
     </ExpandableListView>

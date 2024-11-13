@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2024, Ascent Integrated Tech. All rights reserved.
+ *
+ * The copyright to the computer software herein is the property of Ascent Integrated Tech.
+ * This software may not be used and/or copied without the explicit written permission
+ * of Ascent Integrated Tech, and only in accordance with the terms and conditions stipulated
+ * in the license agreement and/or contract under which the software has been supplied.
+ */
+
 package com.aitech.atak.ssband;
 
 import static android.content.Context.RECEIVER_EXPORTED;
@@ -79,7 +88,7 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
                         context.getResources().getString(R.string.preferences_name),
                         context.getResources().getString(R.string.preferences_description),
                         PREFERENCES_KEYS,
-                        context.getResources().getDrawable(R.drawable.slatesafety_shield, null),
+                        context.getResources().getDrawable(R.drawable.aitbiometricslogo, null),
                         new SSbandPreferenceFragment(context))
         );
     }

@@ -1,12 +1,24 @@
+/*
+ * Copyright (C) 2024, Ascent Integrated Tech. All rights reserved.
+ *
+ * The copyright to the computer software herein is the property of Ascent Integrated Tech.
+ * This software may not be used and/or copied without the explicit written permission
+ * of Ascent Integrated Tech, and only in accordance with the terms and conditions stipulated
+ * in the license agreement and/or contract under which the software has been supplied.
+ */
+
 package com.aitech.atak.ssband.ui;
 
+import static android.view.View.VISIBLE;
 import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.TimingLogger;
 import android.view.View;
 import android.util.Log;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView; // for displaying text in the dropdown
 import android.widget.Button; //add button widget android
@@ -55,7 +67,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private DeviceData localDeviceData;
 
     private ArrayList<DeviceData> arrayList;
-    private CustomAdapter customAdapter;
     private ListView listView;
     private String selfTitle;
     private CustomExpandableAdapter customExpandableAdapter;
@@ -99,6 +110,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
         });
         // setOnGroupClickListener listener for group heading click
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
                 //get the group header
@@ -107,8 +119,8 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                 Log.d(TAG, "Clicked on group postion (" + groupPosition + ") device =" + deviceData.callsign);
                 return false;
             }
-        });
 
+        });
 
         startScheduler();
     }
@@ -288,7 +300,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                         if ((null != selfTitle) && selfTitle.equals(callsign)) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                             callsign = callsign + " (You)";
-                            Log.d(TAG, "Recieved Cot - LOCAL  - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
+                            Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
                             if (deviceDataMap.containsKey(deviceId)) {
                                 // Update the data. No need to create a new DeviceData
                                 DeviceData localDeviceData = deviceDataMap.get(deviceId);
@@ -304,11 +316,11 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                             ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
                                             ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                             (double) batteryLevel);
-                                    if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                    if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                    } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                    } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                    } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                     }
                                 }
@@ -326,17 +338,17 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
                                 deviceDataMap.put(deviceId, localDeviceData);// Store in the map
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }
                             }
                             getMapView().post(this::displayCotDeviceData);
                         } else {
-                            Log.d(TAG, "Recieved Cot - REMOTE - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
+                            Log.d(TAG, "Recieved Cot - REMOTE -  Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
 
 //                            Log.d(TAG, "Received heart rate data from remote device; storing in deviceDataMap.");
                             // isLocal = false means that it's remote.
@@ -355,15 +367,15 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                     Log.d(TAG, deviceId + ": Adding clear event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 110, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     Log.d(TAG, deviceId + ": Adding HIGH alert event");
-                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
-                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "EXERTION", 120, 1, null);
                                 }
                             } else {
                                 DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
@@ -381,13 +393,13 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
                                 deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                     Log.d(TAG, deviceId + ": Adding clear event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     Log.d(TAG, deviceId + ": Adding HIGH alert event");
-                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
+                                } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }

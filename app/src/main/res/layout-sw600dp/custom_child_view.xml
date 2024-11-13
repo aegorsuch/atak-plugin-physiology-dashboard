@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="80dp"
+    android:paddingEnd="20dp"
+    android:paddingVertical="5dp"
+    android:stretchColumns="2,3">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/alertOrClearEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="5dp"
+                android:text = "oogabooga"
+                android:textAlignment="viewStart"
+                android:layout_gravity="start"
+                android:layout_column="0"/>
+            <TextView
+                android:id="@+id/alertPriority"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="alert priority"
+                android:textAlignment="viewStart"
+                android:layout_gravity="start"
+                android:layout_column="1"/>
+            <TextView
+                android:id="@+id/alertCause"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="alert cause"
+                android:layout_gravity="center"
+                android:textAlignment="viewStart"
+                android:layout_column="2"/>
+            <TextView
+                android:id="@+id/alertTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="alert time"
+                android:gravity="right"
+                android:layout_column="3" />
+        </TableRow>
 
-    <TextView
-        android:id="@+id/alertOrClearEvent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:paddingLeft="35sp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/alertPriority"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/alertOrClearEvent"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-</RelativeLayout>
+    </TableLayout>

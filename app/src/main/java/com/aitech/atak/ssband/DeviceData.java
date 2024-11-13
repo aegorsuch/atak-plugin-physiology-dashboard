@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2024, Ascent Integrated Tech. All rights reserved.
+ *
+ * The copyright to the computer software herein is the property of Ascent Integrated Tech.
+ * This software may not be used and/or copied without the explicit written permission
+ * of Ascent Integrated Tech, and only in accordance with the terms and conditions stipulated
+ * in the license agreement and/or contract under which the software has been supplied.
+ */
+
 package com.aitech.atak.ssband;
 
 import android.util.Log;
@@ -24,8 +33,10 @@ public class DeviceData {
         public Double limit;
         public Integer durationMins; // Duration that limit has to be exceeded or not for alert or clear to be invoked
         public Location location;
+        public Date timestamp;
 
-        public AlertOrClearEvent(boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+        public AlertOrClearEvent(Date timestamp, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+            this.timestamp = timestamp;
             this.isAlert = isAlert;
             this.alertLevel = alertLevel;
             this.type = type;
@@ -142,7 +153,7 @@ public class DeviceData {
     }
 
     public void addAlertOrClearEvent(Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
-        AlertOrClearEvent event = new AlertOrClearEvent(isAlert, alertLevel, type, limit, durationMins, location);
+        AlertOrClearEvent event = new AlertOrClearEvent(time, isAlert, alertLevel, type, limit, durationMins, location);
         if (isAlert) {
             if (!this.isAlerting) {
                 this.numberOfActiveAlerts = 1;
