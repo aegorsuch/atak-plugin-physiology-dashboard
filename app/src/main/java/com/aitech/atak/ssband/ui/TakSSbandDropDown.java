@@ -301,7 +301,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                         if ((null != selfTitle) && selfTitle.equals(callsign)) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                             callsign = callsign + " (You)";
-                            Log.d(TAG, "Recieved Cot - LOCAL  - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
+                            Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
                             if (deviceDataMap.containsKey(deviceId)) {
                                 // Update the data. No need to create a new DeviceData
                                 DeviceData localDeviceData = deviceDataMap.get(deviceId);
@@ -349,7 +349,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                             }
                             getMapView().post(this::displayCotDeviceData);
                         } else {
-                            Log.d(TAG, "Recieved Cot - REMOTE - Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
+                            Log.d(TAG, "Recieved Cot - REMOTE -  Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
 
 //                            Log.d(TAG, "Received heart rate data from remote device; storing in deviceDataMap.");
                             // isLocal = false means that it's remote.

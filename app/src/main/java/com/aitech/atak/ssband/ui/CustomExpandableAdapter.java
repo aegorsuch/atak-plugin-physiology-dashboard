@@ -232,18 +232,28 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
                 previousAlertText.setVisibility(GONE);
             }
         } else {
-            iconWearableLogo.setImageResource(R.drawable.biostrap);
-            textExertion.setVisibility(GONE);
-            textCoreBodyTemp.setVisibility(GONE);
-            expandedData.setVisibility(GONE);
-            isSlateSafety = false;
+                textExertion.setVisibility(GONE);
+                textCoreBodyTemp.setVisibility(GONE);
+                expandedData.setVisibility(GONE);
+                isSlateSafety = false;
             if (isExpanded) {
                 previousAlertText.setVisibility(VISIBLE);
             } else {
                 previousAlertText.setVisibility(GONE);
             }
-        }
+            if (String.valueOf(currentDeviceData.model).equals("BIOSTRAP") || String.valueOf(currentDeviceData.model).equals("null")){
+                iconWearableLogo.setImageResource(R.drawable.biostrap);
 
+            } else if (String.valueOf(currentDeviceData.model).equals("BLUEBIRD")){
+                iconWearableLogo.setImageResource(R.drawable.bluebird);
+
+            } else if (String.valueOf(currentDeviceData.model).contains("WEAROS")){
+                iconWearableLogo.setImageResource(R.drawable.wearos);
+            } else {
+                iconWearableLogo.setVisibility(INVISIBLE);
+
+            }
+        }
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
 
