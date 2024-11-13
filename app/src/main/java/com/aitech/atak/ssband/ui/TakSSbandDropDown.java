@@ -317,11 +317,11 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                             ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
                                             ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                             (double) batteryLevel);
-                                    if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                    if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                    } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                    } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                    } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                    } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                     }
                                 }
@@ -339,11 +339,11 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
                                 deviceDataMap.put(deviceId, localDeviceData);// Store in the map
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }
                             }
@@ -368,13 +368,13 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                     Log.d(TAG, deviceId + ": Adding clear event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 110, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     Log.d(TAG, deviceId + ": Adding HIGH alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }
@@ -394,13 +394,13 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
                                 deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
                                 Log.d(TAG, "Adding testcounter: " + TakSSbandMapComponent.testCounter);
-                                if ((TakSSbandMapComponent.testCounter % 36) == 0) {
+                                if ((TakSSbandMapComponent.testCounter % 5) == 0) {
                                     Log.d(TAG, deviceId + ": Adding clear event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 24) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     Log.d(TAG, deviceId + ": Adding HIGH alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                } else if ((TakSSbandMapComponent.testCounter % 12) == 0) {
+                                } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
                                 }

@@ -15,6 +15,7 @@ import static android.view.View.VISIBLE;
 
 import static com.aitech.atak.ssband.AlertLevel.HIGH;
 import static com.aitech.atak.ssband.AlertLevel.LOW;
+import static com.aitech.atak.ssband.AlertLevel.NONE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -336,12 +337,15 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
 
                 } else if (alertOrClearEvent.alertLevel == LOW) {
                     alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.dangertiny, 0, 0, 0);
+                } else if (alertOrClearEvent.alertLevel == NONE) {
+                    alertPriorityTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+
                 }
             } else {
                 alertOrClearEventTextView.setText("Alert(s) Cleared");
                 alertCauseTextView.setVisibility(INVISIBLE);
                 alertPriorityTextView.setVisibility(INVISIBLE);
-                alertPriorityTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+                alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.blank, 0, 0, 0);
             }
 
         return convertView;
