@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CustomExpandableAdapter extends BaseExpandableListAdapter {
-    public static final String TAG = "CustomAdapter";
+    public static final String TAG = "CustomExpandableAdapter";
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
     private TakSSbandDropDown TakSSbandDropDown;
@@ -323,31 +323,31 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         TextView alertTimeTextView = convertView.findViewById(R.id.alertTime);
 
         DeviceData.AlertOrClearEvent alertOrClearEvent = (DeviceData.AlertOrClearEvent) deviceDataList.get(groupPosition).alertOrClearEventsEQ.toArray()[childPosition];
-            alertPriorityTextView.setText(alertOrClearEvent.alertLevel.toString());
+            alertPriorityTextView.setText(String.valueOf(alertOrClearEvent.alertLevel));
             alertTimeTextView.setText(formatter.format(alertOrClearEvent.timestamp));
 
-            if (alertOrClearEvent.isAlert) {
-                alertOrClearEventTextView.setText("Level: ");
-                alertCauseTextView.setText(alertOrClearEvent.type);
-                alertCauseTextView.setVisibility(VISIBLE);
-                alertPriorityTextView.setVisibility(VISIBLE);
+        if (alertOrClearEvent.isAlert) {
+            alertOrClearEventTextView.setText("Level: ");
+            alertCauseTextView.setText(alertOrClearEvent.type);
+            alertCauseTextView.setVisibility(VISIBLE);
+            alertPriorityTextView.setVisibility(VISIBLE);
 
-                if (alertOrClearEvent.alertLevel == HIGH) {
-                    alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.emergencytiny, 0, 0, 0);
+            if (alertOrClearEvent.alertLevel == HIGH) {
+                alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.emergencytiny, 0, 0, 0);
 
-                } else if (alertOrClearEvent.alertLevel == LOW) {
-                    alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.dangertiny, 0, 0, 0);
-                } else if (alertOrClearEvent.alertLevel == NONE) {
-                    alertPriorityTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+            } else if (alertOrClearEvent.alertLevel == LOW) {
+                alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.dangertiny, 0, 0, 0);
 
-                }
-            } else {
-                alertOrClearEventTextView.setText("Alert(s) Cleared");
-                alertCauseTextView.setVisibility(INVISIBLE);
-                alertPriorityTextView.setVisibility(INVISIBLE);
+            } else if (alertOrClearEvent.alertLevel == NONE) {
                 alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.blank, 0, 0, 0);
-            }
 
+            }
+        } else {
+            alertOrClearEventTextView.setText("Alert(s) Cleared");
+            alertCauseTextView.setVisibility(INVISIBLE);
+            alertPriorityTextView.setVisibility(INVISIBLE);
+            alertOrClearEventTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.blank, 0, 0, 0);
+        }
         return convertView;
     }
 

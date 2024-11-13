@@ -67,7 +67,6 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private DeviceData localDeviceData;
 
     private ArrayList<DeviceData> arrayList;
-    private CustomAdapter customAdapter;
     private ListView listView;
     private String selfTitle;
     private CustomExpandableAdapter customExpandableAdapter;
@@ -373,10 +372,10 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 110, 1, null);
                                 } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     Log.d(TAG, deviceId + ": Adding HIGH alert event");
-                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
                                 } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
-                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "EXERTION", 120, 1, null);
                                 }
                             } else {
                                 DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
@@ -399,7 +398,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
                                 } else if ((TakSSbandMapComponent.testCounter % 3) == 0) {
                                     Log.d(TAG, deviceId + ": Adding HIGH alert event");
-                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
                                 } else if ((TakSSbandMapComponent.testCounter % 2) == 0) {
                                     Log.d(TAG, deviceId + ": Adding LOW alert event");
                                     remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
