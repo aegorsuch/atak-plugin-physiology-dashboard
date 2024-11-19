@@ -7,9 +7,7 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.services;
-
-import com.aitech.atak.ssband.preferences.SSbandPreferences;
+package com.aitech.atak.biometrics.services;
 
 public class LicenseManager {
 

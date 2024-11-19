@@ -7,14 +7,14 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband;
+package com.aitech.atak.biometrics;
 
 import static android.content.Context.RECEIVER_EXPORTED;
-import static com.aitech.atak.ssband.events.Events.HR_RECEIVED;
-import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
-import static com.aitech.atak.ssband.ui.TakSSbandDropDown.SHOW_DROP_DOWN;
+import static com.aitech.atak.biometrics.events.Events.HR_RECEIVED;
+import static com.aitech.atak.biometrics.preferences.BiometricsPreferences.PREFERENCES_KEYS;
+import static com.aitech.atak.biometrics.ui.TakBiometricsDropDown.SHOW_DROP_DOWN;
 
-import com.aitech.atak.ssband.preferences.SSbandPreferenceFragment;
+import com.aitech.atak.biometrics.preferences.BiometricsPreferenceFragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,18 +28,18 @@ import com.atakmap.android.dropdown.DropDownMapComponent;
 import com.atakmap.android.ipc.AtakBroadcast;
 import com.atakmap.android.maps.MapView;
 import com.atakmap.app.preferences.ToolsPreferenceFragment;
-import com.aitech.atak.ssband.events.TakSSbandEventController;
-import com.aitech.atak.ssband.heartrate.ExtendedUserDetails;
-import com.aitech.atak.ssband.heartrate.HeartRateCodHandler;
-import com.aitech.atak.ssband.plugin.R;
-import com.aitech.atak.ssband.ui.TakSSbandDropDown;
-import com.aitech.atak.ssband.preferences.SSbandPreferencesResolver;
+import com.aitech.atak.biometrics.events.TakBiometricsEventController;
+import com.aitech.atak.biometrics.heartrate.ExtendedUserDetails;
+import com.aitech.atak.biometrics.heartrate.HeartRateCodHandler;
+import com.aitech.atak.biometrics.plugin.R;
+import com.aitech.atak.biometrics.ui.TakBiometricsDropDown;
+import com.aitech.atak.biometrics.preferences.BiometricsPreferencesResolver;
 
 public class TakSSbandMapComponent extends DropDownMapComponent {
 
     private Context context;
-    private TakSSbandEventController takSSbandEventController;
-    private static TakSSbandDropDown takSSbandDropDown;        // will have to make this public so we can access the updateHeartRate functionality
+    private TakBiometricsEventController takBiometricsEventController;
+    private static TakBiometricsDropDown takBiometricsDropDown;        // will have to make this public so we can access the updateHeartRate functionality
     private final String TAG = "TakSSbandMapComponent";
     private HeartRateCodHandler heartRateCodHandler;
     private ExtendedUserDetails extendedUserDetails;
@@ -70,16 +70,16 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
     @Override
     protected void onDestroyImpl(Context context, MapView view) {
         super.onDestroyImpl(context, view);
-        takSSbandDropDown.closeDropDown();
-        takSSbandDropDown.disposeImpl();
-        context.unregisterReceiver(takSSbandEventController);
+        takBiometricsDropDown.closeDropDown();
+        takBiometricsDropDown.disposeImpl();
+        context.unregisterReceiver(takBiometricsEventController);
         CotDetailManager.getInstance().unregisterHandler(heartRateCodHandler);
         ContactLocationView.unregister(extendedUserDetails);
         ToolsPreferenceFragment.unregister(PREFERENCES_KEYS);
     }
 
-    public static TakSSbandDropDown getTakSSbandDropDown() {
-        return takSSbandDropDown;
+    public static TakBiometricsDropDown getTakSSbandDropDown() {
+        return takBiometricsDropDown;
     }
 
     private void registerPreferences() {
@@ -89,16 +89,16 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
                         context.getResources().getString(R.string.preferences_description),
                         PREFERENCES_KEYS,
                         context.getResources().getDrawable(R.drawable.aitbiometricslogo, null),
-                        new SSbandPreferenceFragment(context))
+                        new BiometricsPreferenceFragment(context))
         );
     }
 
     private static boolean licenseKeyCheck() {
-        return SSbandPreferencesResolver.resolveLicenseKeyCheck();
+        return BiometricsPreferencesResolver.resolveLicenseKeyCheck();
         // check to see if the license is valid so we know whether to initialize SSband services or not.
     }
 
-    // need this for SSband Prefs Fragment listener that restarts ssband services. We need to check the license here as well.
+    // need this for SSband Prefs Fragment listener that restarts biometrics services. We need to check the license here as well.
     public static boolean getLicenseKeyCheck() {
         return licenseKeyCheck();
     }
@@ -114,22 +114,22 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
     }
 
     private void registerTakSSbandDropDown(Context context, MapView view) {
-        takSSbandDropDown = new TakSSbandDropDown(view, context);
+        takBiometricsDropDown = new TakBiometricsDropDown(view, context);
         AtakBroadcast.DocumentedIntentFilter ddFilter = new AtakBroadcast.DocumentedIntentFilter();
         ddFilter.addAction(SHOW_DROP_DOWN, "Show plugin's drop-down menu");
-        this.registerDropDownReceiver(takSSbandDropDown, ddFilter);
+        this.registerDropDownReceiver(takBiometricsDropDown, ddFilter);
         Log.d(TAG, "Registered TakSSbandDropDown");
     }
 
 
     private void registerEventController() {
-        takSSbandEventController = new TakSSbandEventController(heartRateCodHandler, takSSbandDropDown);
+        takBiometricsEventController = new TakBiometricsEventController(heartRateCodHandler, takBiometricsDropDown);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HR_RECEIVED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.registerReceiver(takSSbandEventController, intentFilter, RECEIVER_EXPORTED);
+            context.registerReceiver(takBiometricsEventController, intentFilter, RECEIVER_EXPORTED);
         } else {
-            context.registerReceiver(takSSbandEventController, intentFilter);
+            context.registerReceiver(takBiometricsEventController, intentFilter);
         }
     }
 

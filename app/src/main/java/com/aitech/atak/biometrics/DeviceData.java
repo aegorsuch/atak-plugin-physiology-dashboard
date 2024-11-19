@@ -7,7 +7,7 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband;
+package com.aitech.atak.biometrics;
 
 import android.util.Log;
 

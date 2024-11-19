@@ -7,8 +7,9 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.heartrate;
+package com.aitech.atak.biometrics.preferences;
 
-public interface Constants {
-    String DETAILS_META_KEY_HEART_RATE = "com.aitech.atak.ssband.heartrate.HeartRate";
+public interface BiometricsPreferences {
+    String PREFERENCES_KEYS = "com.aitech.atak.biometrics.preferences.BIOMETRICS_PREFERENCES";
+    String LICENSE_KEY_AIT = "com.aitech.atak.biometrics.preferences.LICENSE_KEY_AIT";
 }

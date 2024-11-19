@@ -8,31 +8,31 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.events;
+package com.aitech.atak.biometrics.events;
 
-import static com.aitech.atak.ssband.events.Events.HR_RECEIVED;
-import static com.aitech.atak.ssband.events.Events.HR_RECEIVED_PARAM_VALUE;
+import static com.aitech.atak.biometrics.events.Events.HR_RECEIVED;
+import static com.aitech.atak.biometrics.events.Events.HR_RECEIVED_PARAM_VALUE;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.aitech.atak.ssband.heartrate.HeartRateCodHandler;
-import com.aitech.atak.ssband.preferences.SSbandPreferenceFragment;
-import com.aitech.atak.ssband.services.CotDetailsUpdaterService;
-import com.aitech.atak.ssband.ui.TakSSbandDropDown;
+import com.aitech.atak.biometrics.heartrate.HeartRateCodHandler;
+import com.aitech.atak.biometrics.preferences.BiometricsPreferenceFragment;
+import com.aitech.atak.biometrics.services.CotDetailsUpdaterService;
+import com.aitech.atak.biometrics.ui.TakBiometricsDropDown;
 
 
-public class TakSSbandEventController extends BroadcastReceiver {
+public class TakBiometricsEventController extends BroadcastReceiver {
     private static final String TAG = "TakSSbandEventCtrl";
     private final CotDetailsUpdaterService cotDetailsUpdaterService;
-    private TakSSbandDropDown takSSbandDropDown;
-    private SSbandPreferenceFragment ssbandPreferenceFragment;
+    private TakBiometricsDropDown takBiometricsDropDown;
+    private BiometricsPreferenceFragment ssbandPreferenceFragment;
 
-    public TakSSbandEventController(HeartRateCodHandler heartRateCodHandler, TakSSbandDropDown dropDown) {
+    public TakBiometricsEventController(HeartRateCodHandler heartRateCodHandler, TakBiometricsDropDown dropDown) {
         this.cotDetailsUpdaterService = new CotDetailsUpdaterService(heartRateCodHandler);
-        this.takSSbandDropDown = dropDown;  // Initialize the dropdown
+        this.takBiometricsDropDown = dropDown;  // Initialize the dropdown
     }
 
 
@@ -57,7 +57,7 @@ public class TakSSbandEventController extends BroadcastReceiver {
             int hr = intent.getIntExtra(HR_RECEIVED_PARAM_VALUE, -1);
             Log.d(TAG, "Handling HR_RECEIVED event for " + deviceId + "with HR: " + hr + " bpm.");
             // Update the dropdown with the new heart rate
-            if (takSSbandDropDown != null) {
+            if (takBiometricsDropDown != null) {
                 // display the heart rate in UI of own self device
                 // takSSbandDropDown.displayHeartRate(hr, deviceId);
             } else {

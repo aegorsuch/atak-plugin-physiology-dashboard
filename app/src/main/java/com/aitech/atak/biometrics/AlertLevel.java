@@ -7,9 +7,10 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.events;
+package com.aitech.atak.biometrics;
 
-public interface Events {
-    String HR_RECEIVED = "com.aitech.atak.ssband.HR_RECEIVED";
-    String HR_RECEIVED_PARAM_VALUE = "com.aitech.atak.ssband.HR_RECEIVED_PARAM_VALUE";
+public enum AlertLevel {
+    NONE,
+    LOW,
+    HIGH;
 }

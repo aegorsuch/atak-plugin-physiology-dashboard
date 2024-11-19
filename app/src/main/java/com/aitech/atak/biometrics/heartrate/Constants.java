@@ -7,10 +7,8 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband;
+package com.aitech.atak.biometrics.heartrate;
 
-public enum AlertLevel {
-    NONE,
-    LOW,
-    HIGH;
+public interface Constants {
+    String DETAILS_META_KEY_HEART_RATE = "com.aitech.atak.biometrics.heartrate.HeartRate";
 }

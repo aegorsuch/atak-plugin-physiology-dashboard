@@ -7,10 +7,10 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.plugin;
+package com.aitech.atak.biometrics.plugin;
 
 
-import static com.aitech.atak.ssband.ui.TakSSbandDropDown.SHOW_DROP_DOWN;
+import static com.aitech.atak.biometrics.ui.TakBiometricsDropDown.SHOW_DROP_DOWN;
 
 import android.content.Context;
 import android.util.Log;
@@ -18,11 +18,11 @@ import android.util.Log;
 import com.atak.plugins.impl.AbstractPluginTool;
 
 
-public class TakSSbandTool extends AbstractPluginTool {
-    private static final String TAG = "TakSSbandTool";
+public class TakBiometricsTool extends AbstractPluginTool {
+    private static final String TAG = "TakBiometricsTool";
 
-    public TakSSbandTool(final Context context) {
+    public TakBiometricsTool(final Context context) {
         super(context, context.getString(R.string.app_name), context.getString(R.string.app_name), context.getResources().getDrawable(R.drawable.aitbiometricslogo), SHOW_DROP_DOWN);
-        Log.d(TAG, "Loaded TakSSband Tool");     
+        Log.d(TAG, "Loaded TakBiometricsTool");
      }
 }

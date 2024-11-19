@@ -7,33 +7,27 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.ui;
+package com.aitech.atak.biometrics.ui;
 
-import static android.view.View.VISIBLE;
-import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
+import static com.aitech.atak.biometrics.preferences.BiometricsPreferences.PREFERENCES_KEYS;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.TimingLogger;
 import android.view.View;
 import android.util.Log;
 import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView; // for displaying text in the dropdown
 import android.widget.Button; //add button widget android
 import android.os.Bundle;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.aitech.atak.ssband.AlertLevel;
-import com.aitech.atak.ssband.TakSSbandMapComponent;
+import com.aitech.atak.biometrics.AlertLevel;
+import com.aitech.atak.biometrics.TakSSbandMapComponent;
 import com.atak.plugins.impl.PluginLayoutInflater;
 import com.atakmap.android.dropdown.DropDownReceiver;
 import com.atakmap.android.maps.MapView;
@@ -43,25 +37,24 @@ import com.atakmap.coremap.cot.event.CotEvent;
 import com.atakmap.coremap.cot.event.CotDetail;
 import com.atakmap.comms.CotServiceRemote;
 import com.atakmap.coremap.maps.time.CoordinatedTime;
-import com.aitech.atak.ssband.plugin.R;
-import com.aitech.atak.ssband.DeviceData;
-import com.aitech.atak.ssband.preferences.SSbandPreferencesResolver;
-import com.aitech.atak.ssband.services.LicenseManager;
+import com.aitech.atak.biometrics.plugin.R;
+import com.aitech.atak.biometrics.DeviceData;
+import com.aitech.atak.biometrics.services.LicenseManager;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener {
+public class TakBiometricsDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener {
 
-    public static final String SHOW_DROP_DOWN = "com.aitech.atak.ssband.SHOW_DROP_DOWN";
+    public static final String SHOW_DROP_DOWN = "com.aitech.atak.biometrics.SHOW_DROP_DOWN";
     public static final String TAG = "TakSSbandDropDown";
     private final View dropDownView;
     private CotStreamListener cotStreamListener;
     private ScheduledExecutorService scheduler;
     private String localDeviceSerialNumber;
 
-    // hashmap to store heart rates with ssband devices
+    // hashmap to store heart rates with biometrics devices
     private final Map<String, Integer> heartRateData = new ConcurrentHashMap<>();
     private final Map<String, DeviceData> deviceDataMap = new ConcurrentHashMap<>();
     private DeviceData localDeviceData;
@@ -73,7 +66,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
     private ExpandableListView expandableListView;
 
 
-    public TakSSbandDropDown(final MapView mapView, final Context context) {
+    public TakBiometricsDropDown(final MapView mapView, final Context context) {
         super(mapView);
         //dropDownView = PluginLayoutInflater.inflate(context, R.layout.drop_down_view);
         dropDownView = PluginLayoutInflater.inflate(context, R.layout.drop_down_expandable_list_view);
@@ -252,7 +245,7 @@ public class TakSSbandDropDown extends DropDownReceiver implements com.atakmap.a
 
             }
 
-            // create prefs button, listen for click. if clicked, launch ssband preferences screen.
+            // create prefs button, listen for click. if clicked, launch biometrics preferences screen.
             loadSSbandPreferencesButton(context);
             setAssociationKey(PREFERENCES_KEYS);
         }

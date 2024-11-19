@@ -7,9 +7,9 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.preferences;
+package com.aitech.atak.biometrics.events;
 
-public interface SSbandPreferences {
-    String PREFERENCES_KEYS = "com.aitech.atak.ssband.preferences.SSBAND_PREFERENCES";
-    String LICENSE_KEY_AIT = "com.aitech.atak.ssband.preferences.LICENSE_KEY_AIT";
+public interface Events {
+    String HR_RECEIVED = "com.aitech.atak.biometrics.HR_RECEIVED";
+    String HR_RECEIVED_PARAM_VALUE = "com.aitech.atak.biometrics.HR_RECEIVED_PARAM_VALUE";
 }

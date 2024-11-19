@@ -7,21 +7,19 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.preferences;
+package com.aitech.atak.biometrics.preferences;
 
 import static com.atakmap.android.maps.MapView.getMapView;
-import static com.aitech.atak.ssband.preferences.SSbandPreferences.*;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.preference.Preference;
+import static com.aitech.atak.biometrics.preferences.BiometricsPreferences.*;
 
-import com.aitech.atak.ssband.services.LicenseManager;
+import android.preference.PreferenceManager;
+
+import com.aitech.atak.biometrics.services.LicenseManager;
 
 
 //import android.preference.PreferenceManager;
 
-public class SSbandPreferencesResolver {
+public class BiometricsPreferencesResolver {
 
     public static boolean resolveLicenseKeyCheck() {
         // return true if the license key in prefs equals "AscentFreeLicense"

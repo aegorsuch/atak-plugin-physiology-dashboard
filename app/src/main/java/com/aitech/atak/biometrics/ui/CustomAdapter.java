@@ -7,46 +7,36 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.ui;
+package com.aitech.atak.biometrics.ui;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.view.View.getDefaultSize;
-
-import static com.aitech.atak.ssband.preferences.SSbandPreferences.PREFERENCES_KEYS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
+import com.aitech.atak.biometrics.AlertLevel;
+import com.aitech.atak.biometrics.DeviceData;
 
-import com.aitech.atak.ssband.AlertLevel;
-import com.aitech.atak.ssband.DeviceData;
-
-import com.aitech.atak.ssband.plugin.R;
-import com.atakmap.app.SettingsActivity;
+import com.aitech.atak.biometrics.plugin.R;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Locale;
 
 public class CustomAdapter extends ArrayAdapter<DeviceData> {
     public static final String TAG = "CustomAdapter";
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
-    private TakSSbandDropDown TakSSbandDropDown;
+    private TakBiometricsDropDown TakBiometricsDropDown;
 
     public CustomAdapter(Context context, ArrayList<DeviceData> deviceDataList) {
         super(context, 0, deviceDataList);

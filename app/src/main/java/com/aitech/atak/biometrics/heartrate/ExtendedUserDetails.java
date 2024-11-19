@@ -7,11 +7,11 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.heartrate;
+package com.aitech.atak.biometrics.heartrate;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.LayoutParams.WRAP_CONTENT;
-import static com.aitech.atak.ssband.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
+import static com.aitech.atak.biometrics.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.atakmap.android.contact.ContactLocationView;
 import com.atakmap.android.cotdetails.ExtendedInfoView;
 import com.atakmap.android.maps.PointMapItem;
-import com.aitech.atak.ssband.plugin.R;
+import com.aitech.atak.biometrics.plugin.R;
 
 public class ExtendedUserDetails implements ContactLocationView.ExtendedSelfInfoFactory {
 

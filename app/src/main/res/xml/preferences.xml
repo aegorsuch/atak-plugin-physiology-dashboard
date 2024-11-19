@@ -3,7 +3,7 @@
 
     <com.atakmap.android.gui.PanEditTextPreference
         android:defaultValue="None"
-        android:key="com.aitech.atak.ssband.preferences.LICENSE_KEY_AIT"
+        android:key="com.aitech.atak.biometrics.preferences.LICENSE_KEY_AIT"
         android:summary="Enter your license key to enable display of biometrics"
         android:title="License Key" />
 

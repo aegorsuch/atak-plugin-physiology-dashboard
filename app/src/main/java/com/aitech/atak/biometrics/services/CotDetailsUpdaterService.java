@@ -7,11 +7,11 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.services;
+package com.aitech.atak.biometrics.services;
 
 import static com.atakmap.android.maps.MapView.getMapView;
-import static com.aitech.atak.ssband.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
-import static com.aitech.atak.ssband.heartrate.HeartRateCodHandler.HEART_RATE_COD_KEY;
+import static com.aitech.atak.biometrics.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
+import static com.aitech.atak.biometrics.heartrate.HeartRateCodHandler.HEART_RATE_COD_KEY;
 
 import android.content.Intent;
 import android.util.Log;
@@ -21,16 +21,12 @@ import com.atakmap.android.ipc.AtakBroadcast;
 import com.atakmap.comms.ReportingRate;
 import com.atakmap.coremap.cot.event.CotDetail;
 
-import com.atakmap.android.cot.CotUtils;
-import com.aitech.atak.ssband.heartrate.HeartRateCodHandler;
+import com.aitech.atak.biometrics.heartrate.HeartRateCodHandler;
 
 import com.atakmap.android.maps.MapView;
 import com.atakmap.comms.CotDispatcher;
 import com.atakmap.comms.DispatchFlags;
 import com.atakmap.coremap.cot.event.CotEvent;
-import com.atakmap.coremap.cot.event.CotDetail;
-import java.util.Date;
-import java.util.Map;
 
 import com.atakmap.coremap.maps.time.CoordinatedTime;
 

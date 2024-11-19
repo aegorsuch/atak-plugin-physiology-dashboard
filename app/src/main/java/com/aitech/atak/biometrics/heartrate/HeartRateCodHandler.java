@@ -7,10 +7,10 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.heartrate;
+package com.aitech.atak.biometrics.heartrate;
 
 import static com.atakmap.coremap.filesystem.FileSystemUtils.isEmpty;
-import static com.aitech.atak.ssband.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
+import static com.aitech.atak.biometrics.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
 
 import com.atakmap.android.cot.detail.CotDetailHandler;
 import com.atakmap.android.maps.MapItem;

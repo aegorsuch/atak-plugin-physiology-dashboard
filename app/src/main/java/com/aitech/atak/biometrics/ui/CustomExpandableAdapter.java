@@ -7,15 +7,15 @@
  * in the license agreement and/or contract under which the software has been supplied.
  */
 
-package com.aitech.atak.ssband.ui;
+package com.aitech.atak.biometrics.ui;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-import static com.aitech.atak.ssband.AlertLevel.HIGH;
-import static com.aitech.atak.ssband.AlertLevel.LOW;
-import static com.aitech.atak.ssband.AlertLevel.NONE;
+import static com.aitech.atak.biometrics.AlertLevel.HIGH;
+import static com.aitech.atak.biometrics.AlertLevel.LOW;
+import static com.aitech.atak.biometrics.AlertLevel.NONE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -23,29 +23,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.aitech.atak.ssband.AlertLevel;
-import com.aitech.atak.ssband.DeviceData;
-import com.aitech.atak.ssband.plugin.R;
+import com.aitech.atak.biometrics.DeviceData;
+import com.aitech.atak.biometrics.plugin.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.Locale;
 
 public class CustomExpandableAdapter extends BaseExpandableListAdapter {
     public static final String TAG = "CustomExpandableAdapter";
     private final Context context;
     private final ArrayList<DeviceData> deviceDataList;
-    private TakSSbandDropDown TakSSbandDropDown;
+    private TakBiometricsDropDown TakBiometricsDropDown;
     private boolean isSlateSafety = false;
     private RelativeLayout expandedData;
     private LinearLayout previousAlertText;
