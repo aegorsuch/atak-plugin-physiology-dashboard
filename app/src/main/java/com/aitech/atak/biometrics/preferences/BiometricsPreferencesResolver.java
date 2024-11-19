@@ -28,6 +28,13 @@ public class BiometricsPreferencesResolver {
         return LicenseManager.isLicenseValid();
     }
 
+    public static boolean resolveTestAlertsEnabled() {
+        return PreferenceManager
+                .getDefaultSharedPreferences(getMapView().getContext())
+                .getBoolean(ENABLE_TEST_ALERTS, false);
+
+    }
+
     private static int getIntegerPref(int defaultValue, String updateHrInterval) {
         try {
             String intervalString = PreferenceManager
