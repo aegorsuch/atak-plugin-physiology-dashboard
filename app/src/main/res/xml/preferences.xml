@@ -7,4 +7,10 @@
         android:summary="Enter your license key to enable display of biometrics"
         android:title="License Key" />
 
+    <com.atakmap.android.gui.PanSwitchPreference
+        android:defaultValue="false"
+        android:key="com.aitech.atak.biometrics.preferences.ENABLE_TEST_ALERTS"
+        android:summary="When enabled device will generate simulated biometric alerts to test/view functionality"
+        android:title="Enable test alerts" />
+
 </PreferenceScreen>

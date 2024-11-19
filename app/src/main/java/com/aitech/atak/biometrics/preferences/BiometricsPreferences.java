@@ -12,4 +12,5 @@ package com.aitech.atak.biometrics.preferences;
 public interface BiometricsPreferences {
     String PREFERENCES_KEYS = "com.aitech.atak.biometrics.preferences.BIOMETRICS_PREFERENCES";
     String LICENSE_KEY_AIT = "com.aitech.atak.biometrics.preferences.LICENSE_KEY_AIT";
+    String ENABLE_TEST_ALERTS = "com.aitech.atak.biometrics.preferences.ENABLE_TEST_ALERTS";
 }

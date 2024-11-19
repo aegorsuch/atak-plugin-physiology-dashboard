@@ -9,6 +9,7 @@
 
 package com.aitech.atak.biometrics.preferences;
 
+import static com.aitech.atak.biometrics.preferences.BiometricsPreferences.ENABLE_TEST_ALERTS;
 import static com.atakmap.android.maps.MapView.getMapView;
 import static com.aitech.atak.biometrics.preferences.BiometricsPreferences.LICENSE_KEY_AIT;
 
@@ -16,6 +17,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.atakmap.android.gui.PanSwitchPreference;
 import com.atakmap.android.preference.PluginPreferenceFragment;
 import com.aitech.atak.biometrics.TakSSbandMapComponent;
 import com.aitech.atak.biometrics.plugin.R;
@@ -85,7 +87,22 @@ public class BiometricsPreferenceFragment extends PluginPreferenceFragment {
                 }
             });
         } else {
-            Log.e(TAG, "ERROR: LicenseKeyPreference is null. Cannot display preferences...");
+            Log.e(TAG, "ERROR: LicenseKeyPreference is null. Cannot set preference change listener...");
+        }
+        Preference enableTestAlertsPreference = findPreference(ENABLE_TEST_ALERTS);
+        if (null != enableTestAlertsPreference) {
+            enableTestAlertsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    boolean checked = ((PanSwitchPreference) preference).isChecked();
+                    Log.d(TAG, "onPreferenceClick ENABLE_TEST_ALERTS is " + checked);
+                    Log.d(TAG, "SharedPreference for ENABLE_TEST_ALERTS is " +
+                            PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false));
+                    return true;
+                }
+            });
+        } else {
+            Log.e(TAG, "ERROR: EnableTestAlertsPreference is null. Cannot set on preference click listener...");
         }
     }
 }
