@@ -30,18 +30,18 @@ import com.atakmap.android.maps.MapView;
 import com.atakmap.app.preferences.ToolsPreferenceFragment;
 import com.aitech.atak.biometrics.events.TakBiometricsEventController;
 import com.aitech.atak.biometrics.heartrate.ExtendedUserDetails;
-import com.aitech.atak.biometrics.heartrate.HeartRateCodHandler;
+import com.aitech.atak.biometrics.heartrate.HeartRateCotHandler;
 import com.aitech.atak.biometrics.plugin.R;
 import com.aitech.atak.biometrics.ui.TakBiometricsDropDown;
 import com.aitech.atak.biometrics.preferences.BiometricsPreferencesResolver;
 
-public class TakSSbandMapComponent extends DropDownMapComponent {
+public class TakBiometricsMapComponent extends DropDownMapComponent {
 
     private Context context;
     private TakBiometricsEventController takBiometricsEventController;
     private static TakBiometricsDropDown takBiometricsDropDown;        // will have to make this public so we can access the updateHeartRate functionality
-    private final String TAG = "TakSSbandMapComponent";
-    private HeartRateCodHandler heartRateCodHandler;
+    private final String TAG = "TakBiometricsMapComponent";
+    private HeartRateCotHandler heartRateCotHandler;
     private ExtendedUserDetails extendedUserDetails;
     // TODO test only: remove line below
     public static int testCounter = 0;
@@ -51,19 +51,19 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
         this.context = context;
         context.setTheme(R.style.ATAKPluginTheme);
 
-        registerTakSSbandDropDown(context, view);         // register the Drop Down menu for the plugin, where preferences button, heart rate, etc are displayed to the user.
+        registerTakBiometricsDropDown(context, view);         // register the Drop Down menu for the plugin, where preferences button, heart rate, etc are displayed to the user.
         registerHeartRateCotHandler();
         registerUserDetailsExtension(context, view);
         registerEventController();
         registerPreferences();
 
-        // this is run once once bc onCreate(). Check the license, check if SSband is enabled in prefs.
+        // this is run once once bc onCreate(). Check the license, check if Biometrics is enabled in prefs.
         if (licenseKeyCheck()) {
             Log.d(TAG, "License Key is valid.");
-            TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key valid");
+            TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key valid");
         } else {
             Log.d(TAG, "License Key is invalid.");
-            TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key invalid");
+            TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");
         }
     }
 
@@ -73,12 +73,12 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
         takBiometricsDropDown.closeDropDown();
         takBiometricsDropDown.disposeImpl();
         context.unregisterReceiver(takBiometricsEventController);
-        CotDetailManager.getInstance().unregisterHandler(heartRateCodHandler);
+        CotDetailManager.getInstance().unregisterHandler(heartRateCotHandler);
         ContactLocationView.unregister(extendedUserDetails);
         ToolsPreferenceFragment.unregister(PREFERENCES_KEYS);
     }
 
-    public static TakBiometricsDropDown getTakSSbandDropDown() {
+    public static TakBiometricsDropDown getTakBiometricsDropDown() {
         return takBiometricsDropDown;
     }
 
@@ -95,10 +95,10 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
 
     private static boolean licenseKeyCheck() {
         return BiometricsPreferencesResolver.resolveLicenseKeyCheck();
-        // check to see if the license is valid so we know whether to initialize SSband services or not.
+        // check to see if the license is valid so we know whether to initialize biometrics services or not.
     }
 
-    // need this for SSband Prefs Fragment listener that restarts biometrics services. We need to check the license here as well.
+    // need this for Biometrics Prefs Fragment listener that restarts biometrics services. We need to check the license here as well.
     public static boolean getLicenseKeyCheck() {
         return licenseKeyCheck();
     }
@@ -109,21 +109,21 @@ public class TakSSbandMapComponent extends DropDownMapComponent {
     }
 
     private void registerHeartRateCotHandler() {
-        heartRateCodHandler = new HeartRateCodHandler();
-        CotDetailManager.getInstance().registerHandler(heartRateCodHandler);
+        heartRateCotHandler = new HeartRateCotHandler();
+        CotDetailManager.getInstance().registerHandler(heartRateCotHandler);
     }
 
-    private void registerTakSSbandDropDown(Context context, MapView view) {
+    private void registerTakBiometricsDropDown(Context context, MapView view) {
         takBiometricsDropDown = new TakBiometricsDropDown(view, context);
         AtakBroadcast.DocumentedIntentFilter ddFilter = new AtakBroadcast.DocumentedIntentFilter();
         ddFilter.addAction(SHOW_DROP_DOWN, "Show plugin's drop-down menu");
         this.registerDropDownReceiver(takBiometricsDropDown, ddFilter);
-        Log.d(TAG, "Registered TakSSbandDropDown");
+        Log.d(TAG, "Registered TakBiometricsDropDown");
     }
 
 
     private void registerEventController() {
-        takBiometricsEventController = new TakBiometricsEventController(heartRateCodHandler, takBiometricsDropDown);
+        takBiometricsEventController = new TakBiometricsEventController(heartRateCotHandler, takBiometricsDropDown);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HR_RECEIVED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

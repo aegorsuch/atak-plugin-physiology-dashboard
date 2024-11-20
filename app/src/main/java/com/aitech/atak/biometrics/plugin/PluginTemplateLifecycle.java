@@ -12,12 +12,12 @@ package com.aitech.atak.biometrics.plugin;
 import com.atak.plugins.impl.AbstractPlugin;
 import gov.tak.api.plugin.IServiceController;
 import com.atak.plugins.impl.PluginContextProvider;
-import com.aitech.atak.biometrics.TakSSbandMapComponent;
+import com.aitech.atak.biometrics.TakBiometricsMapComponent;
 
 public class PluginTemplateLifecycle extends AbstractPlugin {
 
    public PluginTemplateLifecycle(IServiceController serviceController) {
-        super(serviceController, new TakBiometricsTool(serviceController.getService(PluginContextProvider.class).getPluginContext()), new TakSSbandMapComponent());
+        super(serviceController, new TakBiometricsTool(serviceController.getService(PluginContextProvider.class).getPluginContext()), new TakBiometricsMapComponent());
         PluginNativeLoader.init(serviceController.getService(PluginContextProvider.class).getPluginContext());
     }
 }

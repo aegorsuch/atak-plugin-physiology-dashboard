@@ -18,20 +18,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.aitech.atak.biometrics.heartrate.HeartRateCodHandler;
+import com.aitech.atak.biometrics.heartrate.HeartRateCotHandler;
 import com.aitech.atak.biometrics.preferences.BiometricsPreferenceFragment;
 import com.aitech.atak.biometrics.services.CotDetailsUpdaterService;
 import com.aitech.atak.biometrics.ui.TakBiometricsDropDown;
 
 
 public class TakBiometricsEventController extends BroadcastReceiver {
-    private static final String TAG = "TakSSbandEventCtrl";
+    private static final String TAG = "TakBiometricsEventCtrl";
     private final CotDetailsUpdaterService cotDetailsUpdaterService;
     private TakBiometricsDropDown takBiometricsDropDown;
-    private BiometricsPreferenceFragment ssbandPreferenceFragment;
+    private BiometricsPreferenceFragment biometricsPreferenceFragment;
 
-    public TakBiometricsEventController(HeartRateCodHandler heartRateCodHandler, TakBiometricsDropDown dropDown) {
-        this.cotDetailsUpdaterService = new CotDetailsUpdaterService(heartRateCodHandler);
+    public TakBiometricsEventController(HeartRateCotHandler heartRateCotHandler, TakBiometricsDropDown dropDown) {
+        this.cotDetailsUpdaterService = new CotDetailsUpdaterService(heartRateCotHandler);
         this.takBiometricsDropDown = dropDown;  // Initialize the dropdown
     }
 
@@ -59,11 +59,11 @@ public class TakBiometricsEventController extends BroadcastReceiver {
             // Update the dropdown with the new heart rate
             if (takBiometricsDropDown != null) {
                 // display the heart rate in UI of own self device
-                // takSSbandDropDown.displayHeartRate(hr, deviceId);
+                // takBiometricsDropDown.displayHeartRate(hr, deviceId);
             } else {
-                Log.e(TAG, "takSSbandDropDown is null, cannot display heart rate");
+                Log.e(TAG, "takBiometricsDropDown is null, cannot display heart rate");
             }
-            //takSSbandDropDown.displayHeartRate(hr);
+            //takBiometricsDropDown.displayHeartRate(hr);
 
             cotDetailsUpdaterService.dispatchCot(deviceId, hr, serialNumber, batteryLevel);
             cotDetailsUpdaterService.updateDetails(hr);
