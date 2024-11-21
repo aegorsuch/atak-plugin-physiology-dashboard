@@ -25,7 +25,7 @@ import com.aitech.atak.biometrics.plugin.R;
 
 public class ExtendedUserDetails implements ContactLocationView.ExtendedSelfInfoFactory {
 
-    private static final String TAG = "SSbandUserDetails";
+    private static final String TAG = "ExtendedUserDetails";
     private final Context pluginContext;
     private final Context viewContext;
 

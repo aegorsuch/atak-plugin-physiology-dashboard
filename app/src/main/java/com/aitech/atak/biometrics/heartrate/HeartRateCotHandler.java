@@ -12,24 +12,33 @@ package com.aitech.atak.biometrics.heartrate;
 import static com.atakmap.coremap.filesystem.FileSystemUtils.isEmpty;
 import static com.aitech.atak.biometrics.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
 
+import android.util.Log;
+
 import com.atakmap.android.cot.detail.CotDetailHandler;
 import com.atakmap.android.maps.MapItem;
 import com.atakmap.comms.CommsMapComponent;
 import com.atakmap.coremap.cot.event.CotDetail;
 import com.atakmap.coremap.cot.event.CotEvent;
 
-public class HeartRateCodHandler extends CotDetailHandler {
+public class HeartRateCotHandler extends CotDetailHandler {
 
-    public static final String HEART_RATE_COD_KEY = "HEART_RATE_COD_KEY";
+    public static final String HEART_RATE_COT_KEY = "HEART_RATE_COT_KEY";
+    private static final String TAG = "TakBiometricsHRCH";
 
-    public HeartRateCodHandler() {
-        super(HEART_RATE_COD_KEY);
+    public HeartRateCotHandler() {
+        super(HEART_RATE_COT_KEY);
+        Log.d(TAG, "HeartRateCotHandler called");
     }
 
     @Override
     public CommsMapComponent.ImportResult toItemMetadata(
             MapItem item, CotEvent event, CotDetail detail) {
+
         String heartRateString = detail.getAttribute(DETAILS_META_KEY_HEART_RATE);
+        //Log.d(TAG, "received mapItem: " + item.toString());
+        //Log.d(TAG, "received event: " + event.toString());
+        //Log.d(TAG, "received COT w/ detail: " + detail.toString());
+        //Log.d(TAG, "heartRateString: " + heartRateString);
 
         if (isEmpty(heartRateString)) {
             return CommsMapComponent.ImportResult.FAILURE;

@@ -19,7 +19,7 @@ import android.os.Bundle;
 
 import com.atakmap.android.gui.PanSwitchPreference;
 import com.atakmap.android.preference.PluginPreferenceFragment;
-import com.aitech.atak.biometrics.TakSSbandMapComponent;
+import com.aitech.atak.biometrics.TakBiometricsMapComponent;
 import com.aitech.atak.biometrics.plugin.R;
 
 import android.preference.Preference;
@@ -71,17 +71,17 @@ public class BiometricsPreferenceFragment extends PluginPreferenceFragment {
 
                     if (LicenseManager.isLicenseValid()) {
                         Log.d(TAG, "License Key is valid. Checking biometrics enable prefs");
-                        TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License key valid");
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License key valid");
                     } else {
                         Log.d(TAG, "License Key is invalid. Clearing CoT messages & UI");
-                        TakSSbandMapComponent.getTakSSbandDropDown().displayInfoOnUI("License Key invalid");
-                        TakSSbandMapComponent.getTakSSbandDropDown().stopScheduler();
-                        TakSSbandMapComponent.getTakSSbandDropDown().removeDevices();
-                        TakSSbandMapComponent.getTakSSbandDropDown().unregisterCotStreamListener(); // Unregister the listener
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().stopScheduler();
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().removeDevices();
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotStreamListener(); // Unregister the listener
                     }
 
                     // Refresh the dropdown
-                    TakSSbandMapComponent.getTakSSbandDropDown().refreshDropDown();
+                    TakBiometricsMapComponent.getTakBiometricsDropDown().refreshDropDown();
 
                     return true;
                 }

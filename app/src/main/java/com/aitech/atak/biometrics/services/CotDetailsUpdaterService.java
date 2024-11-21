@@ -11,7 +11,7 @@ package com.aitech.atak.biometrics.services;
 
 import static com.atakmap.android.maps.MapView.getMapView;
 import static com.aitech.atak.biometrics.heartrate.Constants.DETAILS_META_KEY_HEART_RATE;
-import static com.aitech.atak.biometrics.heartrate.HeartRateCodHandler.HEART_RATE_COD_KEY;
+import static com.aitech.atak.biometrics.heartrate.HeartRateCotHandler.HEART_RATE_COT_KEY;
 
 import android.content.Intent;
 import android.util.Log;
@@ -21,7 +21,7 @@ import com.atakmap.android.ipc.AtakBroadcast;
 import com.atakmap.comms.ReportingRate;
 import com.atakmap.coremap.cot.event.CotDetail;
 
-import com.aitech.atak.biometrics.heartrate.HeartRateCodHandler;
+import com.aitech.atak.biometrics.heartrate.HeartRateCotHandler;
 
 import com.atakmap.android.maps.MapView;
 import com.atakmap.comms.CotDispatcher;
@@ -33,19 +33,19 @@ import com.atakmap.coremap.maps.time.CoordinatedTime;
 public class CotDetailsUpdaterService {
 
     public static final String TAG = "CotService";
-    private final HeartRateCodHandler heartRateCodHandler;
+    private final HeartRateCotHandler heartRateCotHandler;
 
-    public CotDetailsUpdaterService(HeartRateCodHandler heartRateCodHandler) {
+    public CotDetailsUpdaterService(HeartRateCotHandler heartRateCotHandler) {
 
-        this.heartRateCodHandler = heartRateCodHandler;
+        this.heartRateCotHandler = heartRateCotHandler;
     }
 
     public void updateDetails(int hr) {
         Log.d(TAG, "Sending CoT with enhanced details...");
-        CotDetail cd = new CotDetail(HEART_RATE_COD_KEY);
+        CotDetail cd = new CotDetail(HEART_RATE_COT_KEY);
         cd.setAttribute(DETAILS_META_KEY_HEART_RATE, Integer.toString(hr));
-        if (heartRateCodHandler != null) {
-            heartRateCodHandler.toItemMetadata(getMapView().getSelfMarker(), null, cd);
+        if (heartRateCotHandler != null) {
+            heartRateCotHandler.toItemMetadata(getMapView().getSelfMarker(), null, cd);
         }
         CotMapComponent.getInstance().addAdditionalDetail(cd.getElementName(), cd);
         Intent updateIntent = new Intent(ReportingRate.REPORT_LOCATION).putExtra("reason", "detail update for heart rate");

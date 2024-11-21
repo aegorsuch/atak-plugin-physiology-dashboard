@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 public class DeviceData {
-    public static final String TAG = "TakSSbandDeviceData";
+    public static final String TAG = "TakBiometricsDeviceData";
     class Location {
         Double lat;
         Double lon;
