@@ -36,6 +36,8 @@ import com.atak.plugins.impl.PluginLayoutInflater;
 import com.atakmap.android.dropdown.DropDownReceiver;
 import com.atakmap.android.maps.MapView;
 import com.atakmap.app.SettingsActivity;
+import com.atakmap.comms.CommsLogger;
+import com.atakmap.comms.CommsMapComponent;
 import com.atakmap.comms.CotStreamListener;
 import com.atakmap.coremap.cot.event.CotEvent;
 import com.atakmap.coremap.cot.event.CotDetail;
@@ -49,7 +51,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class TakBiometricsDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener {
+public class TakBiometricsDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener, CommsLogger {
 
     public static final String SHOW_DROP_DOWN = "com.aitech.atak.biometrics.SHOW_DROP_DOWN";
     public static final String TAG = "TakBiometricsDropDown";
@@ -68,7 +70,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private String selfTitle;
     private CustomExpandableAdapter customExpandableAdapter;
     private ExpandableListView expandableListView;
-
+    private static final String cotFilter = "HEART_RATE_COT_KEY";
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
         super(mapView);
@@ -118,6 +120,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
 
         });
+        CommsMapComponent.getInstance().registerCommsLogger(this);
 
         startScheduler();
     }
@@ -263,6 +266,25 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     @Override
     public void onDropDownSelectionRemoved() {
     }
+
+    @Override
+    public void logSend(CotEvent cotEvent, String s) {
+
+    }
+
+    @Override
+    public void logSend(CotEvent cotEvent, String[] strings) {
+
+    }
+
+    @Override
+    public void logReceive(CotEvent cotEvent, String s, String s1) {
+        Log.i(TAG, "Receive");
+        if (cotEvent.toString().contains(cotFilter)) {
+            Log.d(TAG, cotEvent.toString());
+        }
+    }
+
 
     //Takes in details from cot event
     private void cotReceiver(CotDetail detail, CotEvent cotEvent) {
