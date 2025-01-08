@@ -284,7 +284,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
             // If the message contains our key, pass it through our cot receiver, which will process the cot message further.
         if (cotEvent.toString().contains(cotFilter)) {
-            //Log.d(TAG, cotEvent.toString());
+//            Log.d(TAG, cotEvent.toString());
             cotReceiver(cotEvent);
         }
     }
@@ -295,9 +295,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             Log.d(TAG, "License is invalid, ignoring the CoT event.");
             return;
         }
-        if (cotEvent.getDetail() != null) {
+        CotDetail biometrics = cotEvent.getDetail().getFirstChildByName(0, "biometrics");
+
+        if (cotEvent.getDetail() != null && biometrics!=null) {
             // biometrics -- heart rate
-            CotDetail biometrics = cotEvent.getDetail().getFirstChildByName(0, "biometrics");
             String heartRateStr = biometrics.getAttribute("hr");
             String modelStr = biometrics.getAttribute("model");
             String serialNumber = biometrics.getAttribute("serialNumber");
@@ -465,7 +466,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 }
             }
         } else {
-            Log.e(TAG, "Received CoT event with null detail or License is Invalid");
+            Log.d(TAG, "Received CoT event that contains the filter word, but not as a detail.");
         }
 
     }
