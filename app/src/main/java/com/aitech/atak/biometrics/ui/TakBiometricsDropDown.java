@@ -70,7 +70,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private String selfTitle;
     private CustomExpandableAdapter customExpandableAdapter;
     private ExpandableListView expandableListView;
-    private static final String cotFilter = "HEART_RATE_COT_KEY";
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
         super(mapView);
@@ -120,7 +119,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
 
         });
-        CommsMapComponent.getInstance().registerCommsLogger(this);
 
         startScheduler();
     }
@@ -167,7 +165,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             Log.e("ALARM_log", "Button not found!");
         }
     }
-
 
     //Where device data is populated to display - NOT devices directly connected to the viewable device
     public void displayCotDeviceData() {
@@ -243,18 +240,19 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         @Override
                         public void onCotEvent(CotEvent cotEvent, Bundle bundle) {
                             //                        Log.d(TAG, "onCotEvent called");
-                            CotDetail detail = cotEvent.getDetail();
-                            cotReceiver(detail, cotEvent);
+                            //cotReceiver(cotEvent);
                         }
                     });
                 }
+                // register the cot logger once the license is validated and the dropdown is open.
+                registerCotLogger();
                 displayInfoOnUI("License Key valid");
             } else {
                 Log.d(TAG, "License Key is invalid");
                 displayInfoOnUI("License Key invalid");
                 stopScheduler();
                 unregisterCotStreamListener(); // Ensure listener is unregistered
-
+                unregisterCotLogger();         // Ensure the logger is unregistered
             }
 
             // create prefs button, listen for click. if clicked, launch biometrics preferences screen.
@@ -279,85 +277,78 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
     @Override
     public void logReceive(CotEvent cotEvent, String s, String s1) {
-        Log.i(TAG, "Receive");
-        if (cotEvent.toString().contains(cotFilter)) {
-            Log.d(TAG, cotEvent.toString());
-        }
-    }
-
-
-    //Takes in details from cot event
-    private void cotReceiver(CotDetail detail, CotEvent cotEvent) {
+        String cotFilter = "biometrics";
         if (!LicenseManager.isLicenseValid()) {
             Log.d(TAG, "License is invalid, ignoring the CoT event.");
             return;
         }
-        detail = cotEvent.getDetail();
-        if (detail != null) {
-            // Find the 'status' child element
-            CotDetail statusDetail = detail.getFirstChildByName(0, "status");
-            if (statusDetail != null) {
-                // Extract data
-                String heartRateStr = statusDetail.getAttribute("heartRate");
-                String serialNumber = statusDetail.getAttribute("serialNumber");
-                String batteryLevelStr = statusDetail.getAttribute("batteryLevel");
-                String callsign = statusDetail.getAttribute("callsign");
-                String deviceId = cotEvent.getUID(); // Using UID as deviceId
-                CoordinatedTime staleTime = cotEvent.getStale();
-                if (heartRateStr != null && deviceId != null) {
-                    try {
-                        boolean enableTestAlerts = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
-                        int heartRate = Integer.parseInt(heartRateStr);
-                        int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
-                        if (enableTestAlerts) {
-                            TakBiometricsMapComponent.testCounter = TakBiometricsMapComponent.testCounter + 1;
-                        } else {
-                            TakBiometricsMapComponent.testCounter = 0;
-                        }
-                        String modelStr = statusDetail.getAttribute("model");
-                        Boolean isFalsePositive = Boolean.valueOf(statusDetail.getAttribute("isFalsePositive"));
-                        String coreTempStr = statusDetail.getAttribute("coreTemp");
-                        String exertionStr = statusDetail.getAttribute("exertion");
-                        String hssiStr = statusDetail.getAttribute("hssi");
-                        String cadenceStr = statusDetail.getAttribute("cadence");
-                        String caloricBurnRateStr = statusDetail.getAttribute("caloricBurnRate");
-                        String hrlvStr = statusDetail.getAttribute("hrlv");
-                        String vo2Str = statusDetail.getAttribute("vo2");
-                        String hrvStr = statusDetail.getAttribute("hrv");
+            // If the message contains our key, pass it through our cot receiver, which will process the cot message further.
+        if (cotEvent.toString().contains(cotFilter)) {
+            //Log.d(TAG, cotEvent.toString());
+            cotReceiver(cotEvent);
+        }
+    }
 
-                        //Log.d(TAG, "selfTitle = (" + selfTitle + ")");
-                        if ((null != selfTitle) && selfTitle.equals(callsign)) {
+    // puts cot messages (biometric devices & their data) into hashmaps for the dropdown UI cards.
+    private void cotReceiver(CotEvent cotEvent) {
+        if (!LicenseManager.isLicenseValid()) {
+            Log.d(TAG, "License is invalid, ignoring the CoT event.");
+            return;
+        }
+        if (cotEvent.getDetail() != null) {
+            // biometrics -- heart rate
+            CotDetail biometrics = cotEvent.getDetail().getFirstChildByName(0, "biometrics");
+            String heartRateStr = biometrics.getAttribute("hr");
+            String modelStr = biometrics.getAttribute("model");
+            String serialNumber = biometrics.getAttribute("serialNumber");
+
+            if (modelStr==null) {
+                // force the model to WEAROS so the logos populate in the dropdown.
+                modelStr = "WEAROS";
+            }
+
+            Boolean isFalsePositive = Boolean.valueOf(biometrics.getAttribute("isFalsePositive"));
+            String coreTempStr = biometrics.getAttribute("coreTemp");
+            String exertionStr = biometrics.getAttribute("exertion");
+            String hssiStr = biometrics.getAttribute("hssi");
+            String cadenceStr = biometrics.getAttribute("cadence");
+            String caloricBurnRateStr = biometrics.getAttribute("caloricBurnRate");
+            String hrlvStr = biometrics.getAttribute("hrlv");
+            String vo2Str = biometrics.getAttribute("vo2");
+            String hrvStr = biometrics.getAttribute("hrv");
+
+            // device id
+            String deviceId = cotEvent.getUID(); // Using UID as deviceId
+            // callsign
+            CotDetail contact = cotEvent.getDetail().getFirstChildByName(0, "contact");
+            String callsign = contact.getAttribute("callsign");
+            String phone = contact.getAttribute("phone");
+
+            // biometric device battery level (ie WearOS, Biostrap)
+            CotDetail status = cotEvent.getDetail().getFirstChildByName(0, "status");
+            String batteryLevelStr = status.getAttribute("battery");
+
+            CoordinatedTime staleTime = cotEvent.getStale();
+            if (heartRateStr != null && deviceId != null) {
+                try {
+                    boolean enableTestAlerts = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
+                    int heartRate = Integer.parseInt(heartRateStr);
+                    int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
+                    if (enableTestAlerts) {
+                        TakBiometricsMapComponent.testCounter = TakBiometricsMapComponent.testCounter + 1;
+                    } else {
+                        TakBiometricsMapComponent.testCounter = 0;
+                    }
+                    //Log.d(TAG, "selfTitle = (" + selfTitle + ")");
+                    if ((null != selfTitle) && selfTitle.equals(callsign)) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
-                            callsign = callsign + " (You)";
-                            Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
-                            if (deviceDataMap.containsKey(deviceId)) {
-                                // Update the data. No need to create a new DeviceData
-                                DeviceData localDeviceData = deviceDataMap.get(deviceId);
-                                if (null != localDeviceData) {
-                                    localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
-                                            ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
-                                            (double) heartRate,
-                                            ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                            ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                            ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                            ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                            ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                            ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                            ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
-                                            (double) batteryLevel);
-                                    if (enableTestAlerts) {
-                                        if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
-                                            localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                        } else if ((TakBiometricsMapComponent.testCounter % 3) == 0) {
-                                            localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
-                                        } else if ((TakBiometricsMapComponent.testCounter % 2) == 0) {
-                                            localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
-                                        }
-                                    }
-                                }
-                            } else {
-                                // isLocal = true means that it's local.
-                                DeviceData localDeviceData = new DeviceData(modelStr, callsign, true, serialNumber, staleTime, isFalsePositive,
+                        callsign = callsign + " (You)";
+                        Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
+                        if (deviceDataMap.containsKey(deviceId)) {
+                            // Update the data. No need to create a new DeviceData
+                            DeviceData localDeviceData = deviceDataMap.get(deviceId);
+                            if (null != localDeviceData) {
+                                localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
                                         ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
                                         (double) heartRate,
                                         ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
@@ -368,7 +359,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                                         ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
                                         ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
-                                deviceDataMap.put(deviceId, localDeviceData);// Store in the map
                                 if (enableTestAlerts) {
                                     if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
                                         localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
@@ -379,86 +369,106 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                                     }
                                 }
                             }
-                            getMapView().post(this::displayCotDeviceData);
                         } else {
-                            Log.d(TAG, "Recieved Cot - REMOTE -  Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   Device: [ " + serialNumber + " ] " + "   Callsign: [ " + callsign + " ]" );
+                            // isLocal = true means that it's local.
+                            DeviceData localDeviceData = new DeviceData(modelStr, callsign, true, serialNumber, staleTime, isFalsePositive,
+                                    ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                    (double) heartRate,
+                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                    (double) batteryLevel);
+                            deviceDataMap.put(deviceId, localDeviceData);// Store in the map
+                            if (enableTestAlerts) {
+                                if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
+                                } else if ((TakBiometricsMapComponent.testCounter % 3) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "HEART_RATE", 150, 1, null);
+                                } else if ((TakBiometricsMapComponent.testCounter % 2) == 0) {
+                                    localDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                }
+                            }
+                        }
+                        getMapView().post(this::displayCotDeviceData);
+                    } else {
+                        Log.d(TAG, "Recieved Cot - REMOTE - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
 
 //                            Log.d(TAG, "Received heart rate data from remote device; storing in deviceDataMap.");
-                            // isLocal = false means that it's remote.
-                            if (deviceDataMap.containsKey(deviceId)) {
-                                // Update the data. No need to create a new DeviceData
-                                DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
-                                remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
-                                        ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
-                                        (double) heartRate,
-                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
-                                        (double) batteryLevel);
-                                if (enableTestAlerts) {
-                                    Log.d(TAG, "Adding testcounter: " + TakBiometricsMapComponent.testCounter);
-                                    if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
-                                        Log.d(TAG, deviceId + ": Adding clear event");
-                                        remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 110, 1, null);
-                                    } else if ((TakBiometricsMapComponent.testCounter % 3) == 0) {
-                                        Log.d(TAG, deviceId + ": Adding HIGH alert event");
-                                        remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
-                                    } else if ((TakBiometricsMapComponent.testCounter % 2) == 0) {
-                                        Log.d(TAG, deviceId + ": Adding LOW alert event");
-                                        remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "EXERTION", 120, 1, null);
-                                    }
+                        // isLocal = false means that it's remote.
+                        if (deviceDataMap.containsKey(deviceId)) {
+                            // Update the data. No need to create a new DeviceData
+                            DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
+                            remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
+                                    ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                    (double) heartRate,
+                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                    (double) batteryLevel);
+                            if (enableTestAlerts) {
+                                Log.d(TAG, "Adding testcounter: " + TakBiometricsMapComponent.testCounter);
+                                if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding clear event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 110, 1, null);
+                                } else if ((TakBiometricsMapComponent.testCounter % 3) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding HIGH alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
+                                } else if ((TakBiometricsMapComponent.testCounter % 2) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding LOW alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "EXERTION", 120, 1, null);
                                 }
-                            } else {
-                                DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
-                                        ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
-                                        (double) heartRate,
-                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
-                                        (double) batteryLevel);
-                                arrayList.add(remoteDeviceData);
-
-                                deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
-                                if (enableTestAlerts) {
-                                    Log.d(TAG, "Adding testcounter: " + TakBiometricsMapComponent.testCounter);
-                                    if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
-                                        Log.d(TAG, deviceId + ": Adding clear event");
-                                        remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
-                                    } else if ((TakBiometricsMapComponent.testCounter % 3) == 0) {
-                                        Log.d(TAG, deviceId + ": Adding HIGH alert event");
-                                        remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
-                                    } else if ((TakBiometricsMapComponent.testCounter % 2) == 0) {
-                                        Log.d(TAG, deviceId + ": Adding LOW alert event");
-                                        remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
-                                    }
-                                }
-
                             }
-                            getMapView().post(this::displayCotDeviceData);
+                        } else {
+                            DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
+                                    ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                    (double) heartRate,
+                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
+                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
+                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
+                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
+                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
+                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                    (double) batteryLevel);
+                            arrayList.add(remoteDeviceData);
+
+                            deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
+                            if (enableTestAlerts) {
+                                Log.d(TAG, "Adding testcounter: " + TakBiometricsMapComponent.testCounter);
+                                if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding clear event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), false, AlertLevel.NONE, "HEART_RATE", 150, 1, null);
+                                } else if ((TakBiometricsMapComponent.testCounter % 3) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding HIGH alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.HIGH, "CORE_TEMP", 150, 1, null);
+                                } else if ((TakBiometricsMapComponent.testCounter % 2) == 0) {
+                                    Log.d(TAG, deviceId + ": Adding LOW alert event");
+                                    remoteDeviceData.addAlertOrClearEvent(new Date(), true, AlertLevel.LOW, "HEART_RATE", 120, 1, null);
+                                }
+                            }
 
                         }
+                        getMapView().post(this::displayCotDeviceData);
 
-                    } catch (NumberFormatException e) {
-                        Log.e(TAG, "Invalid heart rate value: " + heartRateStr, e);
                     }
+
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid heart rate value: " + heartRateStr, e);
                 }
-            } else {
-                Log.e(TAG, "Received CoT event without 'status' detail");
             }
         } else {
             Log.e(TAG, "Received CoT event with null detail or License is Invalid");
         }
 
     }
-
 
     public boolean isDeviceStale(DeviceData deviceData) {
         long currentTime = System.currentTimeMillis(); // Get the current system time
@@ -489,7 +499,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             Log.d(TAG, "Unregistered cotStreamListener due to invalid license");
         }
     }
-
 
     public void removeStaleDevices() {
         //Log.d(TAG, "Checking for stale CoT messages.");
@@ -548,21 +557,32 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
+    private void registerCotLogger() {
+        CommsMapComponent.getInstance().registerCommsLogger(this);
+        Log.d(TAG, "Registering Cot Logger");
+    }
 
+    private void unregisterCotLogger() {
+        CommsMapComponent.getInstance().unregisterCommsLogger(this);
+        Log.d(TAG, "Unregistering Cot Logger");
+    }
 
     @Override
     public void onDropDownClose() {
-        // Dispose of the CoT listener when dropdown is closed.
+        // Dispose of the CoT listener when dropdown is closed. TODO: Deprecate cot listener methods.
         if (cotStreamListener != null) {
             cotStreamListener.dispose();
             cotStreamListener = null;
         }
-
+        // TODO: simplify and use concise methods for starting, stopping scheduler
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdownNow(); // Shut down the scheduler
             Log.d(TAG, "Scheduler shut down.");
         }
 
+        // stop listening to cot messages when the drop down closes
+        unregisterCotLogger();
+        // clear the hashmap filled with heart rate & biometric device data. The hashmap is used to fill data in the dropdown UI cards.
         heartRateData.clear();
     }
 
@@ -586,21 +606,25 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
 
         if (LicenseManager.isLicenseValid()) {
-            // Re-register the cotStreamListener if necessary
+            // Re-register the cotStreamListener if necessary TODO: deprecate cotstream listener
             if (cotStreamListener == null) {
                 cotStreamListener = new CotStreamListener(getMapView().getContext(), "BiometricsListener", new CotServiceRemote.CotEventListener() {
                     @Override
                     public void onCotEvent(CotEvent cotEvent, Bundle bundle) {
-                        CotDetail detail = cotEvent.getDetail();
-                        cotReceiver(detail, cotEvent);
+                        //cotReceiver(cotEvent);
                     }
                 });
             }
             // Start scheduler if not running
             startScheduler();
+            // register the cot logger that listens for cots with biometric data
+            registerCotLogger();
+
         } else {
-            // License invalid, unregister listener and stop scheduler
+            // License invalid, unregister listener and stop scheduler TODO: deprecate cotstream listener
             unregisterCotStreamListener();
+            // if the license is invalid, we want to unregister the cot logger & stop the scheduler that checks for stale data.
+            unregisterCotLogger();
             stopScheduler();
             displayInfoOnUI("License Key invalid");
         }
