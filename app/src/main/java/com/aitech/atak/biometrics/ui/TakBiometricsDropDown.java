@@ -344,7 +344,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     if ((null != selfTitle) && selfTitle.equals(callsign)) {
 //                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                         callsign = callsign + " (You)";
-                        Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
+                        //Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
                         if (deviceDataMap.containsKey(deviceId)) {
                             // Update the data. No need to create a new DeviceData
                             DeviceData localDeviceData = deviceDataMap.get(deviceId);
@@ -396,7 +396,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         }
                         getMapView().post(this::displayCotDeviceData);
                     } else {
-                        Log.d(TAG, "Recieved Cot - REMOTE - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
+                        //Log.d(TAG, "Recieved Cot - REMOTE - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
 
 //                            Log.d(TAG, "Received heart rate data from remote device; storing in deviceDataMap.");
                         // isLocal = false means that it's remote.
