@@ -26,6 +26,7 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -284,7 +285,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
             // If the message contains our key, pass it through our cot receiver, which will process the cot message further.
         if (cotEvent.toString().contains(cotFilter)) {
-//            Log.d(TAG, cotEvent.toString());
+            Log.d(TAG, cotEvent.toString());
             cotReceiver(cotEvent);
         }
     }
@@ -295,18 +296,43 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             Log.d(TAG, "License is invalid, ignoring the CoT event.");
             return;
         }
-        CotDetail biometrics = cotEvent.getDetail().getFirstChildByName(0, "biometrics");
 
-        if (cotEvent.getDetail() != null && biometrics!=null) {
-            // biometrics -- heart rate
-            String heartRateStr = biometrics.getAttribute("hr");
-            String modelStr = biometrics.getAttribute("model");
-            String serialNumber = biometrics.getAttribute("serialNumber");
+        CotDetail detail = cotEvent.getDetail();
 
-            if (modelStr==null) {
-                // force the model to WEAROS so the logos populate in the dropdown.
-                modelStr = "WEAROS";
+
+
+
+        if (detail != null) {
+            CotDetail biometrics = detail.getFirstChildByName(0,"biometrics");;
+            CotDetail biometricDevice = biometrics.getFirstChildByName(0,"device");
+
+            // Ensure the biometrics child exists
+            if (biometrics == null) {
+                Log.d(TAG, "biometrics Child not found in cot detail. Exiting");
+                return; // Exit early if no biometrics section is present
             }
+            // Ensure the device child exists
+            if (biometricDevice == null) {
+                Log.d(TAG, "device Child not found in biometrics. Exiting");
+                return; // Exit early if no device section is present
+            }
+
+            // Now we know that the cot message contains biometrics, we can extract the data from it.
+
+            CotDetail contact = cotEvent.getDetail().getFirstChildByName(0, "contact");
+            CotDetail status = cotEvent.getDetail().getFirstChildByName(0, "status");
+            String deviceId = cotEvent.getUID(); // Using UID as deviceId
+            String callsign = contact.getAttribute("callsign");
+            String phone = contact.getAttribute("phone");
+
+            // biometrics -- heart rate
+            String biometricDeviceUid = biometricDevice.getChild("uid").getInnerText();
+            String heartRateStr = biometricDevice.getChild("hr").getInnerText();
+            String modelStr =biometricDevice.getChild("model").getInnerText();
+            String serialNumber = biometricDeviceUid;       // the serial number is legacy for holding biostrap serial #s. keeping the serialNumber for readibility.
+            String batteryLevelStr = biometricDevice.getChild("bat").getInnerText();
+
+            Log.d("CotReceiver", "Callsign: " + callsign +"Model: " + modelStr + ", UID: " + biometricDeviceUid + ", HR: " + heartRateStr + ", Battery: " + batteryLevelStr);
 
             Boolean isFalsePositive = Boolean.valueOf(biometrics.getAttribute("isFalsePositive"));
             String coreTempStr = biometrics.getAttribute("coreTemp");
@@ -317,17 +343,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             String hrlvStr = biometrics.getAttribute("hrlv");
             String vo2Str = biometrics.getAttribute("vo2");
             String hrvStr = biometrics.getAttribute("hrv");
-
-            // device id
-            String deviceId = cotEvent.getUID(); // Using UID as deviceId
-            // callsign
-            CotDetail contact = cotEvent.getDetail().getFirstChildByName(0, "contact");
-            String callsign = contact.getAttribute("callsign");
-            String phone = contact.getAttribute("phone");
-
-            // biometric device battery level (ie WearOS, Biostrap)
-            CotDetail status = cotEvent.getDetail().getFirstChildByName(0, "status");
-            String batteryLevelStr = status.getAttribute("battery");
 
             CoordinatedTime staleTime = cotEvent.getStale();
             if (heartRateStr != null && deviceId != null) {
@@ -467,6 +482,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
         } else {
             Log.d(TAG, "Received CoT event that contains the filter word, but not as a detail.");
+            return;
         }
 
     }
