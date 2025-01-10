@@ -304,13 +304,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
         if (detail != null) {
             CotDetail biometrics = detail.getFirstChildByName(0,"biometrics");;
-            CotDetail biometricDevice = biometrics.getFirstChildByName(0,"device");
-
             // Ensure the biometrics child exists
             if (biometrics == null) {
                 Log.d(TAG, "biometrics Child not found in cot detail. Exiting");
                 return; // Exit early if no biometrics section is present
             }
+            CotDetail biometricDevice = biometrics.getFirstChildByName(0,"device");
             // Ensure the device child exists
             if (biometricDevice == null) {
                 Log.d(TAG, "device Child not found in biometrics. Exiting");
