@@ -26,7 +26,6 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,15 +33,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.aitech.atak.biometrics.AlertLevel;
 import com.aitech.atak.biometrics.TakBiometricsMapComponent;
 import com.atak.plugins.impl.PluginLayoutInflater;
+import com.atakmap.android.cot.detail.CotDetailHandler;
+import com.atakmap.android.cot.detail.CotDetailManager;
 import com.atakmap.android.dropdown.DropDownReceiver;
+import com.atakmap.android.maps.MapItem;
 import com.atakmap.android.maps.MapView;
 import com.atakmap.app.SettingsActivity;
-import com.atakmap.comms.CommsLogger;
 import com.atakmap.comms.CommsMapComponent;
-import com.atakmap.comms.CotStreamListener;
 import com.atakmap.coremap.cot.event.CotEvent;
 import com.atakmap.coremap.cot.event.CotDetail;
-import com.atakmap.comms.CotServiceRemote;
 import com.atakmap.coremap.maps.time.CoordinatedTime;
 import com.aitech.atak.biometrics.plugin.R;
 import com.aitech.atak.biometrics.DeviceData;
@@ -52,12 +51,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class TakBiometricsDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener, CommsLogger {
+public class TakBiometricsDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener {
 
     public static final String SHOW_DROP_DOWN = "com.aitech.atak.biometrics.SHOW_DROP_DOWN";
     public static final String TAG = "TakBiometricsDropDown";
     private final View dropDownView;
-    private CotStreamListener cotStreamListener;
     private ScheduledExecutorService scheduler;
     private String localDeviceSerialNumber;
 
@@ -71,6 +69,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private String selfTitle;
     private CustomExpandableAdapter customExpandableAdapter;
     private ExpandableListView expandableListView;
+    private CotDetailHandler biometricsDetailHandler = null;
+
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
         super(mapView);
@@ -86,7 +86,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         listView = dropDownView.findViewById(R.id.listView);
         listView.setAdapter(customAdapter);
          */
-
         customExpandableAdapter = new CustomExpandableAdapter(context, arrayList);
         expandableListView = (ExpandableListView) dropDownView.findViewById(R.id.expandableListView);
         expandableListView.setAdapter(customExpandableAdapter);
@@ -120,8 +119,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
 
         });
-
-        startScheduler();
     }
 
     //method to expand all groups
@@ -188,10 +185,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
 
         }
-
 //        Log.d(TAG, "Updating DropDown with device data");
-
-
         // Update the adapter to reflect the new data
         //customAdapter.notifyDataSetChanged();
         customExpandableAdapter.notifyDataSetChanged();
@@ -220,7 +214,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         });
     }
 
-
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
@@ -236,26 +229,16 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
             showDropDown(dropDownView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false, this);
             if (LicenseManager.isLicenseValid()) {
-                if (cotStreamListener == null) {
-                    cotStreamListener = new CotStreamListener(context, "BiometricsListener", new CotServiceRemote.CotEventListener() {
-                        @Override
-                        public void onCotEvent(CotEvent cotEvent, Bundle bundle) {
-                            //                        Log.d(TAG, "onCotEvent called");
-                            //cotReceiver(cotEvent);
-                        }
-                    });
-                }
-                // register the cot logger once the license is validated and the dropdown is open.
-                registerCotLogger();
+                // once the license is validated and the dropdown is open, register the cot handler for biometric data,
+                registerCotHandler();
                 displayInfoOnUI("License Key valid");
+                startScheduler();
             } else {
                 Log.d(TAG, "License Key is invalid");
+                unregisterCotHandler();         // Ensure the logger is unregistered
                 displayInfoOnUI("License Key invalid");
                 stopScheduler();
-                unregisterCotStreamListener(); // Ensure listener is unregistered
-                unregisterCotLogger();         // Ensure the logger is unregistered
             }
-
             // create prefs button, listen for click. if clicked, launch biometrics preferences screen.
             loadBiometricsPreferencesButton(context);
             setAssociationKey(PREFERENCES_KEYS);
@@ -266,41 +249,13 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     public void onDropDownSelectionRemoved() {
     }
 
-    @Override
-    public void logSend(CotEvent cotEvent, String s) {
-
-    }
-
-    @Override
-    public void logSend(CotEvent cotEvent, String[] strings) {
-
-    }
-
-    @Override
-    public void logReceive(CotEvent cotEvent, String s, String s1) {
-        String cotFilter = "biometrics";
-        if (!LicenseManager.isLicenseValid()) {
-            Log.d(TAG, "License is invalid, ignoring the CoT event.");
-            return;
-        }
-            // If the message contains our key, pass it through our cot receiver, which will process the cot message further.
-        if (cotEvent.toString().contains(cotFilter)) {
-            Log.d(TAG, cotEvent.toString());
-            cotReceiver(cotEvent);
-        }
-    }
-
     // puts cot messages (biometric devices & their data) into hashmaps for the dropdown UI cards.
     private void cotReceiver(CotEvent cotEvent) {
         if (!LicenseManager.isLicenseValid()) {
             Log.d(TAG, "License is invalid, ignoring the CoT event.");
             return;
         }
-
         CotDetail detail = cotEvent.getDetail();
-
-
-
 
         if (detail != null) {
             CotDetail biometrics = detail.getFirstChildByName(0,"biometrics");;
@@ -508,14 +463,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
-    public void unregisterCotStreamListener() {
-        if (cotStreamListener != null) {
-            cotStreamListener.dispose();
-            cotStreamListener = null;
-            Log.d(TAG, "Unregistered cotStreamListener due to invalid license");
-        }
-    }
-
     public void removeStaleDevices() {
         //Log.d(TAG, "Checking for stale CoT messages.");
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
@@ -556,7 +503,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
-        //scheduler is for check when to dispose of stale CoT messages
+    //scheduler is used to check when to dispose of stale CoT messages, so the UI can inform user device is no longer sending data
     private void startScheduler() {
         if (scheduler == null || scheduler.isShutdown()) {
             scheduler = Executors.newScheduledThreadPool(1);
@@ -573,23 +520,57 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
-    private void registerCotLogger() {
-        CommsMapComponent.getInstance().registerCommsLogger(this);
-        Log.d(TAG, "Registering Cot Logger");
+    private void registerCotHandler() {
+        if (!LicenseManager.isLicenseValid()) {
+            Log.d(TAG, "License is invalid, not registering cot handler");
+            return;
+        }
+        if (biometricsDetailHandler != null) {
+            Log.d(TAG, "BiometricsDetailHandler is already registered; skipping re-register.");
+            return;
+        }
+
+        biometricsDetailHandler = new CotDetailHandler("biometrics") {
+            private final String TAG = "BiometricsDetailHandler";
+
+            @Override
+            public CommsMapComponent.ImportResult toItemMetadata(MapItem item, CotEvent event, CotDetail detail) {
+                if (!LicenseManager.isLicenseValid()) {
+                    Log.d(TAG, "License is invalid, not processing CotDetail");
+                    return CommsMapComponent.ImportResult.FAILURE;
+                }
+                // grab the cot detail
+                CotDetail deviceDetail = detail.getFirstChildByName(0, "device");
+                if (deviceDetail != null) {
+                    Log.d(TAG, "Handling <biometrics> detail with device child: " + deviceDetail.toString());
+                    // once a detail with "biometrics" is found, pass the full cotEvent to cotReceiver for dropdown UI
+                    cotReceiver(event);
+                }
+                return CommsMapComponent.ImportResult.SUCCESS;
+            }
+            @Override
+            public boolean toCotDetail(MapItem mapItem, CotEvent cotEvent, CotDetail cotDetail) {
+                return false;
+            }
+        };
+        // register the cot handler for "biometrics" after it has been constructed
+        CotDetailManager.getInstance().registerHandler(biometricsDetailHandler);
+        Log.d(TAG, "Registered the biometricsDetailHandler");
     }
 
-    private void unregisterCotLogger() {
-        CommsMapComponent.getInstance().unregisterCommsLogger(this);
-        Log.d(TAG, "Unregistering Cot Logger");
+    public void unregisterCotHandler() {
+        if (biometricsDetailHandler != null) {
+            Log.d(TAG, "Unregistering Cot Handler");
+            CotDetailManager.getInstance().unregisterHandler(biometricsDetailHandler);
+            // set it to null so we know it’s gone
+            biometricsDetailHandler = null;
+        } else {
+            Log.d(TAG, "biometricsDetailHandler was null, nothing to unregister");
+        }
     }
 
     @Override
     public void onDropDownClose() {
-        // Dispose of the CoT listener when dropdown is closed. TODO: Deprecate cot listener methods.
-        if (cotStreamListener != null) {
-            cotStreamListener.dispose();
-            cotStreamListener = null;
-        }
         // TODO: simplify and use concise methods for starting, stopping scheduler
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdownNow(); // Shut down the scheduler
@@ -597,7 +578,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
 
         // stop listening to cot messages when the drop down closes
-        unregisterCotLogger();
+        unregisterCotHandler();
         // clear the hashmap filled with heart rate & biometric device data. The hashmap is used to fill data in the dropdown UI cards.
         heartRateData.clear();
     }
@@ -622,29 +603,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
 
         if (LicenseManager.isLicenseValid()) {
-            // Re-register the cotStreamListener if necessary TODO: deprecate cotstream listener
-            if (cotStreamListener == null) {
-                cotStreamListener = new CotStreamListener(getMapView().getContext(), "BiometricsListener", new CotServiceRemote.CotEventListener() {
-                    @Override
-                    public void onCotEvent(CotEvent cotEvent, Bundle bundle) {
-                        //cotReceiver(cotEvent);
-                    }
-                });
-            }
             // Start scheduler if not running
             startScheduler();
-            // register the cot logger that listens for cots with biometric data
-            registerCotLogger();
+            // register the cot handler that listens for cots with biometric data
+            registerCotHandler();
 
         } else {
-            // License invalid, unregister listener and stop scheduler TODO: deprecate cotstream listener
-            unregisterCotStreamListener();
-            // if the license is invalid, we want to unregister the cot logger & stop the scheduler that checks for stale data.
-            unregisterCotLogger();
+            // if the license is invalid, we want to unregister the cot handler & stop the scheduler that checks for stale data.
+            unregisterCotHandler();
             stopScheduler();
             displayInfoOnUI("License Key invalid");
         }
-
         // Update UI elements as needed
         displayCotDeviceData();
     }

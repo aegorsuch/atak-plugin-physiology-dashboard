@@ -77,7 +77,8 @@ public class BiometricsPreferenceFragment extends PluginPreferenceFragment {
                         TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");
                         TakBiometricsMapComponent.getTakBiometricsDropDown().stopScheduler();
                         TakBiometricsMapComponent.getTakBiometricsDropDown().removeDevices();
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotStreamListener(); // Unregister the listener
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotHandler(); // Unregister the cot handler
+
                     }
 
                     // Refresh the dropdown
