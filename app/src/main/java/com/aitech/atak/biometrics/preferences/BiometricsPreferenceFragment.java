@@ -66,24 +66,19 @@ public class BiometricsPreferenceFragment extends PluginPreferenceFragment {
                         return true;
                     }
 
-                    // Validate the new license
-                    LicenseManager.validateLicense(newPreferenceValue);
+                    LicenseManager.validateLicense(newPreferenceValue);   // Validate the new license
 
                     if (LicenseManager.isLicenseValid()) {
                         Log.d(TAG, "License Key is valid. Checking biometrics enable prefs");
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License key valid");
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License key valid");      // tell the user License is VALID
                     } else {
                         Log.d(TAG, "License Key is invalid. Clearing CoT messages & UI");
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().stopScheduler();
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().removeDevices();
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotHandler(); // Unregister the cot handler
-
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");    // tell the user License is INVALID
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().stopScheduler();                           // stop checking for stale devices
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().removeDevices();                           // wipe the devices from the UI
+                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotHandler();                    // stop listening to cot biometric messages
                     }
-
-                    // Refresh the dropdown
-                    TakBiometricsMapComponent.getTakBiometricsDropDown().refreshDropDown();
-
+                    TakBiometricsMapComponent.getTakBiometricsDropDown().refreshDropDown();          // Refresh the dropdown
                     return true;
                 }
             });

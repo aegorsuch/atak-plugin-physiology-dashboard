@@ -57,20 +57,16 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     public static final String TAG = "TakBiometricsDropDown";
     private final View dropDownView;
     private ScheduledExecutorService scheduler;
-    private String localDeviceSerialNumber;
 
     // hashmap to store heart rates with biometrics devices
     private final Map<String, Integer> heartRateData = new ConcurrentHashMap<>();
     private final Map<String, DeviceData> deviceDataMap = new ConcurrentHashMap<>();
-    private DeviceData localDeviceData;
 
     private ArrayList<DeviceData> arrayList;
-    private ListView listView;
     private String selfTitle;
     private CustomExpandableAdapter customExpandableAdapter;
     private ExpandableListView expandableListView;
     private CotDetailHandler biometricsDetailHandler = null;
-
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
         super(mapView);
@@ -79,13 +75,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
         // Initialize the arrayList and customAdapter
         arrayList = new ArrayList<>();
-        /*
-        customAdapter = new CustomAdapter(context, arrayList);
 
-        // Find the ListView and set the adapter
-        listView = dropDownView.findViewById(R.id.listView);
-        listView.setAdapter(customAdapter);
-         */
         customExpandableAdapter = new CustomExpandableAdapter(context, arrayList);
         expandableListView = (ExpandableListView) dropDownView.findViewById(R.id.expandableListView);
         expandableListView.setAdapter(customExpandableAdapter);
@@ -229,18 +219,16 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
             showDropDown(dropDownView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false, this);
             if (LicenseManager.isLicenseValid()) {
-                // once the license is validated and the dropdown is open, register the cot handler for biometric data,
-                registerCotHandler();
-                displayInfoOnUI("License Key valid");
-                startScheduler();
+                registerCotHandler();  // start listening to cot messages
+                displayInfoOnUI("License Key valid");  // tell the user License is VALID
+                startScheduler();  // start checking for stale devices
             } else {
                 Log.d(TAG, "License Key is invalid");
-                unregisterCotHandler();         // Ensure the logger is unregistered
-                displayInfoOnUI("License Key invalid");
-                stopScheduler();
+                unregisterCotHandler();  // stop listening to cot messages
+                displayInfoOnUI("License Key invalid");  // tell the user License is INVALID
+                stopScheduler();  // start checking for stale devices
             }
-            // create prefs button, listen for click. if clicked, launch biometrics preferences screen.
-            loadBiometricsPreferencesButton(context);
+            loadBiometricsPreferencesButton(context);  // if clicked, launch biometrics plugin preferences screen.
             setAssociationKey(PREFERENCES_KEYS);
         }
     }
@@ -272,7 +260,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             }
 
             // Now we know that the cot message contains biometrics, we can extract the data from it.
-
             CotDetail contact = cotEvent.getDetail().getFirstChildByName(0, "contact");
             CotDetail status = cotEvent.getDetail().getFirstChildByName(0, "status");
             String deviceId = cotEvent.getUID(); // Using UID as deviceId
@@ -311,7 +298,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     }
                     //Log.d(TAG, "selfTitle = (" + selfTitle + ")");
                     if ((null != selfTitle) && selfTitle.equals(callsign)) {
-//                            Log.d(TAG, "Received heart rate data from local device; storing in deviceDataMap.");
                         callsign = callsign + " (You)";
                         //Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
                         if (deviceDataMap.containsKey(deviceId)) {
@@ -366,9 +352,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         getMapView().post(this::displayCotDeviceData);
                     } else {
                         //Log.d(TAG, "Recieved Cot - REMOTE - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
-
-//                            Log.d(TAG, "Received heart rate data from remote device; storing in deviceDataMap.");
-                        // isLocal = false means that it's remote.
                         if (deviceDataMap.containsKey(deviceId)) {
                             // Update the data. No need to create a new DeviceData
                             DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
@@ -451,25 +434,13 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         return false; // Device is not stale
     }
 
-    public void removeLocalDevice() {
-        for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
-            DeviceData deviceData = entry.getValue();
-            if (deviceData.isLocal()) {
-                Log.d(TAG, "Removing local device from map.");
-                deviceDataMap.remove(entry.getKey()); // Remove the local device
-                getMapView().post(this::displayCotDeviceData);
-                break;
-            }
-        }
-    }
-
     public void removeStaleDevices() {
         //Log.d(TAG, "Checking for stale CoT messages.");
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             String deviceId = entry.getKey();
             DeviceData deviceData = entry.getValue();
+            long currentTime2 = System.currentTimeMillis(); // grab the current time to see if the cot message is stale
 
-            long currentTime2 = System.currentTimeMillis(); // Get the current system time
             if (isDeviceStale(deviceData)) {
                 deviceData.setStale(true);
                 long staleTime = deviceData.staleTime.getMilliseconds();
@@ -482,10 +453,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 } else {
                     Log.d("Stale", "Device is stale, but not removable yet");
                 }
-//                removeDeviceFromHash(deviceId); // Using the existing method to remove the device
-//
-//                // Update the UI to remove the device from the dropdown
-                getMapView().post(this::displayCotDeviceData);
+                getMapView().post(this::displayCotDeviceData);   // Update the UI to remove the device from the dropdown
             } else {
                 deviceData.setStale(false);
             }
@@ -496,10 +464,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         Log.d(TAG, "Removing Devices from Hash Map");
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             String deviceId = entry.getKey();
-            DeviceData deviceData = entry.getValue();
-            removeDeviceFromHash(deviceId); // Using the existing method to remove the device
-            // Update the UI to remove the device from the dropdown
-            getMapView().post(this::displayCotDeviceData);
+            removeDeviceFromHash(deviceId);                 // Using the existing method to remove the device
+            getMapView().post(this::displayCotDeviceData);  // Update the UI to remove the device from the dropdown
         }
     }
 
@@ -508,7 +474,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         if (scheduler == null || scheduler.isShutdown()) {
             scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleWithFixedDelay(this::removeStaleDevices, 0, 10, TimeUnit.SECONDS);
-//            scheduler.scheduleWithFixedDelay(this::refreshDropDown, 0, 10, TimeUnit.SECONDS);
             Log.d(TAG, "Scheduler started.");
         }
     }
@@ -543,8 +508,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 CotDetail deviceDetail = detail.getFirstChildByName(0, "device");
                 if (deviceDetail != null) {
                     Log.d(TAG, "Handling <biometrics> detail with device child: " + deviceDetail.toString());
-                    // once a detail with "biometrics" is found, pass the full cotEvent to cotReceiver for dropdown UI
-                    cotReceiver(event);
+                    cotReceiver(event); // pass the full cotEvent to cotReceiver for dropdown UI
                 }
                 return CommsMapComponent.ImportResult.SUCCESS;
             }
@@ -553,7 +517,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 return false;
             }
         };
-        // register the cot handler for "biometrics" after it has been constructed
         CotDetailManager.getInstance().registerHandler(biometricsDetailHandler);
         Log.d(TAG, "Registered the biometricsDetailHandler");
     }
@@ -562,8 +525,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         if (biometricsDetailHandler != null) {
             Log.d(TAG, "Unregistering Cot Handler");
             CotDetailManager.getInstance().unregisterHandler(biometricsDetailHandler);
-            // set it to null so we know it’s gone
-            biometricsDetailHandler = null;
+            biometricsDetailHandler = null;  // set it to null so we know it’s gone
         } else {
             Log.d(TAG, "biometricsDetailHandler was null, nothing to unregister");
         }
@@ -571,16 +533,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
     @Override
     public void onDropDownClose() {
-        // TODO: simplify and use concise methods for starting, stopping scheduler
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdownNow(); // Shut down the scheduler
             Log.d(TAG, "Scheduler shut down.");
         }
-
-        // stop listening to cot messages when the drop down closes
-        unregisterCotHandler();
-        // clear the hashmap filled with heart rate & biometric device data. The hashmap is used to fill data in the dropdown UI cards.
-        heartRateData.clear();
+        unregisterCotHandler(); // stop listening to cot messages when the drop down closes
+        heartRateData.clear();  // clear the hashmap used to fill data in the dropdown UI cards.
     }
 
     @Override
@@ -598,25 +556,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
     public void refreshDropDown() {
         if (isClosed()) {
-            // Dropdown is not open, no need to refresh
-            return;
+            return;  // Dropdown is not open, no need to refresh
         }
 
         if (LicenseManager.isLicenseValid()) {
-            // Start scheduler if not running
-            startScheduler();
-            // register the cot handler that listens for cots with biometric data
-            registerCotHandler();
-
+            startScheduler();         // Start stale device check scheduler if not running
+            registerCotHandler();     // register the cot handler that listens for cots with biometric data
         } else {
-            // if the license is invalid, we want to unregister the cot handler & stop the scheduler that checks for stale data.
             unregisterCotHandler();
             stopScheduler();
             displayInfoOnUI("License Key invalid");
         }
-        // Update UI elements as needed
-        displayCotDeviceData();
+        displayCotDeviceData();       // Update UI elements as needed
     }
-
-
 }
