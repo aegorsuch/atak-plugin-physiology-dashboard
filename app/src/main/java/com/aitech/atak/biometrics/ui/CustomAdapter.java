@@ -92,37 +92,37 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
         ImageView iconWearableLogo = convertView.findViewById(R.id.iconWearableLogo);
 
-        if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
-            iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
-            textExertion.setVisibility(VISIBLE);
-            textCoreBodyTemp.setVisibility(VISIBLE);
-            toggle.setVisibility(VISIBLE);
-        } else {
-            iconWearableLogo.setImageResource(R.drawable.biostrap);
-            toggle.setVisibility(INVISIBLE);
-            textExertion.setVisibility(GONE);
-            textCoreBodyTemp.setVisibility(GONE);
-            expandedHealthData.setVisibility(GONE);
-
-        }
+//        if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
+//            iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
+//            textExertion.setVisibility(VISIBLE);
+//            textCoreBodyTemp.setVisibility(VISIBLE);
+//            toggle.setVisibility(VISIBLE);
+//        } else {
+//            iconWearableLogo.setImageResource(R.drawable.biostrap);
+//            toggle.setVisibility(INVISIBLE);
+//            textExertion.setVisibility(GONE);
+//            textCoreBodyTemp.setVisibility(GONE);
+//            expandedHealthData.setVisibility(GONE);
+//
+//        }
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // try launching the preferences page activity
-                if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
-                    if (expandedHealthData.getVisibility() == GONE) {
-                        try {
-                            expandedHealthData.setVisibility(VISIBLE);
-                            toggle.setImageResource(R.drawable.arrow_down);
-                        } catch (NumberFormatException e) {
-                            Log.d(TAG, "Error executing onClick action");
-                        }
-                    } else {
-                        expandedHealthData.setVisibility(GONE);
-                        toggle.setImageResource(R.drawable.arrow);
-                    }
-                }
+//                if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
+//                    if (expandedHealthData.getVisibility() == GONE) {
+//                        try {
+//                            expandedHealthData.setVisibility(VISIBLE);
+//                            toggle.setImageResource(R.drawable.arrow_down);
+//                        } catch (NumberFormatException e) {
+//                            Log.d(TAG, "Error executing onClick action");
+//                        }
+//                    } else {
+//                        expandedHealthData.setVisibility(GONE);
+//                        toggle.setImageResource(R.drawable.arrow);
+//                    }
+//                }
             }
         });
 

@@ -88,13 +88,13 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
         ImageView iconWearableLogo = convertView.findViewById(R.id.iconWearableLogo);
 
-        if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
-            iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
-        } else {
-            iconWearableLogo.setImageResource(R.drawable.biostrap);
-            textExertion.setVisibility(GONE);
-            textCoreBodyTemp.setVisibility(GONE);
-        }
+//        if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
+//            iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
+//        } else {
+//            iconWearableLogo.setImageResource(R.drawable.biostrap);
+//            textExertion.setVisibility(GONE);
+//            textCoreBodyTemp.setVisibility(GONE);
+//        }
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);
 
@@ -246,7 +246,9 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
             } else if (String.valueOf(currentDeviceData.model).contains("WEAROS")){
                 iconWearableLogo.setImageResource(R.drawable.wearos);
             } else {
-                iconWearableLogo.setVisibility(INVISIBLE);
+//                iconWearableLogo.setVisibility(INVISIBLE);
+                iconWearableLogo.setImageResource(R.drawable.wearos);
+                Log.d(TAG, "currentDeviceData does not contain WEAROS cot" + currentDeviceData.model + " " + currentDeviceData.callsign);
 
             }
         }
