@@ -27,11 +27,12 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@id/ssbandLogo"
             android:text="@string/app_name"
             android:textColor="@android:color/white"
-            android:textSize="20sp"
-            android:layout_toRightOf="@id/ssbandLogo"
-            android:layout_centerInParent="true"/>
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/infoString"

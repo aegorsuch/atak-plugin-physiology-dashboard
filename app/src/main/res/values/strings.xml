@@ -12,5 +12,23 @@
     <string name="battery_level">Battery Level:</string>
     <string name="preferences_name">AIT Biometrics Preferences</string>
     <string name="preferences_description">AIT Biometrics Preferences</string>
+    <string name="license_key_valid">License Key valid</string>
+    <string name="license_key_invalid">License Key invalid</string>
+    <string name="license_key">License Key</string>
+    <string name="enter_your_license_key_to_enable_display_of_biometrics">Enter your license key to enable display of biometrics</string>
+    <string name="enable_test_alerts">Enable test alerts</string>
+    <string name="test_alert_summary">When enabled device will generate simulated biometric alerts to test/view functionality</string>
+    <string name="enter_license_key">Enter License Key</string>
+    <string name="previous_alerts">Previous Alerts:</string>
+    <string name="band_not_worn_properly_readings_may_be_incorrect">Band not worn properly, readings may be incorrect</string>
+    <string name="level">"Level: "</string>
+    <string name="alert_s_cleared">Alert(s) Cleared</string>
+    <string name="last_connected">"Last connected "</string>
+    <string name="seconds_ago">" seconds ago"</string>
+    <string name="heart_rate_caps">HEART_RATE</string>
+    <string name="core_temp">CORE_TEMP</string>
+    <string name="exertion">EXERTION</string>
+    <string name="low">LOW</string>
+    <string name="high">HIGH</string>
 
 </resources>

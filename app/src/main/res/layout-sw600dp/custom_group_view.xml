@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="13sp"
-            android:text="Band not worn properly, readings may be incorrect"
+            android:text="@string/band_not_worn_properly_readings_may_be_incorrect"
             android:textColor="@color/light_gray"
             tools:ignore="RtlHardcoded"
             android:paddingBottom="7dp"
@@ -168,7 +168,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Previous Alerts:"
+                android:text="@string/previous_alerts"
                 android:layout_marginTop="10dp"/>
 
         </LinearLayout>

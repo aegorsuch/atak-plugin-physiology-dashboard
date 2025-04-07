@@ -4,13 +4,13 @@
     <com.atakmap.android.gui.PanEditTextPreference
         android:defaultValue="None"
         android:key="com.aitech.atak.biometrics.preferences.LICENSE_KEY_AIT"
-        android:summary="Enter your license key to enable display of biometrics"
-        android:title="License Key" />
+        android:summary="@string/enter_your_license_key_to_enable_display_of_biometrics"
+        android:title="@string/license_key" />
 
     <com.atakmap.android.gui.PanSwitchPreference
         android:defaultValue="false"
         android:key="com.aitech.atak.biometrics.preferences.ENABLE_TEST_ALERTS"
-        android:summary="When enabled device will generate simulated biometric alerts to test/view functionality"
-        android:title="Enable test alerts" />
+        android:summary="@string/test_alert_summary"
+        android:title="@string/enable_test_alerts" />
 
 </PreferenceScreen>
