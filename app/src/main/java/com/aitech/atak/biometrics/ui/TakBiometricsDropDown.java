@@ -239,6 +239,13 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
     // puts cot messages (biometric devices & their data) into hashmaps for the dropdown UI cards.
     private void cotReceiver(CotEvent cotEvent) {
+        Log.d("WEARTAK_ENTER", "cotReceiver entered");
+            Log.d("WEARTAK_COT", cotEvent.toString());
+
+            if (cotEvent.getDetail() != null) {
+                Log.d("WEARTAK_DETAIL", cotEvent.getDetail().toString());
+            }
+
         if (!LicenseManager.isLicenseValid()) {
             Log.d(TAG, "License is invalid, ignoring the CoT event.");
             return;
@@ -246,16 +253,18 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         CotDetail detail = cotEvent.getDetail();
 
         if (detail != null) {
-            CotDetail biometrics = detail.getFirstChildByName(0,"biometrics");;
+            CotDetail biometrics = detail.getFirstChildByName(0,"biometrics");
             // Ensure the biometrics child exists
             if (biometrics == null) {
-                Log.d(TAG, "biometrics Child not found in cot detail. Exiting");
-                return; // Exit early if no biometrics section is present
+                Log.d("WEARTAK_COT", "No biometrics detail found");
+                Log.d("WEARTAK_COT", cotEvent.toString());
+                return;
             }
             CotDetail biometricDevice = biometrics.getFirstChildByName(0,"device");
             // Ensure the device child exists
             if (biometricDevice == null) {
-                Log.d(TAG, "device Child not found in biometrics. Exiting");
+                Log.d("WEARTAK_COT", "No device child found");
+                Log.d("WEARTAK_COT", biometrics.toString());
                 return; // Exit early if no device section is present
             }
 
@@ -272,7 +281,11 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             String modelStr =biometricDevice.getChild("model").getInnerText();
             String serialNumber = biometricDeviceUid;       // the serial number is legacy for holding biostrap serial #s. keeping the serialNumber for readibility.
             String batteryLevelStr = biometricDevice.getChild("bat").getInnerText();
-
+            Log.d("WEARTAK_PARSE",
+                    "UID=" + biometricDeviceUid +
+                            ", HR=" + heartRateStr +
+                            ", BAT=" + batteryLevelStr +
+                            ", MODEL=" + modelStr);
             Log.d("CotReceiver", "Callsign: " + callsign +"Model: " + modelStr + ", UID: " + biometricDeviceUid + ", HR: " + heartRateStr + ", Battery: " + batteryLevelStr);
 
             Boolean isFalsePositive = Boolean.valueOf(biometrics.getAttribute("isFalsePositive"));
@@ -286,10 +299,19 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             String hrvStr = biometrics.getAttribute("hrv");
 
             CoordinatedTime staleTime = cotEvent.getStale();
+
             if (heartRateStr != null && deviceId != null) {
                 try {
                     boolean enableTestAlerts = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
-                    int heartRate = Integer.parseInt(heartRateStr);
+                    Log.d("HR_DEBUG", "heartRateStr=" + heartRateStr);
+                    int heartRate = -1;
+                    if (heartRateStr != null &&
+                            !heartRateStr.equals("N/A") &&
+                            !heartRateStr.isEmpty()) {
+                        heartRate = Integer.parseInt(heartRateStr);
+                    }
+                    Log.d("HR_DEBUG", "parsed heartRate=" + heartRate);
+
                     int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
                     if (enableTestAlerts) {
                         TakBiometricsMapComponent.testCounter = TakBiometricsMapComponent.testCounter + 1;
@@ -414,7 +436,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     }
 
                 } catch (NumberFormatException e) {
-                    Log.e(TAG, "Invalid heart rate value: " + heartRateStr, e);
+                    Log.e("PARSE_DEBUG",
+                            "HR=" + heartRateStr +
+                                    " BAT=" + batteryLevelStr +
+                                    " MSG=" + e.getMessage(), e);
                 }
             }
         } else {
@@ -500,10 +525,15 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
             @Override
             public CommsMapComponent.ImportResult toItemMetadata(MapItem item, CotEvent event, CotDetail detail) {
+                Log.d("LICENSE_DEBUG",
+                        "registerCotHandler called. isLicenseValid = "
+                                + LicenseManager.isLicenseValid());
                 if (!LicenseManager.isLicenseValid()) {
                     Log.d(TAG, "License is invalid, not processing CotDetail");
                     return CommsMapComponent.ImportResult.FAILURE;
                 }
+                Log.d("BIOMETRICS_HANDLER", "Received detail: " + detail.toString());
+
                 // grab the cot detail
                 CotDetail deviceDetail = detail.getFirstChildByName(0, "device");
                 if (deviceDetail != null) {
@@ -517,6 +547,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 return false;
             }
         };
+        Log.d("BIOMETRICS_HANDLER", "Registering biometrics handler");
         CotDetailManager.getInstance().registerHandler(biometricsDetailHandler);
         Log.d(TAG, "Registered the biometricsDetailHandler");
     }

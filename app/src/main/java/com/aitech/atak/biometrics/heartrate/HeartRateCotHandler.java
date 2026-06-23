@@ -27,7 +27,7 @@ public class HeartRateCotHandler extends CotDetailHandler {
 
     public HeartRateCotHandler() {
         super(HEART_RATE_COT_KEY);
-        Log.d(TAG, "HeartRateCotHandler called");
+        Log.d("WEARTAK_STARTUP", "HeartRateCotHandler registered");
     }
 
     @Override

@@ -212,7 +212,7 @@ public class DeviceData {
     }
 
    public Comparator<DeviceData> alertLevelComparator = new Comparator<DeviceData>() {
-        @Override
+    @Override
         public int compare(DeviceData o1, DeviceData o2) {
             int priority1 = getAlertLevelPriority(o1.highestAlertLevel);
             int priority2 = getAlertLevelPriority(o2.highestAlertLevel);
