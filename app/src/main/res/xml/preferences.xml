@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:defaultValue="None"
-        android:key="com.aitech.atak.biometrics.preferences.LICENSE_KEY_AIT"
-        android:summary="@string/enter_your_license_key_to_enable_display_of_biometrics"
-        android:title="@string/license_key" />
+<!--    <com.atakmap.android.gui.PanEditTextPreference-->
+<!--        android:defaultValue="None"-->
+<!--        android:key="com.aitech.atak.biometrics.preferences.LICENSE_KEY_AIT"-->
+<!--        android:summary="@string/enter_your_license_key_to_enable_display_of_biometrics"-->
+<!--        android:title="@string/license_key" />-->
 
     <com.atakmap.android.gui.PanSwitchPreference
         android:defaultValue="false"

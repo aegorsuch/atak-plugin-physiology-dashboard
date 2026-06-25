@@ -19,7 +19,7 @@
             android:layout_height="32dp"
             android:layout_marginEnd="8dp"
             android:contentDescription="logo"
-            android:src="@drawable/aitbiometricslogo"
+            android:src="@drawable/weartak_logo"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"/>
 
@@ -34,16 +34,16 @@
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/infoString"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="status"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:layout_toRightOf="@id/ssbandLogo"
-            android:layout_below="@id/textView"
-            android:layout_marginTop="15dp"/>
+<!--        <TextView-->
+<!--            android:id="@+id/infoString"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="status"-->
+<!--            android:textColor="@android:color/white"-->
+<!--            android:textSize="12sp"-->
+<!--            android:layout_toRightOf="@id/ssbandLogo"-->
+<!--            android:layout_below="@id/textView"-->
+<!--            android:layout_marginTop="15dp"/>-->
 
         <!-- Preferences Button at the top right -->
         <Button

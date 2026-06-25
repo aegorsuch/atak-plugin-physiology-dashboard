@@ -58,13 +58,13 @@ public class TakBiometricsMapComponent extends DropDownMapComponent {
         registerPreferences();
 
         // this is run once once bc onCreate(). Check the license, check if Biometrics is enabled in prefs.
-        if (licenseKeyCheck()) {
-            Log.d(TAG, "License Key is valid.");
-            TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key valid");
-        } else {
-            Log.d(TAG, "License Key is invalid.");
-            TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");
-        }
+//        if (licenseKeyCheck()) {
+//            Log.d(TAG, "License Key is valid.");
+//            TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key valid");
+//        } else {
+//            Log.d(TAG, "License Key is invalid.");
+//            TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");
+//        }
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TakBiometricsMapComponent extends DropDownMapComponent {
                         context.getResources().getString(R.string.preferences_name),
                         context.getResources().getString(R.string.preferences_description),
                         PREFERENCES_KEYS,
-                        context.getResources().getDrawable(R.drawable.aitbiometricslogo, null),
+                        context.getResources().getDrawable(R.drawable.physio_atak_logo, null),
                         new BiometricsPreferenceFragment(context))
         );
     }

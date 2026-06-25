@@ -215,42 +215,24 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         TextView textisFalsePositive = convertView.findViewById(R.id.textisFalsePositive);
         ImageView iconWearableLogo = convertView.findViewById(R.id.iconWearableLogo);
 
-        if (String.valueOf(currentDeviceData.model).equals("SS_BAND_V2")) {
-            iconWearableLogo.setImageResource(R.drawable.slatesafety_shield);
-            isSlateSafety = true;
-            textExertion.setVisibility(VISIBLE);
-            textCoreBodyTemp.setVisibility(VISIBLE);
-            if (isExpanded) {
-                expandedData.setVisibility(VISIBLE);
-                previousAlertText.setVisibility(VISIBLE);
-            } else {
-                expandedData.setVisibility(GONE);
-                previousAlertText.setVisibility(GONE);
-            }
+        if (isExpanded) {
+            previousAlertText.setVisibility(VISIBLE);
         } else {
-                textExertion.setVisibility(GONE);
-                textCoreBodyTemp.setVisibility(GONE);
-                expandedData.setVisibility(GONE);
-                isSlateSafety = false;
-            if (isExpanded) {
-                previousAlertText.setVisibility(VISIBLE);
-            } else {
-                previousAlertText.setVisibility(GONE);
-            }
-            if (String.valueOf(currentDeviceData.model).equals("BIOSTRAP") || String.valueOf(currentDeviceData.model).equals("null")){
-                iconWearableLogo.setImageResource(R.drawable.biostrap);
+            previousAlertText.setVisibility(GONE);
+        }
+        if (String.valueOf(currentDeviceData.model).equals("BIOSTRAP") || String.valueOf(currentDeviceData.model).equals("null")){
+            iconWearableLogo.setImageResource(R.drawable.biostrap);
 
-            } else if (String.valueOf(currentDeviceData.model).equals("BLUEBIRD")){
-                iconWearableLogo.setImageResource(R.drawable.bluebird);
+        } else if (String.valueOf(currentDeviceData.model).equals("BLUEBIRD")){
+            iconWearableLogo.setImageResource(R.drawable.bluebird);
 
-            } else if (String.valueOf(currentDeviceData.model).contains("WEAROS")){
-                iconWearableLogo.setImageResource(R.drawable.wearos);
-            } else {
+        } else if (String.valueOf(currentDeviceData.model).contains("WEAROS")){
+            iconWearableLogo.setImageResource(R.drawable.wearos);
+        } else {
 //                iconWearableLogo.setVisibility(INVISIBLE);
-                iconWearableLogo.setImageResource(R.drawable.wearos);
-                Log.d(TAG, "currentDeviceData does not contain WEAROS cot" + currentDeviceData.model + " " + currentDeviceData.callsign);
+            iconWearableLogo.setImageResource(R.drawable.wearos);
+            Log.d(TAG, "currentDeviceData does not contain WEAROS cot" + currentDeviceData.model + " " + currentDeviceData.callsign);
 
-            }
         }
 
         ImageView alertIcon = convertView.findViewById(R.id.alertIcon);

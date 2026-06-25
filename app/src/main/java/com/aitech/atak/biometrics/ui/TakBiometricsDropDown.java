@@ -191,18 +191,18 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
-    public void displayInfoOnUI(String info) {
-        getMapView().post(() -> {
-            TextView textView = dropDownView.findViewById(R.id.infoString);
-            Log.d(TAG, "Displaying info string to the UI: " + info);
-            textView.setText(info);
-            if (info.toUpperCase(Locale.getDefault()).contains("INVALID")) {
-                textView.setTextColor(Color.RED);
-            } else {
-                textView.setTextColor(Color.WHITE);
-            }
-        });
-    }
+//    public void displayInfoOnUI(String info) {
+//        getMapView().post(() -> {
+//            TextView textView = dropDownView.findViewById(R.id.infoString);
+//            Log.d(TAG, "Displaying info string to the UI: " + info);
+//            textView.setText(info);
+//            if (info.toUpperCase(Locale.getDefault()).contains("INVALID")) {
+//                textView.setTextColor(Color.RED);
+//            } else {
+//                textView.setTextColor(Color.WHITE);
+//            }
+//        });
+//    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -218,16 +218,16 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 return;
             }
             showDropDown(dropDownView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false, this);
-            if (LicenseManager.isLicenseValid()) {
+//            if (LicenseManager.isLicenseValid()) {
                 registerCotHandler();  // start listening to cot messages
-                displayInfoOnUI("License Key valid");  // tell the user License is VALID
+//                displayInfoOnUI("License Key valid");  // tell the user License is VALID
                 startScheduler();  // start checking for stale devices
-            } else {
-                Log.d(TAG, "License Key is invalid");
-                unregisterCotHandler();  // stop listening to cot messages
-                displayInfoOnUI("License Key invalid");  // tell the user License is INVALID
-                stopScheduler();  // start checking for stale devices
-            }
+//            } else {
+//                Log.d(TAG, "License Key is invalid");
+//                unregisterCotHandler();  // stop listening to cot messages
+//                displayInfoOnUI("License Key invalid");  // tell the user License is INVALID
+//                stopScheduler();  // start checking for stale devices
+//            }
             loadBiometricsPreferencesButton(context);  // if clicked, launch biometrics plugin preferences screen.
             setAssociationKey(PREFERENCES_KEYS);
         }
@@ -246,10 +246,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 Log.d("WEARTAK_DETAIL", cotEvent.getDetail().toString());
             }
 
-        if (!LicenseManager.isLicenseValid()) {
-            Log.d(TAG, "License is invalid, ignoring the CoT event.");
-            return;
-        }
+//        if (!LicenseManager.isLicenseValid()) {
+//            Log.d(TAG, "License is invalid, ignoring the CoT event.");
+//            return;
+//        }
         CotDetail detail = cotEvent.getDetail();
 
         if (detail != null) {
@@ -511,10 +511,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     }
 
     private void registerCotHandler() {
-        if (!LicenseManager.isLicenseValid()) {
-            Log.d(TAG, "License is invalid, not registering cot handler");
-            return;
-        }
+//        if (!LicenseManager.isLicenseValid()) {
+//            Log.d(TAG, "License is invalid, not registering cot handler");
+//            return;
+//        }
         if (biometricsDetailHandler != null) {
             Log.d(TAG, "BiometricsDetailHandler is already registered; skipping re-register.");
             return;
@@ -525,13 +525,13 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
             @Override
             public CommsMapComponent.ImportResult toItemMetadata(MapItem item, CotEvent event, CotDetail detail) {
-                Log.d("LICENSE_DEBUG",
-                        "registerCotHandler called. isLicenseValid = "
-                                + LicenseManager.isLicenseValid());
-                if (!LicenseManager.isLicenseValid()) {
-                    Log.d(TAG, "License is invalid, not processing CotDetail");
-                    return CommsMapComponent.ImportResult.FAILURE;
-                }
+//                Log.d("LICENSE_DEBUG",
+//                        "registerCotHandler called. isLicenseValid = "
+//                                + LicenseManager.isLicenseValid());
+//                if (!LicenseManager.isLicenseValid()) {
+//                    Log.d(TAG, "License is invalid, not processing CotDetail");
+//                    return CommsMapComponent.ImportResult.FAILURE;
+//                }
                 Log.d("BIOMETRICS_HANDLER", "Received detail: " + detail.toString());
 
                 // grab the cot detail
@@ -590,14 +590,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             return;  // Dropdown is not open, no need to refresh
         }
 
-        if (LicenseManager.isLicenseValid()) {
+//        if (LicenseManager.isLicenseValid()) {
             startScheduler();         // Start stale device check scheduler if not running
             registerCotHandler();     // register the cot handler that listens for cots with biometric data
-        } else {
-            unregisterCotHandler();
-            stopScheduler();
-            displayInfoOnUI("License Key invalid");
-        }
+//        } else {
+//            unregisterCotHandler();
+//            stopScheduler();
+//            displayInfoOnUI("License Key invalid");
+//        }
         displayCotDeviceData();       // Update UI elements as needed
     }
 }
