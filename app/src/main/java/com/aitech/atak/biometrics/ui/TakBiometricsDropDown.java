@@ -281,16 +281,27 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             String modelStr =biometricDevice.getChild("model").getInnerText();
             String serialNumber = biometricDeviceUid;       // the serial number is legacy for holding biostrap serial #s. keeping the serialNumber for readibility.
             String batteryLevelStr = biometricDevice.getChild("bat").getInnerText();
+            String skinTempStr = biometricDevice.getChild("skt") != null
+                    ? biometricDevice.getChild("skt").getInnerText()
+                    : null;
+
+            String exertionStr = biometricDevice.getChild("exert") != null
+                    ? biometricDevice.getChild("exert").getInnerText()
+                    : null;
+
+            String spo2Str = biometricDevice.getChild("spo2") != null
+                    ? biometricDevice.getChild("spo2").getInnerText()
+                    : null;
             Log.d("WEARTAK_PARSE",
                     "UID=" + biometricDeviceUid +
                             ", HR=" + heartRateStr +
+                            ", SKT=" + skinTempStr +
+                            ", EXERT=" + exertionStr +
+                            ", SPO2=" + spo2Str +
                             ", BAT=" + batteryLevelStr +
                             ", MODEL=" + modelStr);
             Log.d("CotReceiver", "Callsign: " + callsign +"Model: " + modelStr + ", UID: " + biometricDeviceUid + ", HR: " + heartRateStr + ", Battery: " + batteryLevelStr);
-
             Boolean isFalsePositive = Boolean.valueOf(biometrics.getAttribute("isFalsePositive"));
-            String coreTempStr = biometrics.getAttribute("coreTemp");
-            String exertionStr = biometrics.getAttribute("exertion");
             String hssiStr = biometrics.getAttribute("hssi");
             String cadenceStr = biometrics.getAttribute("cadence");
             String caloricBurnRateStr = biometrics.getAttribute("caloricBurnRate");
@@ -327,8 +338,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             DeviceData localDeviceData = deviceDataMap.get(deviceId);
                             if (null != localDeviceData) {
                                 localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
-                                        ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                        ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                         (double) heartRate,
+                                        ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
                                         ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
                                         ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
                                         ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
@@ -350,8 +362,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         } else {
                             // isLocal = true means that it's local.
                             DeviceData localDeviceData = new DeviceData(modelStr, callsign, true, serialNumber, staleTime, isFalsePositive,
-                                    ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
+                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
                                     ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
                                     ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
                                     ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
@@ -378,8 +391,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             // Update the data. No need to create a new DeviceData
                             DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
                             remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
-                                    ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
+                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
                                     ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
                                     ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
                                     ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
@@ -403,8 +417,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             }
                         } else {
                             DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
-                                    ((null == coreTempStr) || (coreTempStr.equals("")) || (coreTempStr.equals("None"))) ? null : Double.valueOf(coreTempStr),
+                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
+                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
                                     ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
                                     ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
                                     ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
