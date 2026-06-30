@@ -51,40 +51,42 @@ public class BiometricsPreferenceFragment extends PluginPreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Preference LicenseKeyPreference = findPreference(LICENSE_KEY_AIT);
-        if (null != LicenseKeyPreference) {
-            LicenseKeyPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    String oldValue = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getString(LICENSE_KEY_AIT, "");
-                    String newPreferenceValue = newValue.toString();
-                    Log.d(TAG, "Old License Key: " + oldValue);
-                    Log.d(TAG, "New License Key: " + newPreferenceValue);
+//        Preference LicenseKeyPreference = findPreference(LICENSE_KEY_AIT);
+//        if (null != LicenseKeyPreference) {
+//            LicenseKeyPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                @Override
+//                public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                    String oldValue = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getString(LICENSE_KEY_AIT, "");
+//                    String newPreferenceValue = newValue.toString();
+//                    Log.d(TAG, "Old License Key: " + oldValue);
+//                    Log.d(TAG, "New License Key: " + newPreferenceValue);
+//
+//                    if (oldValue.equals(newPreferenceValue)) {
+//                        Log.d(TAG, "License Key has not changed.");
+//                        return true;
+//                    }
+//
+//                    LicenseManager.validateLicense(newPreferenceValue);   // Validate the new license
+//
+//                    if (LicenseManager.isLicenseValid()) {
+//                        Log.d(TAG, "License Key is valid. Checking biometrics enable prefs");
+//                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License key valid");      // tell the user License is VALID
+//                    } else {
+//                        Log.d(TAG, "License Key is invalid. Clearing CoT messages & UI");
+//                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");    // tell the user License is INVALID
+//                        TakBiometricsMapComponent.getTakBiometricsDropDown().stopScheduler();                           // stop checking for stale devices
+//                        TakBiometricsMapComponent.getTakBiometricsDropDown().removeDevices();                           // wipe the devices from the UI
+//                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotHandler();                    // stop listening to cot biometric messages
+//                    }
+//                    TakBiometricsMapComponent.getTakBiometricsDropDown().refreshDropDown();          // Refresh the dropdown
+//                    return true;
+//                }
+//            });
+//        } else {
+//            Log.e(TAG, "ERROR: LicenseKeyPreference is null. Cannot set preference change listener...");
+//        }
+        TakBiometricsMapComponent.getTakBiometricsDropDown().refreshDropDown();          // Refresh the dropdown
 
-                    if (oldValue.equals(newPreferenceValue)) {
-                        Log.d(TAG, "License Key has not changed.");
-                        return true;
-                    }
-
-                    LicenseManager.validateLicense(newPreferenceValue);   // Validate the new license
-
-                    if (LicenseManager.isLicenseValid()) {
-                        Log.d(TAG, "License Key is valid. Checking biometrics enable prefs");
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License key valid");      // tell the user License is VALID
-                    } else {
-                        Log.d(TAG, "License Key is invalid. Clearing CoT messages & UI");
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().displayInfoOnUI("License Key invalid");    // tell the user License is INVALID
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().stopScheduler();                           // stop checking for stale devices
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().removeDevices();                           // wipe the devices from the UI
-                        TakBiometricsMapComponent.getTakBiometricsDropDown().unregisterCotHandler();                    // stop listening to cot biometric messages
-                    }
-                    TakBiometricsMapComponent.getTakBiometricsDropDown().refreshDropDown();          // Refresh the dropdown
-                    return true;
-                }
-            });
-        } else {
-            Log.e(TAG, "ERROR: LicenseKeyPreference is null. Cannot set preference change listener...");
-        }
         Preference enableTestAlertsPreference = findPreference(ENABLE_TEST_ALERTS);
         if (null != enableTestAlertsPreference) {
             enableTestAlertsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
