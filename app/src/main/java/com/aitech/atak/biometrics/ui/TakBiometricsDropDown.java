@@ -289,9 +289,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     ? biometricDevice.getChild("exert").getInnerText()
                     : null;
 
-            String spo2Str = biometricDevice.getChild("spo2") != null
-                    ? biometricDevice.getChild("spo2").getInnerText()
-                    : null;
+           // String spo2Str = biometricDevice.getChild("spo2") != null
+            //        ? biometricDevice.getChild("spo2").getInnerText()
+              //      : null;
+            String spo2Str = null;
             Log.d("WEARTAK_PARSE",
                     "UID=" + biometricDeviceUid +
                             ", HR=" + heartRateStr +
@@ -300,7 +301,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             ", SPO2=" + spo2Str +
                             ", BAT=" + batteryLevelStr +
                             ", MODEL=" + modelStr);
-            Log.d("CotReceiver", "Callsign: " + callsign +"Model: " + modelStr + ", UID: " + biometricDeviceUid + ", HR: " + heartRateStr + ", Battery: " + batteryLevelStr);
             Boolean isFalsePositive = Boolean.valueOf(biometrics.getAttribute("isFalsePositive"));
             String hssiStr = biometrics.getAttribute("hssi");
             String cadenceStr = biometrics.getAttribute("cadence");
@@ -314,14 +314,13 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             if (heartRateStr != null && deviceId != null) {
                 try {
                     boolean enableTestAlerts = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
-                    Log.d("HR_DEBUG", "heartRateStr=" + heartRateStr);
+
                     int heartRate = -1;
                     if (heartRateStr != null &&
                             !heartRateStr.equals("N/A") &&
                             !heartRateStr.isEmpty()) {
                         heartRate = Integer.parseInt(heartRateStr);
                     }
-                    Log.d("HR_DEBUG", "parsed heartRate=" + heartRate);
 
                     int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
                     if (enableTestAlerts) {
@@ -340,14 +339,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                                 localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
                                         ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                         (double) heartRate,
-                                        ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
-                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                        ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
+                                        ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
+                                        ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None")) || (hssiStr.equals("N/A"))) ? null : Double.valueOf(hssiStr),
+                                        ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None")) || (cadenceStr.equals("N/A"))) ? null : Double.valueOf(cadenceStr),
+                                        ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None")) || (caloricBurnRateStr.equals("N/A"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                        ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None")) || (hrlvStr.equals("N/A"))) ? null : Double.valueOf(hrlvStr),
+                                        ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None")) || (vo2Str.equals("N/A"))) ? null : Double.valueOf(vo2Str),
+                                        ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None")) || (hrvStr.equals("N/A"))) ? null : Double.valueOf(hrvStr),
                                         (double) batteryLevel);
                                 if (enableTestAlerts) {
                                     if ((TakBiometricsMapComponent.testCounter % 5) == 0) {
@@ -364,14 +363,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             DeviceData localDeviceData = new DeviceData(modelStr, callsign, true, serialNumber, staleTime, isFalsePositive,
                                     ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
-                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
-                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
+                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
+                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None")) || (hssiStr.equals("N/A"))) ? null : Double.valueOf(hssiStr),
+                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None")) || (cadenceStr.equals("N/A"))) ? null : Double.valueOf(cadenceStr),
+                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None")) || (caloricBurnRateStr.equals("N/A"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None")) || (hrlvStr.equals("N/A"))) ? null : Double.valueOf(hrlvStr),
+                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None")) || (vo2Str.equals("N/A"))) ? null : Double.valueOf(vo2Str),
+                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None")) || (hrvStr.equals("N/A"))) ? null : Double.valueOf(hrvStr),
                                     (double) batteryLevel);
                             deviceDataMap.put(deviceId, localDeviceData);// Store in the map
                             if (enableTestAlerts) {
@@ -390,17 +389,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         if (deviceDataMap.containsKey(deviceId)) {
                             // Update the data. No need to create a new DeviceData
                             DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
-                            remoteDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
+                            remoteDeviceData.updateBiometrics(callsign, false, serialNumber, staleTime, isFalsePositive,
                                     ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
-                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
-                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
+                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
+                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None")) || (hssiStr.equals("N/A"))) ? null : Double.valueOf(hssiStr),
+                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None")) || (cadenceStr.equals("N/A"))) ? null : Double.valueOf(cadenceStr),
+                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None")) || (caloricBurnRateStr.equals("N/A"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None")) || (hrlvStr.equals("N/A"))) ? null : Double.valueOf(hrlvStr),
+                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None")) || (vo2Str.equals("N/A"))) ? null : Double.valueOf(vo2Str),
+                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None")) || (hrvStr.equals("N/A"))) ? null : Double.valueOf(hrvStr),
                                     (double) batteryLevel);
                             if (enableTestAlerts) {
                                 Log.d(TAG, "Adding testcounter: " + TakBiometricsMapComponent.testCounter);
@@ -419,14 +418,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
                                     ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
-                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None"))) ? null : Double.valueOf(spo2Str),
-                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None"))) ? null : Double.valueOf(exertionStr),
-                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None"))) ? null : Double.valueOf(hssiStr),
-                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None"))) ? null : Double.valueOf(cadenceStr),
-                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None"))) ? null : Double.valueOf(caloricBurnRateStr),
-                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None"))) ? null : Double.valueOf(hrlvStr),
-                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None"))) ? null : Double.valueOf(vo2Str),
-                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None"))) ? null : Double.valueOf(hrvStr),
+                                    ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
+                                    ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
+                                    ((null == hssiStr) || (hssiStr.equals("")) || (hssiStr.equals("None")) || (hssiStr.equals("N/A"))) ? null : Double.valueOf(hssiStr),
+                                    ((null == cadenceStr) || (cadenceStr.equals("")) || (cadenceStr.equals("None")) || (cadenceStr.equals("N/A"))) ? null : Double.valueOf(cadenceStr),
+                                    ((null == caloricBurnRateStr) || (caloricBurnRateStr.equals("")) || (caloricBurnRateStr.equals("None")) || (caloricBurnRateStr.equals("N/A"))) ? null : Double.valueOf(caloricBurnRateStr),
+                                    ((null == hrlvStr) || (hrlvStr.equals("")) || (hrlvStr.equals("None")) || (hrlvStr.equals("N/A"))) ? null : Double.valueOf(hrlvStr),
+                                    ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None")) || (vo2Str.equals("N/A"))) ? null : Double.valueOf(vo2Str),
+                                    ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None")) || (hrvStr.equals("N/A"))) ? null : Double.valueOf(hrvStr),
                                     (double) batteryLevel);
                             arrayList.add(remoteDeviceData);
 
@@ -450,11 +449,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
                     }
 
-                } catch (NumberFormatException e) {
-                    Log.e("PARSE_DEBUG",
-                            "HR=" + heartRateStr +
-                                    " BAT=" + batteryLevelStr +
-                                    " MSG=" + e.getMessage(), e);
+                }catch (Exception e) {
+                    Log.e("WEARTAK_ERROR",
+                            "cotReceiver failed. HR=" + heartRateStr +
+                                    ", BAT=" + batteryLevelStr +
+                                    ", SKT=" + skinTempStr +
+                                    ", EXERT=" + exertionStr +
+                                    ", SPO2=" + spo2Str,
+                            e);
                 }
             }
         } else {

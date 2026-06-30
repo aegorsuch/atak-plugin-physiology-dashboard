@@ -64,7 +64,6 @@ public class DeviceData {
     public Double exertion; // in percentage; This roughly corresponds to the
                             // physiological strain the wearer is under. It is never less than 0%,
                             // but can in extreme circumstances go over 100%.
-
     public Double hssi; // in percentage; Heart Rate Signal Strenth Indicator
     public Double cadence; // in steps/min; Corresponds to the walking speed of the wearer
     public Double caloricBurnRate; // in kCal/hr
@@ -90,7 +89,6 @@ public class DeviceData {
         this.isFalsePositive = null;
         this.coreTemp = null;
         this.heartRate = null;
-        this.spo2 = null;
         this.exertion = null;
         this.hssi = null;
         this.cadence = null;
@@ -107,7 +105,7 @@ public class DeviceData {
     }
     // call this for biometrics
     public DeviceData(String model, String callsign, Boolean isLocal, String serialNumber, CoordinatedTime staleTime,
-                      Boolean isFalsePositive, Double coreTemp, Double heartRate, Double spo2, Double exertion,
+                      Boolean isFalsePositive, Double coreTemp, Double heartRate,Double spo2, Double exertion,
                       Double hssi, Double cadence, Double caloricBurnRate, Double hrlv, Double vo2, Double hrv, Double batteryLevel) {
         this.model = model;
         this.callsign = callsign;
@@ -136,7 +134,7 @@ public class DeviceData {
     }
 
     public void updateBiometrics(String callsign, Boolean isLocal, String serialNumber, CoordinatedTime staleTime,
-                                 Boolean isFalsePositive, Double coreTemp, Double heartRate, Double spo2, Double exertion,
+                                 Boolean isFalsePositive, Double coreTemp, Double heartRate,Double spo2, Double exertion,
                       Double hssi, Double cadence, Double caloricBurnRate, Double hrlv, Double vo2, Double hrv, Double batteryLevel) {
         this.callsign = callsign;
         this.isLocal = isLocal;
