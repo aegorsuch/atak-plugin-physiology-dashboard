@@ -186,7 +186,7 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         TextView textCallsign = convertView.findViewById(R.id.textCallsign);
         TextView textHeartRate = convertView.findViewById(R.id.textHeartRate);
         TextView textExertion = convertView.findViewById(R.id.textExertion);
-        TextView textCoreBodyTemp = convertView.findViewById(R.id.textCoreBodyTemp);
+//        TextView textCoreBodyTemp = convertView.findViewById(R.id.textCoreBodyTemp);
         TextView textBattery = convertView.findViewById(R.id.textBattery);
         TextView textLastConnected = convertView.findViewById(R.id.textLastConnected);
         TextView textCaloricBurnRate = convertView.findViewById(R.id.textCaloricBurnRate);
@@ -197,8 +197,8 @@ public class CustomExpandableAdapter extends BaseExpandableListAdapter {
         // Populate the views with data from DeviceData
         textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "- - -");
         textHeartRate.setText(currentDeviceData.heartRate != null ? (int) Math.round(currentDeviceData.heartRate) + " bpm" : "- - -");
-        textExertion.setText(currentDeviceData.exertion != null ? (int) Math.round(currentDeviceData.exertion) + " %" : "- - -");
-        textCoreBodyTemp.setText((currentDeviceData.coreTemp != null) ? String.format(Locale.ENGLISH, "%.2f", currentDeviceData.coreTemp * 9 / 5. + 32) + " °F" : "- - -");
+        textExertion.setText(currentDeviceData.exertion != null ? (currentDeviceData.exertion) + " " : "- - -");
+//        textCoreBodyTemp.setText((currentDeviceData.coreTemp != null) ? String.format(Locale.ENGLISH, "%.2f", currentDeviceData.coreTemp * 9 / 5. + 32) + " °F" : "- - -");
         textBattery.setText(currentDeviceData.batteryLevel != null ? (int) Math.floor(currentDeviceData.batteryLevel) + "%" : "- - -");
         textCaloricBurnRate.setText(currentDeviceData.caloricBurnRate != null ? (int) Math.floor(currentDeviceData.caloricBurnRate) + " kCal/hr" : "- - -");
         textHrlv.setText(currentDeviceData.hrlv != null ? (int) Math.round(currentDeviceData.hrlv) + "%" : "- - -");

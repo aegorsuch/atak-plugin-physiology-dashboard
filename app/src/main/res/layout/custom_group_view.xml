@@ -88,17 +88,28 @@
                 android:layout_marginEnd="15dp"
                 android:drawableStart="@drawable/exertion"
                 android:drawablePadding="5dp"/>
-
             <TextView
-                android:id="@+id/textCoreBodyTemp"
+                android:id="@+id/textVo2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/corebodytemp"
+                android:drawableStart="@drawable/vo2"
                 android:text="- - -"
                 android:textSize="12sp"
-                android:gravity="center_vertical"
                 tools:ignore="RtlHardcoded"
-                android:drawablePadding="0dp"/>
+                android:gravity="center_vertical"
+                android:drawablePadding="5dp"
+                android:layout_toEndOf="@id/textHrlv"/>
+
+<!--            <TextView-->
+<!--                android:id="@+id/textCoreBodyTemp"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:drawableStart="@drawable/corebodytemp"-->
+<!--                android:text="- - -"-->
+<!--                android:textSize="12sp"-->
+<!--                android:gravity="center_vertical"-->
+<!--                tools:ignore="RtlHardcoded"-->
+<!--                android:drawablePadding="0dp"/>-->
         </LinearLayout>
 
         <RelativeLayout
@@ -132,17 +143,17 @@
                 android:drawablePadding="5dp"
                 android:layout_toEndOf="@id/textCaloricBurnRate"/>
 
-            <TextView
-                android:id="@+id/textVo2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableStart="@drawable/vo2"
-                android:text="- - -"
-                android:textSize="12sp"
-                tools:ignore="RtlHardcoded"
-                android:layout_marginEnd="15dp"
-                android:drawablePadding="5dp"
-                android:layout_toEndOf="@id/textHrlv"/>
+<!--            <TextView-->
+<!--                android:id="@+id/textVo2"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:drawableStart="@drawable/vo2"-->
+<!--                android:text="- - -"-->
+<!--                android:textSize="12sp"-->
+<!--                tools:ignore="RtlHardcoded"-->
+<!--                android:layout_marginEnd="15dp"-->
+<!--                android:drawablePadding="5dp"-->
+<!--                android:layout_toEndOf="@id/textHrlv"/>-->
 
             <TextView
                 android:id="@+id/textHrv"
