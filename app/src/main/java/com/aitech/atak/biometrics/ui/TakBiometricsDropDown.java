@@ -25,10 +25,12 @@ import android.widget.Button; //add button widget android
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import android.widget.ImageButton;
 
 import com.aitech.atak.biometrics.AlertLevel;
 import com.aitech.atak.biometrics.TakBiometricsMapComponent;
@@ -50,6 +52,8 @@ import com.aitech.atak.biometrics.services.LicenseManager;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import android.view.MenuItem;
+import android.widget.PopupMenu;
 
 public class TakBiometricsDropDown extends DropDownReceiver implements com.atakmap.android.dropdown.DropDown.OnStateListener {
 
@@ -67,6 +71,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private CustomExpandableAdapter customExpandableAdapter;
     private ExpandableListView expandableListView;
     private CotDetailHandler biometricsDetailHandler = null;
+    private static final int SORT_COLOR_DEFAULT = -1;
+
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
         super(mapView);
@@ -82,6 +88,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
         //expand all the Groups
         expandAll();
+        loadSortButton();
+
 
         // setOnChildClickListener listener for child row click
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -110,6 +118,105 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
         });
     }
+//    private void loadSortButton() {
+//        Button sortButton = dropDownView.findViewById(R.id.sortButton);
+//        if (sortButton == null) {
+//            Log.e(TAG, "sortButton not found");
+//            return;
+//        }
+//
+//        sortButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                PopupMenu popupMenu = new PopupMenu(getMapView().getContext(), v);
+//
+//                MenuItem exertionItem = popupMenu.getMenu().add(0, SORT_EXERTION, 0, "Exertion");
+//                exertionItem.setIcon(R.drawable.property_1_exertion);
+//
+//                MenuItem hrItem = popupMenu.getMenu().add(0, SORT_HEART_RATE, 1, "Heart Rate");
+//                hrItem.setIcon(R.drawable.property_1_hr);
+//
+//                MenuItem batteryItem = popupMenu.getMenu().add(0, SORT_BATTERY_LEVEL, 2, "Battery Level");
+//                batteryItem.setIcon(R.drawable.property_1_battery);
+//
+//                MenuItem azItem = popupMenu.getMenu().add(0, SORT_CALLSIGN_A_TO_Z, 3, "Alphabetical A-Z");
+//                azItem.setIcon(R.drawable.property_1_a_z);
+//
+//                popupMenu.getMenu().add(0, SORT_COLOR_DEFAULT, 0, "Alert Color");
+//
+//                popupMenu.getMenu().add(0, SORT_CALLSIGN_Z_TO_A, 2, "Alphabetical Z-A");
+//
+//
+//                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                    @Override
+//                    public boolean onMenuItemClick(MenuItem item) {
+//                        setSortMode(item.getItemId());
+//                        sortButton.setText(item.getTitle());
+//                        return true;
+//                    }
+//                });
+//
+//                popupMenu.show();
+//            }
+//        });
+//    }
+
+
+    private int currentSortIndex = 0;
+
+
+    private ImageButton sortButton;
+
+    private final int[] sortModes = {
+            SORT_CALLSIGN_A_TO_Z,
+            SORT_CALLSIGN_Z_TO_A,
+            SORT_HEART_RATE_ASC,
+            SORT_HEART_RATE_DESC,
+            SORT_BATTERY_LEVEL_ASC,
+            SORT_BATTERY_LEVEL_DESC,
+            SORT_EXERTION_ASC,
+            SORT_EXERTION_DESC
+    };
+
+    private final int[] sortIcons = {
+            R.drawable.property_a_z_ascend,
+            R.drawable.property_1_a_z,
+            R.drawable.property_hr_ascend,
+            R.drawable.property_1_hr,
+            R.drawable.property_battery_ascend,
+            R.drawable.property_1_battery,
+            R.drawable.property_exertion_ascend,
+            R.drawable.property_1_exertion
+    };
+
+
+    private void loadSortButton() {
+        sortButton = dropDownView.findViewById(R.id.sortButton);
+
+        if (sortButton == null) {
+            Log.e(TAG, "sortButton not found");
+            return;
+        }
+
+        sortButton.setImageResource(sortIcons[currentSortIndex]);
+        setSortMode(sortModes[currentSortIndex]);
+
+        sortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentSortIndex = (currentSortIndex + 1) % sortModes.length;
+                sortButton.setImageResource(sortIcons[currentSortIndex]);
+                setSortMode(sortModes[currentSortIndex]);
+            }
+        });
+        sortButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return true;
+            }
+        });
+    }
+
 
     //method to expand all groups
     private void expandAll() {
@@ -154,32 +261,160 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
+
+
+    // * 6/24 current status
+    private static final int SORT_CALLSIGN_A_TO_Z = 0;
+    private static final int SORT_CALLSIGN_Z_TO_A = 1;
+    private static final int SORT_HEART_RATE_ASC = 2;
+    private static final int SORT_HEART_RATE_DESC = 3;
+    private static final int SORT_BATTERY_LEVEL_ASC = 4;
+    private static final int SORT_BATTERY_LEVEL_DESC = 5;
+    private static final int SORT_EXERTION_ASC = 6;
+    private static final int SORT_EXERTION_DESC = 7;
+
+    private int currentSortMode = SORT_COLOR_DEFAULT;
+
+
+    public void setSortMode(int mode) {
+        this.currentSortMode = mode;
+        getMapView().post(new Runnable() {
+            @Override
+            public void run() {
+                displayCotDeviceData();
+            }
+        });
+    }
+
+    public int getSortMode() {
+        return currentSortMode;
+    }
+
+    private final Comparator<DeviceData> deviceSortComparator = new Comparator<DeviceData>() {
+        @Override
+        public int compare(DeviceData a, DeviceData b) {
+            switch (currentSortMode) {
+                case SORT_HEART_RATE_ASC:
+                    return compareDoubleAsc(a.heartRate, b.heartRate);
+
+                case SORT_HEART_RATE_DESC:
+                    return compareDoubleDesc(a.heartRate, b.heartRate);
+
+                case SORT_BATTERY_LEVEL_ASC:
+                    return compareDoubleAsc(a.batteryLevel, b.batteryLevel);
+
+                case SORT_BATTERY_LEVEL_DESC:
+                    return compareDoubleDesc(a.batteryLevel, b.batteryLevel);
+
+                case SORT_EXERTION_ASC:
+                    return compareDoubleAsc(a.exertion, b.exertion);
+
+                case SORT_EXERTION_DESC:
+                    return compareDoubleDesc(a.exertion, b.exertion);
+
+                case SORT_CALLSIGN_Z_TO_A:
+                    return compareStringsDesc(a.callsign, b.callsign);
+
+                case SORT_CALLSIGN_A_TO_Z:
+                default:
+                    return compareStringsAsc(a.callsign, b.callsign);
+            }
+        }
+
+    };
+
+    private static int compareStringsAsc(String a, String b) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return String.CASE_INSENSITIVE_ORDER.compare(a, b);
+    }
+
+    private static int compareStringsDesc(String a, String b) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return String.CASE_INSENSITIVE_ORDER.compare(b, a);
+    }
+
+    private static int compareDoubleDesc(Double a, Double b) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return Double.compare(b, a);
+    }
+
+    private static int compareDoubleAsc(Double a, Double b) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return Double.compare(a, b);
+    }
+
+    private static int getAlertPriority(AlertLevel level) {
+        if (level == AlertLevel.HIGH) return 0;
+        if (level == AlertLevel.LOW) return 1;
+        return 2;
+    }
+
     //Where device data is populated to display - NOT devices directly connected to the viewable device
     public void displayCotDeviceData() {
-        // Clear the arrayList to avoid duplicates
         arrayList.clear();
 
-        // Iterate over the map and add local device first, followed by remote devices
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
-            DeviceData data = entry.getValue();
-//            arrayList.sort(data.alertLevelComparator);
-
-            if ((data.highestAlertLevel == AlertLevel.HIGH)) {
-                // Add local device at the top
-                arrayList.add(0, data);
-            } else if (data.highestAlertLevel == AlertLevel.LOW) {
-                arrayList.add(0, data);
-            } else {
-                // Add remote devices afterward
-                arrayList.add(data);
-            }
-
+            arrayList.add(entry.getValue());
         }
-//        Log.d(TAG, "Updating DropDown with device data");
-        // Update the adapter to reflect the new data
-        //customAdapter.notifyDataSetChanged();
+
+        if (currentSortMode == SORT_COLOR_DEFAULT) {
+            arrayList.sort(new Comparator<DeviceData>() {
+                @Override
+                public int compare(DeviceData a, DeviceData b) {
+                    return Integer.compare(
+                            getAlertPriority(a.highestAlertLevel),
+                            getAlertPriority(b.highestAlertLevel)
+                    );
+                }
+            });
+        } else {
+            arrayList.sort(deviceSortComparator);
+        }
+
         customExpandableAdapter.notifyDataSetChanged();
+        expandAll();
     }
+
+
+//    public void displayCotDeviceData() {
+//        arrayList.clear();
+//
+//        ArrayList<DeviceData> redAlerts = new ArrayList<>();
+//        ArrayList<DeviceData> yellowAlerts = new ArrayList<>();
+//        ArrayList<DeviceData> normalDevices = new ArrayList<>();
+//
+//        for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
+//            DeviceData data = entry.getValue();
+//            if (data.highestAlertLevel == AlertLevel.HIGH) {
+//                redAlerts.add(data);
+//            } else if (data.highestAlertLevel == AlertLevel.LOW) {
+//                yellowAlerts.add(data);
+//            } else {
+//                normalDevices.add(data);
+//            }
+//        }
+//
+//
+//        redAlerts.sort(deviceSortComparator);
+//        yellowAlerts.sort(deviceSortComparator);
+//        normalDevices.sort(deviceSortComparator);
+//
+//        arrayList.addAll(redAlerts);
+//        arrayList.addAll(yellowAlerts);
+//        arrayList.addAll(normalDevices);
+//
+//        customExpandableAdapter.notifyDataSetChanged();
+//        Log.d(TAG, "displayCotDeviceData called");
+//        Log.d(TAG, "deviceDataMap size = " + deviceDataMap.size());
+//    }
 
     public void removeDeviceFromHash(String deviceId) {
         if (deviceId != null) {
@@ -212,12 +447,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         selfTitle = getMapView().getDeviceCallsign();
 
         if (action.equals(SHOW_DROP_DOWN)) {
+
             if (!isClosed()) {
                 //hideDropDown();
                 closeDropDown();
                 return;
             }
             showDropDown(dropDownView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false, this);
+            displayCotDeviceData();
 //            if (LicenseManager.isLicenseValid()) {
                 registerCotHandler();  // start listening to cot messages
 //                displayInfoOnUI("License Key valid");  // tell the user License is VALID
@@ -240,11 +477,11 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     // puts cot messages (biometric devices & their data) into hashmaps for the dropdown UI cards.
     private void cotReceiver(CotEvent cotEvent) {
         Log.d("WEARTAK_ENTER", "cotReceiver entered");
-            Log.d("WEARTAK_COT", cotEvent.toString());
+        Log.d("WEARTAK_COT", cotEvent.toString());
 
-            if (cotEvent.getDetail() != null) {
-                Log.d("WEARTAK_DETAIL", cotEvent.getDetail().toString());
-            }
+        if (cotEvent.getDetail() != null) {
+            Log.d("WEARTAK_DETAIL", cotEvent.getDetail().toString());
+        }
 
 //        if (!LicenseManager.isLicenseValid()) {
 //            Log.d(TAG, "License is invalid, ignoring the CoT event.");
@@ -288,6 +525,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             String exertionStr = biometricDevice.getChild("exert") != null
                     ? biometricDevice.getChild("exert").getInnerText()
                     : null;
+            Log.d("WEARTAK_PARSE",
+                    "UID=" + biometricDeviceUid +
+                            ", HR=" + heartRateStr +
+                            ", BAT=" + batteryLevelStr +
+                            ", MODEL=" + modelStr);
+            Log.d("CotReceiver", "Callsign: " + callsign +"Model: " + modelStr + ", UID: " + biometricDeviceUid + ", HR: " + heartRateStr + ", Battery: " + batteryLevelStr);
 
            // String spo2Str = biometricDevice.getChild("spo2") != null
             //        ? biometricDevice.getChild("spo2").getInnerText()
@@ -314,13 +557,14 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             if (heartRateStr != null && deviceId != null) {
                 try {
                     boolean enableTestAlerts = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
-
+                    Log.d("HR_DEBUG", "heartRateStr=" + heartRateStr);
                     int heartRate = -1;
                     if (heartRateStr != null &&
                             !heartRateStr.equals("N/A") &&
                             !heartRateStr.isEmpty()) {
                         heartRate = Integer.parseInt(heartRateStr);
                     }
+                    Log.d("HR_DEBUG", "parsed heartRate=" + heartRate);
 
                     int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
                     if (enableTestAlerts) {
@@ -383,7 +627,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                                 }
                             }
                         }
-                        getMapView().post(this::displayCotDeviceData);
+                        getMapView().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                displayCotDeviceData();
+                            }
+                        });
                     } else {
                         //Log.d(TAG, "Recieved Cot - REMOTE - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
                         if (deviceDataMap.containsKey(deviceId)) {
@@ -445,7 +694,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             }
 
                         }
-                        getMapView().post(this::displayCotDeviceData);
+                        getMapView().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                displayCotDeviceData();
+                            }
+                        });
 
                     }
 
@@ -491,11 +745,21 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 if (currentTime2 > staleTime + 30000) {
                     Log.d("Stale", "Device " + deviceId + " has been stale for too long (30 secs), removing it from the map.");
                     removeDeviceFromHash(deviceId); // Using the existing method to remove the device
-                    getMapView().post(this::displayCotDeviceData);
+                    getMapView().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayCotDeviceData();
+                        }
+                    });
                 } else {
                     Log.d("Stale", "Device is stale, but not removable yet");
                 }
-                getMapView().post(this::displayCotDeviceData);   // Update the UI to remove the device from the dropdown
+                getMapView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        displayCotDeviceData();
+                    }
+                });  // Update the UI to remove the device from the dropdown
             } else {
                 deviceData.setStale(false);
             }
@@ -507,7 +771,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
             String deviceId = entry.getKey();
             removeDeviceFromHash(deviceId);                 // Using the existing method to remove the device
-            getMapView().post(this::displayCotDeviceData);  // Update the UI to remove the device from the dropdown
+            getMapView().post(new Runnable() {
+                @Override
+                public void run() {
+                    displayCotDeviceData();
+                }
+            });  // Update the UI to remove the device from the dropdown
         }
     }
 
@@ -515,7 +784,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private void startScheduler() {
         if (scheduler == null || scheduler.isShutdown()) {
             scheduler = Executors.newScheduledThreadPool(1);
-            scheduler.scheduleWithFixedDelay(this::removeStaleDevices, 0, 10, TimeUnit.SECONDS);
+            scheduler.scheduleWithFixedDelay(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            removeStaleDevices();
+                        }
+                    },
+                    0,
+                    10,
+                    TimeUnit.SECONDS
+            );
             Log.d(TAG, "Scheduler started.");
         }
     }
@@ -616,5 +895,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 //            displayInfoOnUI("License Key invalid");
 //        }
         displayCotDeviceData();       // Update UI elements as needed
+
+
     }
 }

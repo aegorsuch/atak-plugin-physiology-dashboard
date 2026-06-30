@@ -32,7 +32,18 @@
             android:layout_toRightOf="@id/ssbandLogo"
             android:text="@string/app_name"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="19sp"
+            android:layout_centerInParent="true"/>
+
+        <ImageButton
+            android:id="@+id/sortButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toLeftOf="@id/preferencesButton"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/property_1_a_z"
+            android:contentDescription="Sort"/>
 
 <!--        <TextView-->
 <!--            android:id="@+id/infoString"-->

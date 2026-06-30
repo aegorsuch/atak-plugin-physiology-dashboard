@@ -130,6 +130,7 @@ public class DeviceData {
         this.highestAlertLevel = null;
         this.numberOfActiveAlerts = 0;
         this.location = null;
+        updateExertionAlertLevel();
         // We already created alertOrClearEvents
     }
 
@@ -153,6 +154,7 @@ public class DeviceData {
         this.vo2 = vo2;
         this.hrv = hrv;
         this.batteryLevel = batteryLevel;
+        updateExertionAlertLevel();
     }
 
     public void addAlertOrClearEvent(Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
@@ -201,6 +203,25 @@ public class DeviceData {
         return isStale;
     }
 
+    private void updateExertionAlertLevel() {
+        if (this.exertion == null) {
+            if (this.highestAlertLevel == null) {
+                this.highestAlertLevel = AlertLevel.NONE;
+            }
+            return;
+        }
+
+        if (this.exertion > 90.0) {
+            this.highestAlertLevel = AlertLevel.HIGH;
+            this.isAlerting = true;
+        } else if (this.exertion >= 81.0) {
+            this.highestAlertLevel = AlertLevel.LOW;
+            this.isAlerting = true;
+        } else {
+            this.highestAlertLevel = AlertLevel.NONE;
+            this.isAlerting = false;
+        }
+    }
     public int getAlertLevelPriority(AlertLevel highestAlertLevel) {
         switch (highestAlertLevel) {
             case HIGH:
