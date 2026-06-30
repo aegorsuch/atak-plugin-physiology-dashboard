@@ -109,6 +109,7 @@ public class TakBiometricsMapComponent extends DropDownMapComponent {
     }
 
     private void registerHeartRateCotHandler() {
+        Log.d("WEARTAK_STARTUP", "Registering HeartRateCotHandler");
         heartRateCotHandler = new HeartRateCotHandler();
         CotDetailManager.getInstance().registerHandler(heartRateCotHandler);
     }
