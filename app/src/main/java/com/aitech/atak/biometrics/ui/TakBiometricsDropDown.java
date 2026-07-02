@@ -581,7 +581,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             DeviceData localDeviceData = deviceDataMap.get(deviceId);
                             if (null != localDeviceData) {
                                 localDeviceData.updateBiometrics(callsign, true, serialNumber, staleTime, isFalsePositive,
-                                        ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
+                                        ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))|| (skinTempStr.equals("N/A"))) ? null : Double.valueOf(skinTempStr),
                                         (double) heartRate,
                                         ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
                                         ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
@@ -605,7 +605,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         } else {
                             // isLocal = true means that it's local.
                             DeviceData localDeviceData = new DeviceData(modelStr, callsign, true, serialNumber, staleTime, isFalsePositive,
-                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
+                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))|| (skinTempStr.equals("N/A"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
                                     ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
                                     ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
@@ -639,7 +639,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             // Update the data. No need to create a new DeviceData
                             DeviceData remoteDeviceData = deviceDataMap.get(deviceId);
                             remoteDeviceData.updateBiometrics(callsign, false, serialNumber, staleTime, isFalsePositive,
-                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
+                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))|| (skinTempStr.equals("N/A"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
                                     ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
                                     ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
@@ -665,7 +665,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             }
                         } else {
                             DeviceData remoteDeviceData = new DeviceData(modelStr, callsign, false, serialNumber, staleTime, isFalsePositive,
-                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))) ? null : Double.valueOf(skinTempStr),
+                                    ((null == skinTempStr) || (skinTempStr.equals("")) || (skinTempStr.equals("None"))|| (skinTempStr.equals("N/A"))) ? null : Double.valueOf(skinTempStr),
                                     (double) heartRate,
                                     ((null == spo2Str) || (spo2Str.equals("")) || (spo2Str.equals("None")) || (spo2Str.equals("N/A"))) ? null : Double.valueOf(spo2Str),
                                     ((null == exertionStr) || (exertionStr.equals("")) || (exertionStr.equals("None")) || (exertionStr.equals("N/A"))) ? null : Double.valueOf(exertionStr),
