@@ -513,11 +513,27 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             String phone = contact.getAttribute("phone");
 
             // biometrics -- heart rate
-            String biometricDeviceUid = biometricDevice.getChild("uid").getInnerText();
-            String heartRateStr = biometricDevice.getChild("hr").getInnerText();
-            String modelStr =biometricDevice.getChild("model").getInnerText();
+            String biometricDeviceUid = childTextOrAttribute(biometricDevice, "uid");
+            String heartRateStr = childTextOrAttribute(biometricDevice, "hr");
+            String modelStr = childTextOrAttribute(biometricDevice, "model");
+            if (isBlank(biometricDeviceUid) || isBlank(heartRateStr) || isBlank(modelStr)) {
+                Log.w(TAG, "Ignoring biometrics detail with incomplete device data: " + biometricDevice);
+                return;
+            }
             String serialNumber = biometricDeviceUid;       // the serial number is legacy for holding biostrap serial #s. keeping the serialNumber for readibility.
-            String batteryLevelStr = biometricDevice.getChild("bat").getInnerText();
+            String batteryLevelStr = null;
+            // Newer format: <status battery="93" />
+            if (status != null) {
+                batteryLevelStr = status.getAttribute("battery");
+            }
+
+            // Legacy format: <biometrics><device><bat>93</bat></device></biometrics>
+            if (batteryLevelStr == null || batteryLevelStr.isEmpty()) {
+                CotDetail batteryDetail = biometricDevice.getChild("bat");
+                if (batteryDetail != null) {
+                    batteryLevelStr = batteryDetail.getInnerText();
+                }
+            }
             String skinTempStr = biometricDevice.getChild("skt") != null
                     ? biometricDevice.getChild("skt").getInnerText()
                     : null;
@@ -566,7 +582,16 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     }
                     Log.d("HR_DEBUG", "parsed heartRate=" + heartRate);
 
-                    int batteryLevel = batteryLevelStr != null ? Integer.parseInt(batteryLevelStr) : -1;
+                    int batteryLevel = -1;
+                    if (batteryLevelStr != null &&
+                            !batteryLevelStr.isEmpty() &&
+                            !batteryLevelStr.equalsIgnoreCase("N/A")) {
+                        try {
+                            batteryLevel = Integer.parseInt(batteryLevelStr);
+                        } catch (NumberFormatException e) {
+                            Log.w(TAG, "Invalid battery value: " + batteryLevelStr);
+                        }
+                    }
                     if (enableTestAlerts) {
                         TakBiometricsMapComponent.testCounter = TakBiometricsMapComponent.testCounter + 1;
                     } else {
@@ -832,9 +857,16 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
                 // grab the cot detail
                 CotDetail deviceDetail = detail.getFirstChildByName(0, "device");
-                if (deviceDetail != null) {
+                boolean isBiometricsAlert = detail.getAttribute("alertState") != null;
+                if (deviceDetail != null && !isBiometricsAlert) {
                     Log.d(TAG, "Handling <biometrics> detail with device child: " + deviceDetail.toString());
-                    cotReceiver(event); // pass the full cotEvent to cotReceiver for dropdown UI
+                    CotDetail contact = event.getDetail().getFirstChildByName(0, "contact");
+                    if (contact != null) {
+                        cotReceiver(event); // pass the full cotEvent to cotReceiver for dropdown UI
+                    }
+                }
+                if (isBiometricsAlert) {
+                    handleBiometricsAlert(event, detail);
                 }
                 return CommsMapComponent.ImportResult.SUCCESS;
             }
@@ -846,6 +878,79 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         Log.d("BIOMETRICS_HANDLER", "Registering biometrics handler");
         CotDetailManager.getInstance().registerHandler(biometricsDetailHandler);
         Log.d(TAG, "Registered the biometricsDetailHandler");
+    }
+
+    private void handleBiometricsAlert(CotEvent event, CotDetail detail) {
+        String alertUid = detail.getAttribute("alertUid");
+        CotDetail device = detail.getFirstChildByName(0, "device");
+        String deviceUid = childTextOrAttribute(device, "uid");
+        String state = detail.getAttribute("alertState");
+        String category = detail.getAttribute("alertCategory");
+        String description = detail.getAttribute("alertDescription");
+        String priority = detail.getAttribute("alertPriority");
+
+        if (isBlank(deviceUid)) {
+            Log.w(TAG, "Ignoring biometric alert without device UID");
+            return;
+        }
+
+        DeviceData deviceData = deviceDataMap.get(deviceUid);
+        if (deviceData == null) {
+            Log.w(TAG, "No device found for biometric alert deviceUid=" + deviceUid);
+            return;
+        }
+
+        boolean clear = "CANCEL".equalsIgnoreCase(state);
+        String eventType = category != null && !category.isEmpty()
+                ? category : description;
+        AlertLevel level = parsePhysioAlertLevel(priority);
+
+        deviceData.addAlertOrClearEvent(
+                alertUid,
+                new Date(),
+                !clear,
+                clear ? AlertLevel.NONE : level,
+                eventType,
+                0,
+                0,
+                null
+        );
+
+        Log.i(TAG, "Processed biometric alert uid=" + alertUid +
+                " deviceUid=" + deviceUid + " state=" + state +
+                " category=" + eventType + " priority=" + priority);
+
+        getMapView().post(new Runnable() {
+            @Override
+            public void run() {
+                displayCotDeviceData();
+            }
+        });
+    }
+
+    private String childTextOrAttribute(CotDetail detail, String name) {
+        if (detail == null) {
+            return null;
+        }
+        CotDetail child = detail.getChild(name);
+        if (child != null) {
+            return child.getInnerText();
+        }
+        return detail.getAttribute(name);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private AlertLevel parsePhysioAlertLevel(String priority) {
+        if ("1".equals(priority)) {
+            return AlertLevel.HIGH;
+        }
+        if ("2".equals(priority) || "3".equals(priority)) {
+            return AlertLevel.LOW;
+        }
+        return AlertLevel.NONE;
     }
 
     public void unregisterCotHandler() {
