@@ -27,6 +27,7 @@ public class DeviceData {
         Double speed;
     }
     public class AlertOrClearEvent {
+        public String uid;
         public boolean isAlert; // true if alert event, false if clear event
         public AlertLevel alertLevel; // Only valid if isAlert == true
         public String type; // could be "HEART_RATE", "CORE_TEMP, "EXERTION", "HRLV"
@@ -35,7 +36,8 @@ public class DeviceData {
         public Location location;
         public Date timestamp;
 
-        public AlertOrClearEvent(Date timestamp, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+        public AlertOrClearEvent(String uid, Date timestamp, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+            this.uid = uid;
             this.timestamp = timestamp;
             this.isAlert = isAlert;
             this.alertLevel = alertLevel;
@@ -158,7 +160,11 @@ public class DeviceData {
     }
 
     public void addAlertOrClearEvent(Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
-        AlertOrClearEvent event = new AlertOrClearEvent(time, isAlert, alertLevel, type, limit, durationMins, location);
+        addAlertOrClearEvent(null, time, isAlert, alertLevel, type, limit, durationMins, location);
+    }
+
+    public void addAlertOrClearEvent(String uid, Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+        AlertOrClearEvent event = new AlertOrClearEvent(uid, time, isAlert, alertLevel, type, limit, durationMins, location);
         if (isAlert) {
             if (!this.isAlerting) {
                 this.numberOfActiveAlerts = 1;
@@ -244,4 +250,3 @@ public class DeviceData {
         }
     };
 }
-
