@@ -22,6 +22,7 @@ import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView; // for displaying text in the dropdown
 import android.widget.Button; //add button widget android
+import android.widget.Toast;
 import android.os.Bundle;
 
 import java.util.ArrayList;
@@ -48,6 +49,10 @@ import com.atakmap.coremap.maps.time.CoordinatedTime;
 import com.aitech.atak.biometrics.plugin.R;
 import com.aitech.atak.biometrics.DeviceData;
 import com.aitech.atak.biometrics.services.LicenseManager;
+import com.aitech.atak.biometrics.services.PhysioDataLogger;
+import com.atakmap.android.missionpackage.api.MissionPackageApi;
+import com.atakmap.android.missionpackage.api.ToastSaveCallback;
+import com.atakmap.android.missionpackage.file.MissionPackageManifest;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -72,6 +77,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private ExpandableListView expandableListView;
     private CotDetailHandler biometricsDetailHandler = null;
     private static final int SORT_COLOR_DEFAULT = -1;
+    private final PhysioDataLogger physioDataLogger = new PhysioDataLogger();
+    private Button loggingButton;
 
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
@@ -89,6 +96,20 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         //expand all the Groups
         expandAll();
         loadSortButton();
+        loadLoggingButton(context);
+        physioDataLogger.setFailureListener(new PhysioDataLogger.FailureListener() {
+            @Override
+            public void onFailure(final java.io.IOException error) {
+                getMapView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getMapView().getContext(),
+                                "Physiological log write failed: " + error.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
 
 
         // setOnChildClickListener listener for child row click
@@ -261,6 +282,84 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
+    private void loadLoggingButton(final Context context) {
+        loggingButton = dropDownView.findViewById(R.id.loggingButton);
+        if (loggingButton == null) {
+            Log.e(TAG, "loggingButton not found");
+            return;
+        }
+        updateLoggingButton();
+        loggingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (physioDataLogger.isLogging()) {
+                    loggingButton.setEnabled(false);
+                    loggingButton.setText(R.string.finalizing_log);
+                    physioDataLogger.stop(new PhysioDataLogger.CompletionListener() {
+                        @Override
+                        public void onComplete(final java.io.File file, final java.io.IOException error) {
+                            getMapView().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loggingButton.setEnabled(true);
+                                    updateLoggingButton();
+                                    if (error != null) {
+                                        Toast.makeText(getMapView().getContext(),
+                                                "Unable to finish physiological log: " + error.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                    sendLogAsMissionPackage(file);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    try {
+                        java.io.File file = physioDataLogger.start(context);
+                        updateLoggingButton();
+                        Toast.makeText(getMapView().getContext(),
+                                "Physiological logging started", Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "Logging physiological data to " + file);
+                    } catch (java.io.IOException e) {
+                        Toast.makeText(getMapView().getContext(),
+                                "Unable to start physiological log: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "Unable to start physiological log", e);
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateLoggingButton() {
+        if (loggingButton != null) {
+            loggingButton.setText(physioDataLogger.isLogging()
+                    ? R.string.stop_and_send_log : R.string.start_logging);
+        }
+    }
+
+    private void sendLogAsMissionPackage(java.io.File file) {
+        if (file == null || !file.isFile()) {
+            Toast.makeText(getMapView().getContext(),
+                    "Physiological log file is unavailable", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        MissionPackageManifest manifest = MissionPackageApi.CreateTempManifest(
+                "Physiological Log " + file.getName());
+        if (manifest == null || !manifest.addFile(file, "text/csv", null)) {
+            Toast.makeText(getMapView().getContext(),
+                    "Unable to add physiological log to ATAK data package",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!MissionPackageApi.Send(getMapView().getContext(), manifest,
+                ToastSaveCallback.class, null)) {
+            Toast.makeText(getMapView().getContext(),
+                    "Unable to start ATAK data package send", Toast.LENGTH_LONG).show();
+        }
+    }
 
 
     // * 6/24 current status
@@ -592,6 +691,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             Log.w(TAG, "Invalid battery value: " + batteryLevelStr);
                         }
                     }
+                    physioDataLogger.recordSample(new Date(), callsign, heartRateStr, skinTempStr,
+                            exertionStr);
                     if (enableTestAlerts) {
                         TakBiometricsMapComponent.testCounter = TakBiometricsMapComponent.testCounter + 1;
                     } else {
@@ -969,7 +1070,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             scheduler.shutdownNow(); // Shut down the scheduler
             Log.d(TAG, "Scheduler shut down.");
         }
-        unregisterCotHandler(); // stop listening to cot messages when the drop down closes
+        if (!physioDataLogger.isLogging()) {
+            unregisterCotHandler(); // Keep collecting samples while a logging session is active.
+        }
         heartRateData.clear();  // clear the hashmap used to fill data in the dropdown UI cards.
     }
 
@@ -984,6 +1087,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     @Override
     public void disposeImpl() {
         stopScheduler();
+        unregisterCotHandler();
+        physioDataLogger.shutdown();
     }
 
     public void refreshDropDown() {

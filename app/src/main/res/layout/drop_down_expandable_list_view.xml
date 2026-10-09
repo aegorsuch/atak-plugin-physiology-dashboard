@@ -39,11 +39,24 @@
             android:id="@+id/sortButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_toLeftOf="@id/preferencesButton"
+            android:layout_toLeftOf="@id/loggingButton"
             android:layout_centerVertical="true"
             android:background="@android:color/transparent"
             android:src="@drawable/property_1_a_z"
             android:contentDescription="Sort"/>
+
+        <Button
+            android:id="@+id/loggingButton"
+            android:layout_width="76dp"
+            android:layout_height="40dp"
+            android:layout_toLeftOf="@id/preferencesButton"
+            android:layout_centerVertical="true"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="@string/start_logging"
+            android:textSize="9sp"/>
 
 <!--        <TextView-->
 <!--            android:id="@+id/infoString"-->
