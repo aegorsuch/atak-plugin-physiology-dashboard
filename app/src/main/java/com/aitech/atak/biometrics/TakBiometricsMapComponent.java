@@ -56,6 +56,7 @@ public class TakBiometricsMapComponent extends DropDownMapComponent {
         registerUserDetailsExtension(context, view);
         registerEventController();
         registerPreferences();
+        takBiometricsDropDown.startCollecting();
 
         // this is run once once bc onCreate(). Check the license, check if Biometrics is enabled in prefs.
 //        if (licenseKeyCheck()) {
