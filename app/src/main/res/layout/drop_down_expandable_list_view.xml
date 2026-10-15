@@ -47,9 +47,9 @@
 
         <Button
             android:id="@+id/loggingButton"
-            android:layout_width="76dp"
+            android:layout_width="48dp"
             android:layout_height="40dp"
-            android:layout_toLeftOf="@id/preferencesButton"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:minWidth="0dp"
             android:minHeight="0dp"
@@ -76,6 +76,7 @@
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_alignParentEnd="true"
+            android:visibility="gone"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>

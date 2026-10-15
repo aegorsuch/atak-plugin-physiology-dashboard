@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App -->
-    <string name="app_name">AIT Biometrics</string>
+    <string name="app_name">Physiology Dashboard</string>
     <!-- description -->
     <string name="app_desc">AIT Biometrics plugin shows biometrics and biometric alerts of devices connected to TAK Server.</string>
     <string name="heart_rate">Heart rate:</string>
@@ -10,7 +10,7 @@
     <string name="connection_Status"> Connection Status: Not Connected </string>
     <!-- application -->
     <string name="battery_level">Battery Level:</string>
-    <string name="preferences_name">AIT Biometrics Preferences</string>
+    <string name="preferences_name">Physiology Dashboard Preferences</string>
     <string name="preferences_description">AIT Biometrics Preferences</string>
     <string name="license_key_valid">License Key valid</string>
     <string name="license_key_invalid">License Key invalid</string>

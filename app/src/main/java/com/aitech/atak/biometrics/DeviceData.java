@@ -16,9 +16,14 @@ import com.google.common.collect.EvictingQueue;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class DeviceData {
     public static final String TAG = "TakBiometricsDeviceData";
+    private static final int MAX_RECENT_ALERT_EVENTS = 256;
+    private final Set<String> recentAlertEvents = new LinkedHashSet<>();
     class Location {
         Double lat;
         Double lon;
@@ -163,7 +168,20 @@ public class DeviceData {
         addAlertOrClearEvent(null, time, isAlert, alertLevel, type, limit, durationMins, location);
     }
 
-    public void addAlertOrClearEvent(String uid, Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+    public synchronized void addAlertOrClearEvent(String uid, Date time, boolean isAlert, AlertLevel alertLevel, String type, double limit, int durationMins, Location location) {
+        if (uid != null && !uid.trim().isEmpty()) {
+            String eventKey = (isAlert ? "ALERT:" : "CLEAR:") + uid;
+            if (!recentAlertEvents.add(eventKey)) {
+                Log.d(TAG, "Ignoring duplicate " + eventKey + " for " + this.callsign);
+                return;
+            }
+            // Retain identities beyond the ten visible entries to catch delayed server copies.
+            if (recentAlertEvents.size() > MAX_RECENT_ALERT_EVENTS) {
+                Iterator<String> oldest = recentAlertEvents.iterator();
+                oldest.next();
+                oldest.remove();
+            }
+        }
         AlertOrClearEvent event = new AlertOrClearEvent(uid, time, isAlert, alertLevel, type, limit, durationMins, location);
         if (isAlert) {
             if (!this.isAlerting) {

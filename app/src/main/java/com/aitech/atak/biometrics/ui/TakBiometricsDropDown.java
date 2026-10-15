@@ -38,6 +38,7 @@ import com.aitech.atak.biometrics.TakBiometricsMapComponent;
 import com.atak.plugins.impl.PluginLayoutInflater;
 import com.atakmap.android.cot.detail.CotDetailHandler;
 import com.atakmap.android.cot.detail.CotDetailManager;
+import com.atakmap.android.cot.OpaqueHandler;
 import com.atakmap.android.dropdown.DropDownReceiver;
 import com.atakmap.android.maps.MapItem;
 import com.atakmap.android.maps.MapView;
@@ -50,6 +51,7 @@ import com.aitech.atak.biometrics.plugin.R;
 import com.aitech.atak.biometrics.DeviceData;
 import com.aitech.atak.biometrics.services.LicenseManager;
 import com.aitech.atak.biometrics.services.PhysioDataLogger;
+import com.aitech.atak.biometrics.services.RetainedBiometrics;
 import com.atakmap.android.missionpackage.api.MissionPackageApi;
 import com.atakmap.android.missionpackage.api.ToastSaveCallback;
 import com.atakmap.android.missionpackage.file.MissionPackageManifest;
@@ -79,6 +81,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private static final int SORT_COLOR_DEFAULT = -1;
     private final PhysioDataLogger physioDataLogger = new PhysioDataLogger();
     private Button loggingButton;
+    private volatile boolean disposed;
 
 
     public TakBiometricsDropDown(final MapView mapView, final Context context) {
@@ -104,7 +107,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     @Override
                     public void run() {
                         Toast.makeText(getMapView().getContext(),
-                                "Physiological log write failed: " + error.getMessage(),
+                                "Physiology log write failed: " + error.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
                 });
@@ -196,7 +199,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             SORT_BATTERY_LEVEL_ASC,
             SORT_BATTERY_LEVEL_DESC,
             SORT_EXERTION_ASC,
-            SORT_EXERTION_DESC
+            SORT_EXERTION_DESC,
+            SORT_SKIN_TEMP_ASC,
+            SORT_SKIN_TEMP_DESC
     };
 
     private final int[] sortIcons = {
@@ -207,7 +212,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             R.drawable.property_battery_ascend,
             R.drawable.property_1_battery,
             R.drawable.property_exertion_ascend,
-            R.drawable.property_1_exertion
+            R.drawable.property_1_exertion,
+            R.drawable.corebodytemp,
+            R.drawable.corebodytemp
+    };
+
+    private final int[] sortLabels = {
+            R.string.sort_callsign_asc, R.string.sort_callsign_desc,
+            R.string.sort_hr_asc, R.string.sort_hr_desc,
+            R.string.sort_battery_asc, R.string.sort_battery_desc,
+            R.string.sort_exertion_asc, R.string.sort_exertion_desc,
+            R.string.sort_skin_temp_asc, R.string.sort_skin_temp_desc
     };
 
 
@@ -220,6 +235,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
 
         sortButton.setImageResource(sortIcons[currentSortIndex]);
+        sortButton.setContentDescription(dropDownView.getContext().getString(sortLabels[currentSortIndex]));
         setSortMode(sortModes[currentSortIndex]);
 
         sortButton.setOnClickListener(new View.OnClickListener() {
@@ -227,12 +243,28 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             public void onClick(View v) {
                 currentSortIndex = (currentSortIndex + 1) % sortModes.length;
                 sortButton.setImageResource(sortIcons[currentSortIndex]);
+                sortButton.setContentDescription(dropDownView.getContext().getString(sortLabels[currentSortIndex]));
                 setSortMode(sortModes[currentSortIndex]);
             }
         });
         sortButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                PopupMenu menu = new PopupMenu(dropDownView.getContext(), v);
+                for (int i = 0; i < sortModes.length; i++) {
+                    menu.getMenu().add(0, i, i, sortLabels[i]);
+                }
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        currentSortIndex = item.getItemId();
+                        sortButton.setImageResource(sortIcons[currentSortIndex]);
+                        sortButton.setContentDescription(dropDownView.getContext().getString(sortLabels[currentSortIndex]));
+                        setSortMode(sortModes[currentSortIndex]);
+                        return true;
+                    }
+                });
+                menu.show();
                 return true;
             }
         });
@@ -319,7 +351,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         java.io.File file = physioDataLogger.start(context);
                         updateLoggingButton();
                         Toast.makeText(getMapView().getContext(),
-                                "Physiological logging started", Toast.LENGTH_SHORT).show();
+                                "Physiology logging started", Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "Logging physiological data to " + file);
                     } catch (java.io.IOException e) {
                         Toast.makeText(getMapView().getContext(),
@@ -342,12 +374,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private void sendLogAsMissionPackage(java.io.File file) {
         if (file == null || !file.isFile()) {
             Toast.makeText(getMapView().getContext(),
-                    "Physiological log file is unavailable", Toast.LENGTH_LONG).show();
+                    "Physiology log file is unavailable", Toast.LENGTH_LONG).show();
             return;
         }
 
         MissionPackageManifest manifest = MissionPackageApi.CreateTempManifest(
-                "Physiological Log " + file.getName());
+                "Physiology Log " + file.getName());
         if (manifest == null || !manifest.addFile(file, "text/csv", null)) {
             Toast.makeText(getMapView().getContext(),
                     "Unable to add physiological log to ATAK data package",
@@ -371,6 +403,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private static final int SORT_BATTERY_LEVEL_DESC = 5;
     private static final int SORT_EXERTION_ASC = 6;
     private static final int SORT_EXERTION_DESC = 7;
+    private static final int SORT_SKIN_TEMP_ASC = 8;
+    private static final int SORT_SKIN_TEMP_DESC = 9;
 
     private int currentSortMode = SORT_COLOR_DEFAULT;
 
@@ -393,6 +427,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         @Override
         public int compare(DeviceData a, DeviceData b) {
             switch (currentSortMode) {
+                case SORT_SKIN_TEMP_ASC:
+                    return compareDoubleAsc(a.coreTemp, b.coreTemp);
+                case SORT_SKIN_TEMP_DESC:
+                    return compareDoubleDesc(a.coreTemp, b.coreTemp);
                 case SORT_HEART_RATE_ASC:
                     return compareDoubleAsc(a.heartRate, b.heartRate);
 
@@ -437,17 +475,11 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     }
 
     private static int compareDoubleDesc(Double a, Double b) {
-        if (a == null && b == null) return 0;
-        if (a == null) return 1;
-        if (b == null) return -1;
-        return Double.compare(b, a);
+        return MetricValues.compare(a, b, true);
     }
 
     private static int compareDoubleAsc(Double a, Double b) {
-        if (a == null && b == null) return 0;
-        if (a == null) return 1;
-        if (b == null) return -1;
-        return Double.compare(a, b);
+        return MetricValues.compare(a, b, false);
     }
 
     private static int getAlertPriority(AlertLevel level) {
@@ -461,7 +493,12 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         arrayList.clear();
 
         for (Map.Entry<String, DeviceData> entry : deviceDataMap.entrySet()) {
-            arrayList.add(entry.getValue());
+            DeviceData data = entry.getValue();
+            if (MetricValues.hasPhysiologicalData(data)
+                    || data.numberOfActiveAlerts > 0
+                    || !data.alertOrClearEventsEQ.isEmpty()) {
+                arrayList.add(data);
+            }
         }
 
         if (currentSortMode == SORT_COLOR_DEFAULT) {
@@ -574,7 +611,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     }
 
     // puts cot messages (biometric devices & their data) into hashmaps for the dropdown UI cards.
-    private void cotReceiver(CotEvent cotEvent) {
+    private void cotReceiver(CotEvent cotEvent, boolean retained) {
         Log.d("WEARTAK_ENTER", "cotReceiver entered");
         Log.d("WEARTAK_COT", cotEvent.toString());
 
@@ -606,6 +643,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
             // Now we know that the cot message contains biometrics, we can extract the data from it.
             CotDetail contact = cotEvent.getDetail().getFirstChildByName(0, "contact");
+            if (contact == null) {
+                Log.w(TAG, "Ignoring biometrics without contact: " + cotEvent.getUID());
+                return;
+            }
             CotDetail status = cotEvent.getDetail().getFirstChildByName(0, "status");
             String deviceId = cotEvent.getUID(); // Using UID as deviceId
             String callsign = contact.getAttribute("callsign");
@@ -671,7 +712,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
             if (heartRateStr != null && deviceId != null) {
                 try {
-                    boolean enableTestAlerts = PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
+                    boolean enableTestAlerts = !retained && PreferenceManager.getDefaultSharedPreferences(getMapView().getContext()).getBoolean(ENABLE_TEST_ALERTS, false);
                     Log.d("HR_DEBUG", "heartRateStr=" + heartRateStr);
                     int heartRate = -1;
                     if (heartRateStr != null &&
@@ -691,8 +732,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                             Log.w(TAG, "Invalid battery value: " + batteryLevelStr);
                         }
                     }
-                    physioDataLogger.recordSample(new Date(), callsign, heartRateStr, skinTempStr,
-                            exertionStr);
+                    if (!retained) {
+                        physioDataLogger.recordSample(new Date(), callsign, heartRateStr, skinTempStr,
+                                exertionStr);
+                    }
                     if (enableTestAlerts) {
                         TakBiometricsMapComponent.testCounter = TakBiometricsMapComponent.testCounter + 1;
                     } else {
@@ -802,8 +845,6 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                                     ((null == vo2Str) || (vo2Str.equals("")) || (vo2Str.equals("None")) || (vo2Str.equals("N/A"))) ? null : Double.valueOf(vo2Str),
                                     ((null == hrvStr) || (hrvStr.equals("")) || (hrvStr.equals("None")) || (hrvStr.equals("N/A"))) ? null : Double.valueOf(hrvStr),
                                     (double) batteryLevel);
-                            arrayList.add(remoteDeviceData);
-
                             deviceDataMap.put(deviceId, remoteDeviceData); // Store in the map
                             if (enableTestAlerts) {
                                 Log.d(TAG, "Adding testcounter: " + TakBiometricsMapComponent.testCounter);
@@ -932,6 +973,46 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         }
     }
 
+    public void startCollecting() {
+        selfTitle = getMapView().getDeviceCallsign();
+        registerCotHandler();
+        getMapView().post(new Runnable() {
+            @Override
+            public void run() {
+                if (disposed) {
+                    return;
+                }
+                restoreRetainedBiometrics();
+                startScheduler();
+            }
+        });
+    }
+
+    private synchronized void processBiometrics(CotEvent event, boolean retained) {
+        if (disposed || (retained && deviceDataMap.containsKey(event.getUID()))) {
+            return;
+        }
+        cotReceiver(event, retained);
+        DeviceData data = deviceDataMap.get(event.getUID());
+        if (data != null) {
+            data.setStale(isDeviceStale(data));
+        }
+    }
+
+    private void restoreRetainedBiometrics() {
+        for (MapItem item : getMapView().getRootGroup().getItemsRecursive()) {
+            CotDetail details = new CotDetail("detail");
+            OpaqueHandler.getInstance().toCotDetail(item, details);
+            CotEvent event = RetainedBiometrics.snapshot(item.getUID(),
+                    item.getMetaString("callsign", null), details,
+                    item.getMetaLong("lastUpdateTime", -1));
+            if (event != null) {
+                Log.i(TAG, "Restoring opaque biometrics as stale for " + item.getUID());
+                processBiometrics(event, true);
+            }
+        }
+    }
+
     private void registerCotHandler() {
 //        if (!LicenseManager.isLicenseValid()) {
 //            Log.d(TAG, "License is invalid, not registering cot handler");
@@ -963,7 +1044,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     Log.d(TAG, "Handling <biometrics> detail with device child: " + deviceDetail.toString());
                     CotDetail contact = event.getDetail().getFirstChildByName(0, "contact");
                     if (contact != null) {
-                        cotReceiver(event); // pass the full cotEvent to cotReceiver for dropdown UI
+                        processBiometrics(event, false);
                     }
                 }
                 if (isBiometricsAlert) {
@@ -1066,14 +1147,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
     @Override
     public void onDropDownClose() {
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdownNow(); // Shut down the scheduler
-            Log.d(TAG, "Scheduler shut down.");
-        }
-        if (!physioDataLogger.isLogging()) {
-            unregisterCotHandler(); // Keep collecting samples while a logging session is active.
-        }
-        heartRateData.clear();  // clear the hashmap used to fill data in the dropdown UI cards.
+        // Collection belongs to the plugin lifecycle, not the panel visibility.
     }
 
     @Override
@@ -1086,6 +1160,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 
     @Override
     public void disposeImpl() {
+        disposed = true;
         stopScheduler();
         unregisterCotHandler();
         physioDataLogger.shutdown();
