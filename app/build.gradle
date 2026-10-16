@@ -35,12 +35,12 @@ buildscript {
     def urlKey = 'takrepo.url'
 
     ext.isDevKitEnabled = { ->
-        return getProperty(urlKey, null) != null
+        return getProperty(urlKey, getProperty('takrepo_url', null)) != null
     }
 
-    ext.takrepoUrl = getProperty(urlKey, 'https://localhost/')
-    ext.takrepoUser = getProperty('takrepo.user', 'invalid')
-    ext.takrepoPassword = getProperty('takrepo.password', 'invalid')
+    ext.takrepoUrl = getProperty(urlKey, getProperty('takrepo_url', 'https://localhost/'))
+    ext.takrepoUser = getProperty('takrepo.user', getProperty('takrepo_user', 'invalid'))
+    ext.takrepoPassword = getProperty('takrepo.password', getProperty('takrepo_password', 'invalid'))
     ext.takdevPlugin = getProperty('takdev.plugin', "${rootDir}/app/libs/atak-gradle-takdev.jar")
 
     repositories {
@@ -137,24 +137,25 @@ android {
     }
 
     signingConfigs {
-        debug {
-            storeFile file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
+        def signingProperties = new Properties()
+        def signingFile = rootProject.file('signing.properties')
+        if (signingFile.isFile()) {
+            signingFile.withInputStream { signingProperties.load(it) }
         }
 
-     //   debug {
-      //      storeFile file("${buildDir}/android_keystore")
-        //    storePassword "tnttnt"
-          //  keyAlias "wintec_mapping"
-            //keyPassword "tnttnt"
-       // }
+        debug {
+            storeFile file(signingProperties.getProperty('storeFile',
+                    System.getProperty("user.home") + "/.android/debug.keystore"))
+            storePassword signingProperties.getProperty('storePassword', 'android')
+            keyAlias signingProperties.getProperty('keyAlias', 'androiddebugkey')
+            keyPassword signingProperties.getProperty('keyPassword', 'android')
+        }
+
         release {
-            storeFile file("${buildDir}/android_keystore")
-            storePassword "tnttnt"
-            keyAlias "wintec_mapping"
-            keyPassword "tnttnt"
+            storeFile file(signingProperties.getProperty('storeFile', "${buildDir}/android_keystore"))
+            storePassword signingProperties.getProperty('storePassword', 'tnttnt')
+            keyAlias signingProperties.getProperty('keyAlias', 'wintec_mapping')
+            keyPassword signingProperties.getProperty('keyPassword', 'tnttnt')
         }
     }
 
