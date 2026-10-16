@@ -28,3 +28,28 @@ The submission ZIP contains source for TPP to build and sign, not an installable
 Use the matching ATAK 5.3.0 SDK, Android SDK platform 33, and build tools 30.0.3. Copy `template.local.properties` to `local.properties` and configure the local Android SDK path and authenticated TAK Maven repository. Alternatively, supply `takdev.plugin` and the matching SDK libraries through the normal local TAK SDK setup. SDK binaries, local configuration, credentials, generated outputs, and signing keys are excluded from the ZIP.
 
 Run `gradlew.bat :app:testCivDebugUnitTest :app:assembleCivDebug` for local checks. TPP must configure its release signing keystore before running `gradlew.bat :app:assembleCivRelease`; the existing release configuration expects `app/build/android_keystore`. Release signing and device compatibility require the TPP environment and matching ATAK version.
+
+## TAK Forge CI/CD
+`.gitlab-ci.yml` uses the same shared `devsecops/gitlab-ci-common` build-and-sign
+template as the WearTAK Companion plugin. Pushes to `develop` run
+`release_build_and_sign` with JDK 17 for the `civ` variant. Other branches do not
+run this build job. The dashboard continues to target ATAK 5.3.0.
+
+The shared launcher handles authenticated TAK dependency access, building,
+signing, and build/report artifacts. This requires access to the shared template,
+TAK runners, artifact repositories, and signing service. Credentials and signing
+keys must stay in the Forge CI services/configuration, not in the repository.
+Both the normal `takrepo.url`, `takrepo.user`, and `takrepo.password` Gradle/local
+properties and the launcher's underscore-form `takrepo_url`, `takrepo_user`, and
+`takrepo_password` properties are supported; dotted properties take precedence.
+
+The build accepts a root-level, untracked `signing.properties` containing
+`storeFile`, `storePassword`, `keyAlias`, and `keyPassword`, as used by the shared
+launcher. A relative `storeFile` is resolved from `app`. Without this file,
+existing local debug signing and the TPP release-keystore defaults are preserved.
+
+The shared template exposes manual `release_internal` and
+`distribute_resources` jobs on protected branches. As with Companion, building
+does not automatically publish or distribute the plugin. Production publication
+uses the shared template's protected maintenance-branch and plugin-metadata
+requirements; a successful develop build is not production approval.
