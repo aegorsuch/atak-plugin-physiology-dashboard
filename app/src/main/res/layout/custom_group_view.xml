@@ -86,7 +86,7 @@
                 tools:ignore="RtlHardcoded"
                 android:text="- - -"
                 android:layout_marginEnd="15dp"
-                android:drawableStart="@drawable/heartrate"
+                android:drawableStart="@drawable/heart"
                 android:drawablePadding="5dp"/>
             <TextView
                 android:id="@+id/textCoreBodyTemp"
