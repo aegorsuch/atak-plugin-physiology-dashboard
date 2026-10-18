@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="start_logging">Log</string>
-    <string name="stop_and_send_log">Stop/Send</string>
+    <string name="stop_and_send_log">Send</string>
     <string name="finalizing_log">Finishing...</string>
     <!-- App -->
-    <string name="app_name">Physiological Dashboard</string>
+    <string name="app_name">Physiology Dashboard</string>
+    <string name="skin_temperature">Skin Temperature</string>
+    <string name="sort_callsign_asc">Callsign: A-Z</string>
+    <string name="sort_callsign_desc">Callsign: Z-A</string>
+    <string name="sort_hr_asc">Heart Rate: Low to High</string>
+    <string name="sort_hr_desc">Heart Rate: High to Low</string>
+    <string name="sort_battery_asc">Battery: Low to High</string>
+    <string name="sort_battery_desc">Battery: High to Low</string>
+    <string name="sort_exertion_asc">Exertion: Low to High</string>
+    <string name="sort_exertion_desc">Exertion: High to Low</string>
+    <string name="sort_skin_temp_asc">Skin Temperature: Low to High</string>
+    <string name="sort_skin_temp_desc">Skin Temperature: High to Low</string>
     <!-- description -->
-    <string name="app_desc">Physiological Dashboard plugin shows biometrics and biometric alerts of devices connected to TAK Server.</string>
+    <string name="app_desc">Physiology Dashboard plugin shows biometrics and biometric alerts of devices connected to TAK Server.</string>
     <string name="heart_rate">Heart rate:</string>
     <string name="no_data">No data</string>
     <string name="device_SerialNumber">Serial Number:</string>
     <string name="connection_Status"> Connection Status: Not Connected </string>
     <!-- application -->
     <string name="battery_level">Battery Level:</string>
-    <string name="preferences_name">Physiological Dashboard Preferences</string>
-    <string name="preferences_description">Physiological Dashboard Preferences</string>
+    <string name="preferences_name">Physiology Dashboard Preferences</string>
+    <string name="preferences_description">Physiology Dashboard Preferences</string>
     <string name="license_key_valid">License Key valid</string>
     <string name="license_key_invalid">License Key invalid</string>
     <string name="license_key">License Key</string>

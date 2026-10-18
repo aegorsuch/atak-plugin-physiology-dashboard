@@ -58,31 +58,14 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
 
         // Find the TextViews in the layout and populate them with the current device data
         TextView textCallsign = convertView.findViewById(R.id.textCallsign);
-        TextView textHeartRate = convertView.findViewById(R.id.textHeartRate);
-        TextView textExertion = convertView.findViewById(R.id.textExertion);
-        TextView textCoreBodyTemp = convertView.findViewById(R.id.textCoreBodyTemp);
-        TextView textBattery = convertView.findViewById(R.id.textBattery);
         TextView textLastConnected = convertView.findViewById(R.id.textLastConnected);
 
         RelativeLayout expandedHealthData = convertView.findViewById(R.id.expandedHealthData);
         ImageView toggle = convertView.findViewById(R.id.toggle);
 
-        TextView textCaloricBurnRate = convertView.findViewById(R.id.textCaloricBurnRate);
-        TextView textHrlv = convertView.findViewById(R.id.textHrlv);
-        TextView textVo2 = convertView.findViewById(R.id.textVo2);
-        TextView textHrv = convertView.findViewById(R.id.textHrv);
 
         // Populate the views with data from DeviceData
         textCallsign.setText(currentDeviceData.callsign != null ? currentDeviceData.callsign : "- - -");
-        textHeartRate.setText(currentDeviceData.heartRate != null ? (int) Math.round(currentDeviceData.heartRate) + " bpm" : "- - -");
-        textExertion.setText(currentDeviceData.exertion != null ? (int) Math.round(currentDeviceData.exertion) + " %" : "- - -");
-        textCoreBodyTemp.setText((currentDeviceData.coreTemp != null) ? String.format(Locale.ENGLISH, "%.2f", currentDeviceData.coreTemp * 9 / 5. + 32) + " °F" : "- - -");
-        textBattery.setText(currentDeviceData.batteryLevel != null ? (int) Math.floor(currentDeviceData.batteryLevel) + "%" : "- - -");
-
-        textCaloricBurnRate.setText(currentDeviceData.caloricBurnRate != null ? (int) Math.floor(currentDeviceData.caloricBurnRate) + " kCal/hr" : "- - -");
-        textHrlv.setText(currentDeviceData.hrlv != null ? (int) Math.round(currentDeviceData.hrlv) + "%" : "- - -");
-        textVo2.setText(currentDeviceData.vo2 != null ? (int) Math.round(currentDeviceData.vo2) + " ml/(kg * min)" : "- - -");
-        textHrv.setText(currentDeviceData.hrv != null ? (int) Math.round(currentDeviceData.hrv) + " ms" : "- - -");
 
         long staleTimeSeconds = (currentDeviceData.staleTime.getMilliseconds() /1000) % 60;
         Log.d("connected", String.valueOf(staleTimeSeconds));
@@ -160,6 +143,7 @@ public class CustomAdapter extends ArrayAdapter<DeviceData> {
             Log.d(TAG, "disconnect UI run " + currentDeviceData.callsign);
         }
 
+        MetricViews.bind(convertView, currentDeviceData);
         return convertView;
     }
 }

@@ -66,17 +66,6 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/textHeartRate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="15sp"
-                tools:ignore="RtlHardcoded"
-                android:text="- - -"
-                android:layout_marginEnd="15dp"
-                android:drawableStart="@drawable/heartrate"
-                android:drawablePadding="5dp"/>
-
-            <TextView
                 android:id="@+id/textExertion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,7 +77,19 @@
                 android:drawablePadding="5dp"/>
 
             <TextView
+                android:id="@+id/textHeartRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                tools:ignore="RtlHardcoded"
+                android:text="- - -"
+                android:layout_marginEnd="15dp"
+                android:drawableStart="@drawable/heart"
+                android:drawablePadding="5dp"/>
+
+            <TextView
                 android:id="@+id/textCoreBodyTemp"
+                android:contentDescription="@string/skin_temperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/corebodytemp"
