@@ -53,3 +53,21 @@ The shared template exposes manual `release_internal` and
 does not automatically publish or distribute the plugin. Production publication
 uses the shared template's protected maintenance-branch and plugin-metadata
 requirements; a successful develop build is not production approval.
+
+The protected `develop` push pipeline also runs
+`publish_github_pipeline_release` after the signed build succeeds. It publishes
+only the signed CIV release APK to the GitHub mirror's `takgov-pipeline` rolling
+release, titled **TAK Forge Automated Pipeline**, using the stable asset name
+`ATAK-Plugin-PhysiologyDashboard-latest.apk`. The publisher verifies the local
+APK signature and uploaded bytes, and requires both canonical Forge `develop`
+and the GitHub `develop` mirror to match the pipeline commit. It does not publish
+debug APKs, AABs, source archives, or CI reports, and it leaves unrelated release
+assets, release notes, numbered releases, and other tags untouched.
+
+To enable publishing, create a protected, masked `GITHUB_RELEASE_TOKEN` CI/CD
+variable in the canonical TAK Forge project. Use a fine-grained GitHub token
+scoped only to `Ascent-Integrated-Tech/biometrics-atak-plugin` with **Contents:
+read and write** permission. The publisher fails with a clear error if this
+variable is missing. Never put the token in repository files or logs. Run the
+offline mocked-API tests with
+`python3 -m unittest discover -s tests -p 'test_publish_github_release.py'`.
