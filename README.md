@@ -102,7 +102,8 @@ Destination: `Ascent-Integrated-Tech/biometrics-atak-plugin` on GitHub, currentl
 5. Keep `develop` protected and reserve the rolling release for this publisher.
    The runner needs the Node 22 image, Debian package access for `apksigner` and
    `aapt`, GitHub API/upload/asset download access, and CI job-token read access to
-   the canonical develop branch endpoint. No extra GitLab PAT is used.
+   the canonical `repository/commits/develop` endpoint. This Commits API accepts
+   job-token authentication; the Branches API does not. No extra GitLab PAT is used.
    Run `node --test ci/publish-github-release.test.mjs` before enabling.
 
 The job downloads the signing job's artifacts through GitLab's `dependencies`,
