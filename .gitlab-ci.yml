@@ -11,24 +11,33 @@ release_build_and_sign:
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
+test_github_release_publisher:
+  stage: .pre
+  image: node:22-bookworm-slim
+  before_script: []
+  script:
+    - node --test ci/publish-github-release.test.mjs
+
 publish_github_pipeline_release:
   stage: .post
-  image:
-    name: ${TAK_REGISTRY_HOST}/devsecops/gradle-build-launcher:17-${GRADLE_BUILD_LAUNCHER_TAG}
-    entrypoint: [""]
-  needs:
-    - job: release_build_and_sign
-      artifacts: true
-  resource_group: physiology-dashboard-github-rolling-release
-  script:
+  image: node:22-bookworm-slim
+  before_script:
     - |
       case "${CI_DEBUG_TRACE:-false}" in
-        true|TRUE|1)
+        true|TRUE|1|yes|YES)
           echo "ERROR: Disable CI_DEBUG_TRACE before publishing"
           exit 1
           ;;
       esac
-    - python3 -m unittest discover -s tests -p 'test_publish_github_release.py'
-    - python3 scripts/publish_github_release.py
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends apksigner aapt
+  dependencies:
+    - release_build_and_sign
+  resource_group: dashboard-github-rolling-release
+  interruptible: false
+  environment:
+    name: github-rolling-release
+  script:
+    - node ci/publish-github-release.mjs
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop" && $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_SERVER_HOST == "git.tak.gov" && $CI_PROJECT_ID == "6557" && $CI_PROJECT_PATH == "aegorsuch/atak-plugin-physiology-dashboard" && $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "push"'
