@@ -157,13 +157,23 @@ test('successful stable replacement verifies bytes before metadata and cleanup; 
 test('release formatting exposes artifact identity and provenance without ownership labels', () => {
   const metadata = releaseMetadata(config, apk);
   assert.equal(metadata.title, 'TAK.gov Forge CI/CD Pipeline Release (0.35-p3)');
-  assert.match(metadata.body, /APK version: `0\.35 \(aaaaaaaa\) - \[5\.3\.0\]` \(versionCode `1792185138`\)/);
-  assert.match(metadata.body, /GitLab pipeline `100` \(project pipeline IID `3`\)/);
-  assert.ok(metadata.body.includes(`[\`${sha}\`](https://git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard/-/commit/${sha})`));
-  assert.ok(metadata.body.includes(`- SHA-256: \`${hash}\``));
+  assert.match(metadata.body, /APK version: \*\*0\.35 \(aaaaaaaa\) - \[5\.3\.0\]\*\* \(versionCode \*\*1792185138\*\*\)/);
+  assert.match(metadata.body, /GitLab pipeline \*\*100\*\* \(project pipeline \*\*3\*\*\)/);
+  assert.ok(metadata.body.includes(`- Source commit: \`${sha}\` on TAK.gov \`develop\``));
+  assert.ok(metadata.body.includes(`- SHA256: \`${hash}\``));
   assert.equal(metadata.name, 'Physiology-Dashboard-0.35-p3.apk');
-  assert.ok(metadata.body.includes(`[Download signed APK](https://github.com/Ascent-Integrated-Tech/biometrics-atak-plugin/releases/download/${TAG}/${metadata.name})`));
-  assert.match(metadata.body, /fixed anchor tag/);
+  assert.match(metadata.body, /fixed release anchor tag/);
+  assert.equal(metadata.body.replace(/<!--[\s\S]*?-->/g, '').trim(), [
+    'Automatically published stable Physiology Dashboard CIV develop-channel build.',
+    '',
+    `- APK version: **${apk.version}** (versionCode **${apk.versionCode}**)`,
+    '- Build: GitLab pipeline **100** (project pipeline **3**)',
+    '- Pipeline: https://git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard/-/pipelines/100',
+    `- Source commit: \`${sha}\` on TAK.gov \`develop\``,
+    `- SHA256: \`${hash}\``,
+    '',
+    'Install the APK above. GitHub\'s "Source code" archives come from the fixed release anchor tag, not from this build; the source commit above is authoritative and may not yet be mirrored to GitHub.',
+  ].join('\n'));
   assert.equal(metadata.label, 'Physiology-Dashboard-0.35-p3.apk');
   assert.equal(releaseMetadata(config, { ...apk, version: '0.35-p3 (aaaaaaaa) - [5.3.0]' }).name,
     'Physiology-Dashboard-0.35-p3.apk');
@@ -280,7 +290,7 @@ test('retry reuses verified asset, rejects unowned collisions and identity chang
   assert.deepEqual(labelUpdate[2], { label: 'Physiology-Dashboard-0.35-p3.apk' });
   assert.equal(retry.files.find(item => item.id === 30).label, labelUpdate[2].label);
   assert.equal(retry.files.find(item => item.id === 30).name, `takgov-6557-3-${hash}.apk`);
-  assert.ok(retry.release.body.includes(`/takgov-6557-3-${hash}.apk)`));
+  assert.ok(retry.release.body.includes(`"asset":"takgov-6557-3-${hash}.apk"`));
   await assert.rejects(publish(config, apk, mock({ collision: true })));
   await assert.rejects(publish(config, { ...apk, hash: 'f'.repeat(64) }, mock({ iid: 3 })));
   const unowned = mock();

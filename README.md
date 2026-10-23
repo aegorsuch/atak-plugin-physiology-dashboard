@@ -65,9 +65,12 @@ canonical `git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard` `develop`
 **TAK.gov Forge CI/CD Pipeline Release (<APK version>-p<project pipeline IID>)**,
 for example **TAK.gov Forge CI/CD Pipeline Release (0.35-p2)**, with
 `draft=false` and `prerelease=false`. The version comes from the signed APK,
-not the ATAK SDK version. Notes include the full APK version and version code,
-global pipeline ID and project IID, canonical links, full source SHA and separate
-SHA-256. The native APK download label is readable; ownership metadata stays in
+not the ATAK SDK version. The visible body follows the WearOS template exactly:
+a stable develop-channel introduction, five bullets (APK version/code, global
+pipeline ID/project IID, bare pipeline URL, full source SHA, SHA256), and the
+fixed-anchor installation/source disclaimer. It contains no signing-job bullet,
+extra download link or production-approval line. Manual notes outside managed
+boundaries remain untouched. The native APK download label is readable; ownership metadata stays in
 hidden comments and the unchanged hash-based filename. Generated notes use
 managed boundaries so manual notes outside them survive updates.
 This does not change the Forge production-release approval process.
