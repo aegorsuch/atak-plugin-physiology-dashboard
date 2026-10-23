@@ -97,7 +97,9 @@ export function transport(config, fetcher = fetch) {
     upload: (id, name, label, bytes) => request(
       `https://uploads.github.com/repos/${REPO}/releases/${id}/assets?${new URLSearchParams({ name, label })}`,
       'POST', bytes),
-    currentBranch: () => request(`https://git.tak.gov/api/v4/projects/${PROJECT}/repository/branches/develop`),
+    currentBranch: async () => ({
+      commit: await request(`https://git.tak.gov/api/v4/projects/${PROJECT}/repository/commits/develop`),
+    }),
   };
 }
 

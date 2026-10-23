@@ -305,11 +305,12 @@ test('transport sends tokens only to their API, strips auth from approved downlo
       status: 302, headers: { location: 'https://release-assets.githubusercontent.com/mock' },
     });
     if (String(url).includes('release-assets.')) return new Response(bytes);
-    return new Response(JSON.stringify({ commit: { id: sha } }));
+    return new Response(JSON.stringify({ id: sha }));
   });
-  await api.currentBranch();
+  assert.deepEqual(await api.currentBranch(), { commit: { id: sha } });
   await api.github('/releases/assets/1', 'GET', undefined, true);
   assert.deepEqual(seen[0][1].headers, { 'JOB-TOKEN': config.jobToken });
+  assert.equal(seen[0][0], 'https://git.tak.gov/api/v4/projects/6557/repository/commits/develop');
   assert.equal(seen[1][1].headers.Authorization, `Bearer ${config.token}`);
   assert.equal(seen[2][1].headers, undefined);
   const denied = transport(config, async () => new Response(null, {
