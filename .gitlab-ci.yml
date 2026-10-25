@@ -12,7 +12,7 @@ release_build_and_sign:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 test_github_release_publisher:
-  stage: .pre
+  stage: test
   image: node:22-bookworm-slim
   before_script:
     - apt-get update -qq
