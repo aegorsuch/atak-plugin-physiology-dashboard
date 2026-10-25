@@ -75,9 +75,37 @@ hidden comments and the unchanged hash-based filename. Generated notes use
 managed boundaries so manual notes outside them survive updates.
 This does not change the Forge production-release approval process.
 
-Destination: `Ascent-Integrated-Tech/biometrics-atak-plugin` on GitHub, currently
-**private**. Downloaders need repository access. The canonical Forge project is
-**internal**. Do not change either visibility as part of publisher setup.
+Destinations are `Ascent-Integrated-Tech/biometrics-atak-plugin` (private) and
+`aegorsuch/atak-plugin-physiology-dashboard` (public). Each keeps an independent
+stable release on the same fixed `tak-gov-pipeline` anchor. The canonical Forge
+project is **internal**. Do not change repository visibility as part of
+publisher setup.
+
+The organization destination is always updated by
+`publish_github_pipeline_release`. Personal mirror publication uses the
+`publish_personal_github_pipeline_release` job and is enabled only when the
+protected, non-secret `PUBLISH_PERSONAL_GITHUB` CI variable is `true` with scope
+`*` so pipeline rules can evaluate it. The job
+uses `GITHUB_PERSONAL_RELEASE_TOKEN` in the distinct
+`github-personal-rolling-release` environment, separate from the organization
+`GITHUB_RELEASE_TOKEN`. The personal token must be protected, masked, and
+fine-grained to Contents read/write on only
+`aegorsuch/atak-plugin-physiology-dashboard`. The job pins its repository target
+to that personal repository; publisher targets are allowlisted in code. A
+protected, non-secret `PUBLISH_PERSONAL_GITHUB=true` flag enables the optional
+job. Until both that flag and the personal token are configured, automatic
+personal updates remain disabled. The initial personal rolling release has
+already been published from a verified official signed artifact.
+
+Before each personal publication, the job checks that the pipeline SHA is still
+the canonical protected `develop` tip, fetches the personal mirror's `develop`
+branch, and permits only a Git fast-forward to that SHA. It pushes only
+`refs/heads/develop`, without force or tags, then verifies the canonical and
+personal branch SHAs still match before publishing. A divergent, stale,
+changed-during-sync, or failed push stops the job rather than rewriting the
+mirror. Both publishers share one GitLab resource group so sync and release
+updates are serialized. The personal sync requires a full-depth canonical
+checkout to verify ancestry.
 
 ### One-time setup (administrator approval required)
 
@@ -90,12 +118,20 @@ Destination: `Ascent-Integrated-Tech/biometrics-atak-plugin` on GitHub, currentl
    generated source archives therefore describe that tag, not the APK source.
    Do not repurpose an existing numbered release/tag. If the rolling release
    already exists without this publisher's ownership marker, setup fails closed.
+   Both current organization and personal repositories already have this fixed
+   tag; leave their tag targets unchanged.
 3. Provision a fine-grained CI-only GitHub token restricted to **this repository**,
    with **Contents: read and write** (Metadata read is implicit), no other
    permissions. Obtain organization approval/SSO authorization if required.
-   Store it as `GITHUB_RELEASE_TOKEN`, **protected**, **masked**, hidden where
-   supported, environment-scoped to `github-rolling-release`. Set an expiry and
-   rotation owner. Never copy a workstation `gh`/`glab` credential into CI.
+   Keep the existing protected, masked `GITHUB_RELEASE_TOKEN` for the
+   organization publisher; it currently has wildcard (`*`) environment scope
+   and does not need to be changed for this personal setup. Add a separate
+   `GITHUB_PERSONAL_RELEASE_TOKEN`, protected/masked and scoped exactly to
+   `github-personal-rolling-release`, with Contents read/write only on
+   `aegorsuch/atak-plugin-physiology-dashboard`. Add the protected, non-secret
+   `PUBLISH_PERSONAL_GITHUB=true` flag with scope `*` to enable the optional personal job. Set
+   an expiry and rotation owner for the token. Never copy a workstation
+   `gh`/`glab` credential into CI.
 4. Set protected, environment-scoped `TAK_SIGNER_SHA256` to the independently
    approved lowercase SHA-256 certificate fingerprint. The observed signer for
    the latest inspected build is
@@ -118,19 +154,23 @@ logs, mappings, SBOMs, source/debug archives and unrelated APKs are never upload
 GitHub's automatically generated source links cannot be disabled by this job.
 
 The GitLab resource group `dashboard-github-rolling-release` serializes updates.
-A live canonical branch-SHA check rejects obsolete commits; the publisher-owned
-release marker records the project and pipeline IID so an older pipeline cannot
-overwrite a newer release, including reruns of the same commit. All publishers
-must use this resource group; it is not a lock against out-of-band manual edits.
+Both publishers use it; it is not a lock against out-of-band manual edits. The
+personal sync requires a full-depth checkout, fetches only personal `develop`,
+checks that its tip is an ancestor of the current canonical pipeline SHA, and
+pushes only `develop` without force or tags. A pre-sync race check, post-sync
+canonical and personal SHA checks, and the publisher's additional freshness
+checks stop stale or divergent updates. The publisher-owned release marker also
+records the project and pipeline IID so an older pipeline cannot overwrite a
+newer release, including reruns of the same commit.
 
 New APKs and native download labels use
 `Physiology-Dashboard-<version>-p<IID>.apk`, without duplicating an existing
-matching pipeline suffix. Hashes stay in the hidden ownership marker and in
-the separate visible SHA-256 field, not the download label. Cleanup verifies
-old owned asset bytes against their recorded hash before deletion.
-The publisher recognizes legacy filenames and ownership labels as well as the
-new format. Retries reuse existing assets without renaming them, so existing
-asset IDs, names and URLs are unchanged.
+matching pipeline suffix. Hashes stay in the hidden ownership marker and the
+separate visible SHA-256 field, not the download label. Cleanup verifies old
+owned asset bytes against their recorded hash before deletion. The publisher
+recognizes legacy filenames and ownership labels as well as the new format.
+Retries reuse existing assets without renaming them, so existing asset IDs,
+names and URLs are unchanged.
 The publisher downloads the new GitHub asset, verifies its size and SHA-256,
 updates stable release metadata, and reads it back before deleting **only**
 older APKs matching both its strict filename and ownership label on that
@@ -143,41 +183,21 @@ inspection, not preemptive deletion. Cleanup failures fail the job explicitly
 while leaving the newly verified APK usable. Retries reuse and reverify an
 already uploaded candidate.
 
-### Verified existing release provenance
+### Rolling release policy
 
-As of 2026-10-23, the newest successful canonical develop pipeline is
-[1784305](https://git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard/-/pipelines/1784305)
-(project IID 2), signing job
-[7548996](https://git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard/-/jobs/7548996),
-commit `e07395d455adbb46816cc008ec2c28057b1dc335`.
-Its `ATAK-Plugin-atak-plugin-physiology-dashboard-0.35-e07395d4-5.3.0-civ-release.apk`
-is **30,513,260 bytes**, version **0.35 (e07395d4) - [5.3.0]**, version code
-`1792185138`, min SDK 24, target SDK 33. Local Android tooling verified v2/v3
-signatures, the certificate fingerprint above, expected package and no debug
-flag. The existing GitHub asset was downloaded and independently verified to
-match this size, version, version code, signer and APK SHA-256:
-`aa53efa38d976a5aca5a2d9f8de88826546a082c5f7b99b210dc1ea02229a7b4`.
-The signing artifact currently expires **2027-02-23 21:35 UTC**.
-The fixed GitHub tag points to `7d40d79b17211f755ccad7afa02ab086a8fa916e`,
-not the APK's canonical source commit above; this is why the release notes
-explicitly distinguish generated source archives from the APK source.
+Each destination's stable rolling release is published at its `tak-gov-pipeline`
+tag and kept marked as GitHub's **Latest** release. Successful pushes to the
+protected canonical TAK.gov `develop` branch publish the newest signed CIV APK
+after the signing job and publisher tests succeed. The release title includes
+the APK version and project pipeline IID. It remains a stable release
+(`prerelease=false`), not an approval for TAK production distribution.
 
-**Published with explicit user approval on 2026-10-18:**
-[TAK.gov CI/CD Pipeline Release](https://github.com/Ascent-Integrated-Tech/biometrics-atak-plugin/releases/tag/tak-gov-pipeline).
-The one-time publication rechecked the newest successful canonical pipeline,
-signing job and branch SHA, reverified the APK signature/package/digest, uploaded
-only the APK, downloaded and hash-verified the GitHub asset, and read back stable
-release metadata (`draft=false`, `prerelease=false`). The existing numbered tags
-were preserved and repository visibility remains private.
-
-The dedicated fixed `tak-gov-pipeline` tag was created at the existing GitHub
-develop commit `7d40d79b17211f755ccad7afa02ab086a8fa916e`, not the newer canonical
-APK source. The release body records the authoritative Forge commit above.
-The publisher-owned asset is
-`takgov-6557-2-aa53efa38d976a5aca5a2d9f8de88826546a082c5f7b99b210dc1ea02229a7b4.apk`.
-
-**Automatic future publication is not enabled yet.** CI credential/signing-pin
-setup and approval/merge of this automation remain outstanding. No CI variables,
-access settings, pipeline triggers or source commits were changed by the
-one-time release. This existing pipeline predates the publisher and did not run
-it retroactively. Do not fake CI variables to bypass normal provenance checks.
+Each publication verifies the signed APK, uploads only that installable APK, and
+records its canonical source commit, pipeline, and SHA-256 in the release notes.
+The `tak-gov-pipeline` tag is a fixed release anchor; GitHub's generated source
+archives refer to that tag, not necessarily to the source commit for the APK.
+Use the source commit recorded in the release notes as the authoritative build
+source. The publisher preserves numbered releases, unrelated assets, and
+user-authored release notes outside its managed section. Both destinations share
+the same canonical pipeline, version, fixed anchor and artifact digest; creating
+or updating one GitHub release does not alter the other destination.

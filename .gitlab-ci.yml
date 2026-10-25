@@ -12,11 +12,13 @@ release_build_and_sign:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 test_github_release_publisher:
-  stage: .pre
+  stage: test
   image: node:22-bookworm-slim
-  before_script: []
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends git
   script:
-    - node --test ci/publish-github-release.test.mjs
+    - node --test ci/*.test.mjs
 
 publish_github_pipeline_release:
   stage: .post
@@ -41,3 +43,31 @@ publish_github_pipeline_release:
     - node ci/publish-github-release.mjs
   rules:
     - if: '$CI_SERVER_HOST == "git.tak.gov" && $CI_PROJECT_ID == "6557" && $CI_PROJECT_PATH == "aegorsuch/atak-plugin-physiology-dashboard" && $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "push"'
+
+publish_personal_github_pipeline_release:
+  stage: .post
+  image: node:22-bookworm-slim
+  before_script:
+    - |
+      case "${CI_DEBUG_TRACE:-false}" in
+        true|TRUE|1|yes|YES)
+          echo "ERROR: Disable CI_DEBUG_TRACE before publishing"
+          exit 1
+          ;;
+      esac
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends apksigner aapt git
+  dependencies:
+    - release_build_and_sign
+  resource_group: dashboard-github-rolling-release
+  interruptible: false
+  environment:
+    name: github-personal-rolling-release
+  variables:
+    GITHUB_RELEASE_REPOSITORY: "aegorsuch/atak-plugin-physiology-dashboard"
+    GIT_DEPTH: "0"
+  script:
+    - node ci/sync-personal-github-develop.mjs
+    - node ci/publish-github-release.mjs
+  rules:
+    - if: '$CI_SERVER_HOST == "git.tak.gov" && $CI_PROJECT_ID == "6557" && $CI_PROJECT_PATH == "aegorsuch/atak-plugin-physiology-dashboard" && $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "push" && $PUBLISH_PERSONAL_GITHUB == "true"'

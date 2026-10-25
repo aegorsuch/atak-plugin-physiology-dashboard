@@ -4,7 +4,9 @@ import { createHash } from 'node:crypto';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { configuration, inspectApk, publish, releaseMetadata, transport, TAG, TITLE } from './publish-github-release.mjs';
+import {
+  configuration, inspectApk, publish, releaseMetadata, transport, TAG, TITLE, REPO, PERSONAL_REPO,
+} from './publish-github-release.mjs';
 
 const sha = 'a'.repeat(40);
 const bytes = Buffer.from('mock signed APK');
@@ -102,6 +104,19 @@ test('configuration restricts publication to canonical protected develop push', 
     CI_PIPELINE_ID: '100', CI_PIPELINE_IID: '3', ARTIFACTS_JOB_ID: '200',
     TAK_SIGNER_SHA256: config.signer, GITHUB_RELEASE_TOKEN: config.token, CI_JOB_TOKEN: config.jobToken };
   assert.equal(configuration(env).iid, 3);
+  assert.equal(configuration(env).repository, REPO);
+  assert.equal(configuration({
+    ...env, GITHUB_RELEASE_REPOSITORY: PERSONAL_REPO,
+    GITHUB_PERSONAL_RELEASE_TOKEN: 'personal-token',
+  }).repository, PERSONAL_REPO);
+  assert.equal(configuration({
+    ...env, GITHUB_RELEASE_REPOSITORY: PERSONAL_REPO,
+    GITHUB_PERSONAL_RELEASE_TOKEN: 'personal-token',
+  }).tokenVariable, 'GITHUB_PERSONAL_RELEASE_TOKEN');
+  assert.throws(() => configuration({ ...env, GITHUB_RELEASE_REPOSITORY: PERSONAL_REPO }),
+    /credentials are missing/);
+  assert.throws(() => configuration({ ...env, GITHUB_RELEASE_REPOSITORY: 'someone/other-repo' }),
+    /not allowlisted/);
   for (const key of Object.keys(env)) assert.throws(() => configuration({ ...env, [key]: '' }), undefined, key);
   for (const value of ['merge_request_event', 'web', 'schedule']) {
     assert.throws(() => configuration({ ...env, CI_PIPELINE_SOURCE: value }));
@@ -314,6 +329,7 @@ test('transport sends tokens only to their API, strips auth from approved downlo
     if (String(url).includes('/releases/assets/')) return new Response(null, {
       status: 302, headers: { location: 'https://release-assets.githubusercontent.com/mock' },
     });
+
     if (String(url).includes('release-assets.')) return new Response(bytes);
     return new Response(JSON.stringify({ id: sha }));
   });
@@ -329,4 +345,26 @@ test('transport sends tokens only to their API, strips auth from approved downlo
   await assert.rejects(denied.github('/releases/assets/1', 'GET', undefined, true), /Untrusted/);
   const unauthorized = transport(config, async () => new Response('sensitive body', { status: 403 }));
   await assert.rejects(unauthorized.github('/releases'), error => !error.message.includes('sensitive'));
+});
+
+test('personal destination uses the same publisher API with an allowlisted repository path', async () => {
+  const seen = [];
+  const personalConfig = { ...config, repository: PERSONAL_REPO };
+  const api = transport(personalConfig, async (url, init) => {
+    seen.push([String(url), init]);
+    return String(url).includes('git.tak.gov')
+      ? new Response(JSON.stringify({ id: sha }))
+      : new Response(JSON.stringify({ commit: { sha } }));
+  });
+  await api.github('/releases');
+  assert.equal(seen[0][0], `https://api.github.com/repos/${PERSONAL_REPO}/releases`);
+  assert.equal(seen[0][1].headers.Authorization, `Bearer ${config.token}`);
+  assert.throws(() => transport({ ...config, repository: 'someone/other-repo' }), /not allowlisted/);
+  assert.deepEqual(await api.currentBranch(), { commit: { id: sha } });
+  assert.ok(seen.some(([url]) => url === `https://api.github.com/repos/${PERSONAL_REPO}/branches/develop`));
+
+  const staleMirror = transport(personalConfig, async url => new Response(JSON.stringify(
+    String(url).includes('git.tak.gov') ? { id: sha } : { commit: { sha: 'c'.repeat(40) } },
+  )));
+  await assert.rejects(staleMirror.currentBranch(), /not synchronized/);
 });

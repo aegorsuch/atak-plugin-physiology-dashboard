@@ -5,6 +5,8 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export const REPO = 'Ascent-Integrated-Tech/biometrics-atak-plugin';
+export const PERSONAL_REPO = 'aegorsuch/atak-plugin-physiology-dashboard';
+const ALLOWED_REPOSITORIES = new Set([REPO, PERSONAL_REPO]);
 export const TAG = 'tak-gov-pipeline';
 export const TITLE = 'TAK.gov Forge CI/CD Pipeline Release';
 const PROJECT = '6557';
@@ -30,11 +32,16 @@ export function configuration(env) {
   }
   requireThat(/^[a-f0-9]{40}$/.test(env.CI_COMMIT_SHA ?? ''), 'Invalid source SHA');
   requireThat(/^[a-f0-9]{64}$/.test(env.TAK_SIGNER_SHA256 ?? ''), 'Configure reviewed TAK_SIGNER_SHA256');
-  requireThat(env.GITHUB_RELEASE_TOKEN && env.CI_JOB_TOKEN, 'Required CI credentials are missing');
+  const repository = env.GITHUB_RELEASE_REPOSITORY || REPO;
+  requireThat(ALLOWED_REPOSITORIES.has(repository), 'GitHub release repository is not allowlisted');
+  const tokenVariable = repository === PERSONAL_REPO
+    ? 'GITHUB_PERSONAL_RELEASE_TOKEN' : 'GITHUB_RELEASE_TOKEN';
+  const token = env[tokenVariable];
+  requireThat(token && env.CI_JOB_TOKEN, 'Required CI credentials are missing');
   return {
     iid: Number(env.CI_PIPELINE_IID), pipeline: env.CI_PIPELINE_ID,
     job: env.ARTIFACTS_JOB_ID, sha: env.CI_COMMIT_SHA,
-    signer: env.TAK_SIGNER_SHA256, token: env.GITHUB_RELEASE_TOKEN,
+    signer: env.TAK_SIGNER_SHA256, token, repository, tokenVariable,
     jobToken: env.CI_JOB_TOKEN,
   };
 }
@@ -65,6 +72,8 @@ export function inspectApk(directory, signer, run = execFileSync) {
 }
 
 export function transport(config, fetcher = fetch) {
+  const repository = config.repository ?? REPO;
+  requireThat(ALLOWED_REPOSITORIES.has(repository), 'GitHub release repository is not allowlisted');
   async function request(url, method = 'GET', data, binary = false, allow404 = false) {
     const target = new URL(url);
     requireThat(target.protocol === 'https:' &&
@@ -93,13 +102,20 @@ export function transport(config, fetcher = fetch) {
   }
   return {
     github: (path, method, data, binary, allow404) =>
-      request(`https://api.github.com/repos/${REPO}${path}`, method, data, binary, allow404),
+      request(`https://api.github.com/repos/${repository}${path}`, method, data, binary, allow404),
     upload: (id, name, label, bytes) => request(
-      `https://uploads.github.com/repos/${REPO}/releases/${id}/assets?${new URLSearchParams({ name, label })}`,
+      `https://uploads.github.com/repos/${repository}/releases/${id}/assets?${new URLSearchParams({ name, label })}`,
       'POST', bytes),
-    currentBranch: async () => ({
-      commit: await request(`https://git.tak.gov/api/v4/projects/${PROJECT}/repository/commits/develop`),
-    }),
+    currentBranch: async () => {
+      const canonical = await request(
+        `https://git.tak.gov/api/v4/projects/${PROJECT}/repository/commits/develop`);
+      if (repository === PERSONAL_REPO) {
+        const mirror = await request(`https://api.github.com/repos/${repository}/branches/develop`);
+        requireThat(mirror.commit.sha === canonical.id,
+          'Personal GitHub develop is not synchronized to canonical TAK.gov develop');
+      }
+      return { commit: canonical };
+    },
   };
 }
 
