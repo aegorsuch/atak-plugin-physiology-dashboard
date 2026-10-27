@@ -43,6 +43,7 @@ import com.atakmap.android.dropdown.DropDownReceiver;
 import com.atakmap.android.maps.MapItem;
 import com.atakmap.android.maps.MapView;
 import com.atakmap.app.SettingsActivity;
+import com.atakmap.comms.CommsLogger;
 import com.atakmap.comms.CommsMapComponent;
 import com.atakmap.coremap.cot.event.CotEvent;
 import com.atakmap.coremap.cot.event.CotDetail;
@@ -52,6 +53,7 @@ import com.aitech.atak.biometrics.DeviceData;
 import com.aitech.atak.biometrics.services.LicenseManager;
 import com.aitech.atak.biometrics.services.PhysioDataLogger;
 import com.aitech.atak.biometrics.services.RetainedBiometrics;
+import com.aitech.atak.biometrics.services.SelfBiometrics;
 import com.aitech.atak.biometrics.services.BiometricValues;
 import com.atakmap.android.missionpackage.api.MissionPackageApi;
 import com.atakmap.android.missionpackage.api.ToastSaveCallback;
@@ -79,6 +81,10 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     private CustomExpandableAdapter customExpandableAdapter;
     private ExpandableListView expandableListView;
     private CotDetailHandler biometricsDetailHandler = null;
+    // Companion attaches the local watch's vitals to the outbound self marker,
+    // which never reaches the inbound detail handler.
+    private final SelfBiometrics selfBiometrics = new SelfBiometrics();
+    private CommsLogger selfBiometricsLogger = null;
     private static final int SORT_COLOR_DEFAULT = -1;
     private final PhysioDataLogger physioDataLogger = new PhysioDataLogger();
     private Button loggingButton;
@@ -649,12 +655,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 return;
             }
             CotDetail status = cotEvent.getDetail().getFirstChildByName(0, "status");
-            String deviceId = cotEvent.getUID(); // Using UID as deviceId
             String callsign = contact.getAttribute("callsign");
             String phone = contact.getAttribute("phone");
 
             // biometrics -- heart rate
             String biometricDeviceUid = childTextOrAttribute(biometricDevice, "uid");
+            String selfUid = MapView.getDeviceUid();
+            String deviceId = cardKey(cotEvent, biometricDeviceUid);
+            boolean isSelf = selfUid != null && selfUid.equals(deviceId);
+            if (isSelf && !isBlank(selfTitle)) {
+                callsign = selfTitle;
+            }
             String heartRateStr = childTextOrAttribute(biometricDevice, "hr");
             String modelStr = childTextOrAttribute(biometricDevice, "model");
             if (isBlank(biometricDeviceUid) || isBlank(heartRateStr) || isBlank(modelStr)) {
@@ -747,7 +758,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                         TakBiometricsMapComponent.testCounter = 0;
                     }
                     //Log.d(TAG, "selfTitle = (" + selfTitle + ")");
-                    if ((null != selfTitle) && selfTitle.equals(callsign)) {
+                    if (isSelf || ((null != selfTitle) && selfTitle.equals(callsign))) {
                         callsign = callsign + " (You)";
                         //Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
                         if (deviceDataMap.containsKey(deviceId)) {
@@ -994,14 +1005,92 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     }
 
     private synchronized void processBiometrics(CotEvent event, boolean retained) {
-        if (disposed || (retained && deviceDataMap.containsKey(event.getUID()))) {
+        String key = cardKey(event, biometricDeviceUid(event));
+        if (disposed || (retained && deviceDataMap.containsKey(key))) {
             return;
         }
         cotReceiver(event, retained);
-        DeviceData data = deviceDataMap.get(event.getUID());
+        DeviceData data = deviceDataMap.get(key);
         if (data != null) {
             data.setStale(isDeviceStale(data));
         }
+    }
+
+    private String cardKey(CotEvent event, String biometricDeviceUid) {
+        return SelfBiometrics.cardKey(event.getUID(), biometricDeviceUid,
+                MapView.getDeviceUid(), selfBiometrics.getWatchUid());
+    }
+
+    private String biometricDeviceUid(CotEvent event) {
+        CotDetail detail = event.getDetail();
+        CotDetail biometrics = detail == null ? null : detail.getFirstChildByName(0, "biometrics");
+        return childTextOrAttribute(biometrics == null ? null
+                : biometrics.getFirstChildByName(0, "device"), "uid");
+    }
+
+    private void onSelfEventSent(CotEvent event) {
+        if (disposed) {
+            return;
+        }
+        try {
+            String previousWatchUid = selfBiometrics.getWatchUid();
+            if (!selfBiometrics.accept(event, MapView.getDeviceUid())) {
+                return;
+            }
+            String watchUid = selfBiometrics.getWatchUid();
+            if (watchUid != null && !watchUid.equals(previousWatchUid)
+                    && deviceDataMap.remove(watchUid) != null) {
+                // A separate card created by older Companion builds is now merged into self.
+                Log.i(TAG, "Merged legacy watch card " + watchUid + " into self card");
+            }
+            processBiometrics(event, false);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to process self biometrics", e);
+        }
+    }
+
+    private void registerSelfBiometricsLogger() {
+        if (selfBiometricsLogger != null) {
+            return;
+        }
+        selfBiometricsLogger = new CommsLogger() {
+            @Override
+            public void logSend(CotEvent event, String destination) {
+                onSelfEventSent(event);
+            }
+
+            @Override
+            public void logSend(CotEvent event, String[] toUIDs) {
+                onSelfEventSent(event);
+            }
+
+            @Override
+            public void logReceive(CotEvent event, String rxid, String server) {
+            }
+
+            @Override
+            public void dispose() {
+            }
+        };
+        CommsMapComponent comms = CommsMapComponent.getInstance();
+        if (comms == null) {
+            Log.w(TAG, "CommsMapComponent unavailable; self biometrics logger not registered");
+            selfBiometricsLogger = null;
+            return;
+        }
+        comms.registerCommsLogger(selfBiometricsLogger);
+        Log.d(TAG, "Registered self biometrics comms logger");
+    }
+
+    private void unregisterSelfBiometricsLogger() {
+        if (selfBiometricsLogger == null) {
+            return;
+        }
+        CommsMapComponent comms = CommsMapComponent.getInstance();
+        if (comms != null) {
+            comms.unregisterCommsLogger(selfBiometricsLogger);
+        }
+        selfBiometricsLogger = null;
     }
 
     private void restoreRetainedBiometrics() {
@@ -1019,6 +1108,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     }
 
     private void registerCotHandler() {
+        registerSelfBiometricsLogger();
 //        if (!LicenseManager.isLicenseValid()) {
 //            Log.d(TAG, "License is invalid, not registering cot handler");
 //            return;
@@ -1141,6 +1231,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
     }
 
     public void unregisterCotHandler() {
+        unregisterSelfBiometricsLogger();
         if (biometricsDetailHandler != null) {
             Log.d(TAG, "Unregistering Cot Handler");
             CotDetailManager.getInstance().unregisterHandler(biometricsDetailHandler);
