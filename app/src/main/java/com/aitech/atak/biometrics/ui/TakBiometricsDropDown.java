@@ -759,7 +759,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                     }
                     //Log.d(TAG, "selfTitle = (" + selfTitle + ")");
                     if (isSelf || ((null != selfTitle) && selfTitle.equals(callsign))) {
-                        callsign = callsign + " (You)";
+                        callsign = callsign + " (Self)";
                         //Log.d(TAG, "Recieved Cot - LOCAL  - Model #: [ " + modelStr + " ]   Heart Rate: [ " + heartRateStr + " bpm ]   SerialNumber: [ " + serialNumber + " ] " + "    UID: [ " + deviceId +  " ]   Callsign: [ " + callsign + " ]" );
                         if (deviceDataMap.containsKey(deviceId)) {
                             // Update the data. No need to create a new DeviceData
