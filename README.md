@@ -33,8 +33,9 @@ Run `gradlew.bat :app:testCivDebugUnitTest :app:assembleCivDebug` for local chec
 
 ## TAK Forge CI/CD
 `.gitlab-ci.yml` uses the same shared `devsecops/gitlab-ci-common` build-and-sign
-template as the WearTAK Companion plugin. Pushes to `develop` run
-`release_build_and_sign` with JDK 17 for the `civ` variant. Other branches do not
+template as the WearTAK Companion plugin. Push pipelines on protected canonical
+`main` run `release_build_and_sign` with JDK 17 for the `civ` variant. Other
+branches, unprotected refs, non-push pipelines, and other Forge projects do not
 run this build job. The dashboard continues to target ATAK 5.3.0.
 
 The shared launcher handles authenticated TAK dependency access, building,
@@ -52,62 +53,56 @@ existing local debug signing and the TPP release-keystore defaults are preserved
 
 The shared template exposes manual `release_internal` and
 `distribute_resources` jobs on protected branches. As with Companion, building
-does not automatically publish or distribute the plugin. Production publication
+does not automatically distribute the plugin to TAK production repositories. Production publication
 uses the shared template's protected maintenance-branch and plugin-metadata
-requirements; a successful develop build is not production approval.
+requirements; a successful main build is not production approval.
 
 ## Stable rolling GitHub pipeline release
 
 `publish_github_pipeline_release` publishes only the signed CIV release APK from
 the successful `release_build_and_sign` job in the same pipeline. It runs in
 `.post`, after all earlier stages succeed, only for push pipelines on protected
-canonical `git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard` `develop`
-(project **6557**). The independent `.pre` publisher tests must also pass.
-`develop` is treated as stable for this distribution: the release title is
+canonical `git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard` `main`
+(project **6557**). The independent `test`-stage publisher tests must also pass.
+`main` is treated as stable for this distribution: the release title is
 **TAK.gov Forge CI/CD Pipeline Release (<APK version>-p<project pipeline IID>)**,
 for example **TAK.gov Forge CI/CD Pipeline Release (0.35-p2)**, with
 `draft=false` and `prerelease=false`. The version comes from the signed APK,
 not the ATAK SDK version. The visible body follows the WearOS template exactly:
-a stable develop-channel introduction, five bullets (APK version/code, global
+a stable main-channel introduction, five bullets (APK version/code, global
 pipeline ID/project IID, bare pipeline URL, full source SHA, SHA256), and the
 fixed-anchor installation/source disclaimer. It contains no signing-job bullet,
 extra download link or production-approval line. Manual notes outside managed
 boundaries remain untouched. The native APK download label is readable; ownership metadata stays in
-hidden comments and the unchanged hash-based filename. Generated notes use
+hidden comments; new filenames are readable and legacy filenames remain unchanged. Generated notes use
 managed boundaries so manual notes outside them survive updates.
 This does not change the Forge production-release approval process.
 
-Destinations are `Ascent-Integrated-Tech/biometrics-atak-plugin` (private) and
-`aegorsuch/atak-plugin-physiology-dashboard` (public). Each keeps an independent
-stable release on the same fixed `tak-gov-pipeline` anchor. The canonical Forge
-project is **internal**. Do not change repository visibility as part of
-publisher setup.
+The only destination is `aegorsuch/atak-plugin-physiology-dashboard` (public),
+using the fixed `tak-gov-pipeline` anchor. Company publishing is disabled:
+`Ascent-Integrated-Tech/biometrics-atak-plugin` is rejected by the publisher,
+including repository overrides. Historical company releases and tags are not
+modified. The canonical Forge project is **internal**. Do not change repository
+visibility as part of publisher setup.
 
-The organization destination is always updated by
-`publish_github_pipeline_release`. Personal mirror publication uses the
-`publish_personal_github_pipeline_release` job and is enabled only when the
-protected, non-secret `PUBLISH_PERSONAL_GITHUB` CI variable is `true` with scope
-`*` so pipeline rules can evaluate it. The job
-uses `GITHUB_PERSONAL_RELEASE_TOKEN` in the distinct
-`github-personal-rolling-release` environment, separate from the organization
-`GITHUB_RELEASE_TOKEN`. The personal token must be protected, masked, and
-fine-grained to Contents read/write on only
+`publish_github_pipeline_release` uses only `GITHUB_PERSONAL_RELEASE_TOKEN`
+in the `github-personal-rolling-release` environment. The personal token must
+be protected, masked, and fine-grained to Contents read/write on only
 `aegorsuch/atak-plugin-physiology-dashboard`. The job pins its repository target
-to that personal repository; publisher targets are allowlisted in code. A
-protected, non-secret `PUBLISH_PERSONAL_GITHUB=true` flag enables the optional
-job. Until both that flag and the personal token are configured, automatic
-personal updates remain disabled. The initial personal rolling release has
-already been published from a verified official signed artifact.
+to that personal repository; the same restriction is enforced in code.
+Publication is automatic on eligible main pushes; `PUBLISH_PERSONAL_GITHUB`
+is no longer consulted. A missing personal token fails closed; the legacy
+company `GITHUB_RELEASE_TOKEN` is never used as a fallback.
 
 Before each personal publication, the job checks that the pipeline SHA is still
-the canonical protected `develop` tip, fetches the personal mirror's `develop`
+the canonical protected `main` tip, fetches the personal mirror's `main`
 branch, and permits only a Git fast-forward to that SHA. It pushes only
-`refs/heads/develop`, without force or tags, then verifies the canonical and
+`refs/heads/main`, without force or tags, then verifies the canonical and
 personal branch SHAs still match before publishing. A divergent, stale,
 changed-during-sync, or failed push stops the job rather than rewriting the
-mirror. Both publishers share one GitLab resource group so sync and release
-updates are serialized. The personal sync requires a full-depth canonical
-checkout to verify ancestry.
+mirror. One GitLab resource group serializes sync and release updates.
+The personal repository must be active, public, and default to `main`.
+The personal sync requires a full-depth canonical checkout to verify ancestry.
 
 ### One-time setup (administrator approval required)
 
@@ -120,32 +115,31 @@ checkout to verify ancestry.
    generated source archives therefore describe that tag, not the APK source.
    Do not repurpose an existing numbered release/tag. If the rolling release
    already exists without this publisher's ownership marker, setup fails closed.
-   Both current organization and personal repositories already have this fixed
-   tag; leave their tag targets unchanged.
-3. Provision a fine-grained CI-only GitHub token restricted to **this repository**,
-   with **Contents: read and write** (Metadata read is implicit), no other
-   permissions. Obtain organization approval/SSO authorization if required.
-   Keep the existing protected, masked `GITHUB_RELEASE_TOKEN` for the
-   organization publisher; it currently has wildcard (`*`) environment scope
-   and does not need to be changed for this personal setup. Add a separate
+   Existing fixed tag targets, including historical company tags, stay unchanged.
+3. Provision a fine-grained CI-only GitHub token owned by `aegorsuch`, restricted
+   to **aegorsuch/atak-plugin-physiology-dashboard**, with **Contents: read and
+   write** (Metadata read is implicit), no other permissions. Store it as
    `GITHUB_PERSONAL_RELEASE_TOKEN`, protected/masked and scoped exactly to
    `github-personal-rolling-release`, with Contents read/write only on
-   `aegorsuch/atak-plugin-physiology-dashboard`. Add the protected, non-secret
-   `PUBLISH_PERSONAL_GITHUB=true` flag with scope `*` to enable the optional personal job. Set
-   an expiry and rotation owner for the token. Never copy a workstation
-   `gh`/`glab` credential into CI.
+   that repository. Branch rules must permit its non-force fast-forward updates
+   to personal `main`. No Workflows, Administration, or organization permissions
+   are requested; if repository rules reject the sync, fail closed rather than
+   expanding privileges automatically. Set an expiry and rotation owner.
+   No enable flag or company token is required. Never copy a workstation
+   `gh`/`glab` credential into CI. This code change does not provision tokens or
+   modify Forge variables; administrators must verify their configuration.
 4. Set protected, environment-scoped `TAK_SIGNER_SHA256` to the independently
    approved lowercase SHA-256 certificate fingerprint. The observed signer for
    the latest inspected build is
    `f24a38057275fcecf67be975ab803d12f75dc23581bef69cba9eb03a15bb8c17`.
    Review signing rotations explicitly rather than automatically trusting the
    certificate bundled with an APK.
-5. Keep `develop` protected and reserve the rolling release for this publisher.
+5. Keep canonical `main` protected and reserve the rolling release for this publisher.
    The runner needs the Node 22 image, Debian package access for `apksigner` and
    `aapt`, GitHub API/upload/asset download access, and CI job-token read access to
-   the canonical `repository/commits/develop` endpoint. This Commits API accepts
+   the canonical `repository/commits/main` endpoint. This Commits API accepts
    job-token authentication; the Branches API does not. No extra GitLab PAT is used.
-   Run `node --test ci/publish-github-release.test.mjs` before enabling.
+   Run `node --test ci/*.test.mjs` before enabling.
 
 The job downloads the signing job's artifacts through GitLab's `dependencies`,
 but uploads only one allowlisted root-level dashboard `*-civ-release.apk`.
@@ -156,10 +150,10 @@ logs, mappings, SBOMs, source/debug archives and unrelated APKs are never upload
 GitHub's automatically generated source links cannot be disabled by this job.
 
 The GitLab resource group `dashboard-github-rolling-release` serializes updates.
-Both publishers use it; it is not a lock against out-of-band manual edits. The
-personal sync requires a full-depth checkout, fetches only personal `develop`,
+It is not a lock against out-of-band manual edits. The
+personal sync requires a full-depth checkout, fetches only personal `main`,
 checks that its tip is an ancestor of the current canonical pipeline SHA, and
-pushes only `develop` without force or tags. A pre-sync race check, post-sync
+pushes only `main` without force or tags. A pre-sync race check, post-sync
 canonical and personal SHA checks, and the publisher's additional freshness
 checks stop stale or divergent updates. The publisher-owned release marker also
 records the project and pipeline IID so an older pipeline cannot overwrite a
@@ -187,9 +181,9 @@ already uploaded candidate.
 
 ### Rolling release policy
 
-Each destination's stable rolling release is published at its `tak-gov-pipeline`
+The personal stable rolling release is published at its `tak-gov-pipeline`
 tag and kept marked as GitHub's **Latest** release. Successful pushes to the
-protected canonical TAK.gov `develop` branch publish the newest signed CIV APK
+protected canonical TAK.gov `main` branch publish the newest signed CIV APK
 after the signing job and publisher tests succeed. The release title includes
 the APK version and project pipeline IID. It remains a stable release
 (`prerelease=false`), not an approval for TAK production distribution.
@@ -200,6 +194,6 @@ The `tak-gov-pipeline` tag is a fixed release anchor; GitHub's generated source
 archives refer to that tag, not necessarily to the source commit for the APK.
 Use the source commit recorded in the release notes as the authoritative build
 source. The publisher preserves numbered releases, unrelated assets, and
-user-authored release notes outside its managed section. Both destinations share
-the same canonical pipeline, version, fixed anchor and artifact digest; creating
-or updating one GitHub release does not alter the other destination.
+user-authored release notes outside its managed section. Only the personal
+destination receives new releases; historical company releases and tags remain
+untouched.

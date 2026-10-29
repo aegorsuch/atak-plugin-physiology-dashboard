@@ -4,9 +4,7 @@ import { readdirSync, readFileSync, lstatSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-export const REPO = 'Ascent-Integrated-Tech/biometrics-atak-plugin';
-export const PERSONAL_REPO = 'aegorsuch/atak-plugin-physiology-dashboard';
-const ALLOWED_REPOSITORIES = new Set([REPO, PERSONAL_REPO]);
+export const REPO = 'aegorsuch/atak-plugin-physiology-dashboard';
 export const TAG = 'tak-gov-pipeline';
 export const TITLE = 'TAK.gov Forge CI/CD Pipeline Release';
 const PROJECT = '6557';
@@ -24,8 +22,8 @@ export function configuration(env) {
     'Disable CI_DEBUG_TRACE before publishing');
   requireThat(env.CI_SERVER_HOST === 'git.tak.gov' &&
     env.CI_PROJECT_ID === PROJECT && env.CI_PROJECT_PATH === SOURCE &&
-    env.CI_COMMIT_BRANCH === 'develop' && env.CI_COMMIT_REF_PROTECTED === 'true' &&
-    env.CI_PIPELINE_SOURCE === 'push', 'Only protected canonical develop push pipelines may publish');
+    env.CI_COMMIT_BRANCH === 'main' && env.CI_COMMIT_REF_PROTECTED === 'true' &&
+    env.CI_PIPELINE_SOURCE === 'push', 'Only protected canonical main push pipelines may publish');
   for (const key of ['CI_PIPELINE_ID', 'CI_PIPELINE_IID', 'ARTIFACTS_JOB_ID']) {
     requireThat(/^[1-9]\d*$/.test(env[key] ?? '') && Number.isSafeInteger(Number(env[key])),
       `Invalid ${key}`);
@@ -33,11 +31,11 @@ export function configuration(env) {
   requireThat(/^[a-f0-9]{40}$/.test(env.CI_COMMIT_SHA ?? ''), 'Invalid source SHA');
   requireThat(/^[a-f0-9]{64}$/.test(env.TAK_SIGNER_SHA256 ?? ''), 'Configure reviewed TAK_SIGNER_SHA256');
   const repository = env.GITHUB_RELEASE_REPOSITORY || REPO;
-  requireThat(ALLOWED_REPOSITORIES.has(repository), 'GitHub release repository is not allowlisted');
-  const tokenVariable = repository === PERSONAL_REPO
-    ? 'GITHUB_PERSONAL_RELEASE_TOKEN' : 'GITHUB_RELEASE_TOKEN';
+  requireThat(repository === REPO, 'GitHub release repository is not allowlisted');
+  const tokenVariable = 'GITHUB_PERSONAL_RELEASE_TOKEN';
   const token = env[tokenVariable];
-  requireThat(token && env.CI_JOB_TOKEN, 'Required CI credentials are missing');
+  requireThat(token, 'Configure protected, masked GITHUB_PERSONAL_RELEASE_TOKEN with Contents read/write on the personal repository');
+  requireThat(env.CI_JOB_TOKEN, 'Required CI credentials are missing');
   return {
     iid: Number(env.CI_PIPELINE_IID), pipeline: env.CI_PIPELINE_ID,
     job: env.ARTIFACTS_JOB_ID, sha: env.CI_COMMIT_SHA,
@@ -73,7 +71,7 @@ export function inspectApk(directory, signer, run = execFileSync) {
 
 export function transport(config, fetcher = fetch) {
   const repository = config.repository ?? REPO;
-  requireThat(ALLOWED_REPOSITORIES.has(repository), 'GitHub release repository is not allowlisted');
+  requireThat(repository === REPO, 'GitHub release repository is not allowlisted');
   async function request(url, method = 'GET', data, binary = false, allow404 = false) {
     const target = new URL(url);
     requireThat(target.protocol === 'https:' &&
@@ -108,12 +106,10 @@ export function transport(config, fetcher = fetch) {
       'POST', bytes),
     currentBranch: async () => {
       const canonical = await request(
-        `https://git.tak.gov/api/v4/projects/${PROJECT}/repository/commits/develop`);
-      if (repository === PERSONAL_REPO) {
-        const mirror = await request(`https://api.github.com/repos/${repository}/branches/develop`);
-        requireThat(mirror.commit.sha === canonical.id,
-          'Personal GitHub develop is not synchronized to canonical TAK.gov develop');
-      }
+        `https://git.tak.gov/api/v4/projects/${PROJECT}/repository/commits/main`);
+      const mirror = await request(`https://api.github.com/repos/${repository}/branches/main`);
+      requireThat(mirror.commit.sha === canonical.id,
+        'Personal GitHub main is not synchronized to canonical TAK.gov main');
       return { commit: canonical };
     },
   };
@@ -153,12 +149,12 @@ export function releaseMetadata(config, apk, previousBody = '', assetName) {
   const section = [
     MANAGED_START,
     '',
-    'Automatically published stable Physiology Dashboard CIV develop-channel build.',
+    'Automatically published stable Physiology Dashboard CIV main-channel build.',
     '',
     `- APK version: **${apk.version}** (versionCode **${apk.versionCode}**)`,
     `- Build: GitLab pipeline **${config.pipeline}** (project pipeline **${config.iid}**)`,
     `- Pipeline: https://git.tak.gov/${SOURCE}/-/pipelines/${config.pipeline}`,
-    `- Source commit: \`${config.sha}\` on TAK.gov \`develop\``,
+    `- Source commit: \`${config.sha}\` on TAK.gov \`main\``,
     `- SHA256: \`${apk.hash}\``,
     '',
     'Install the APK above. GitHub\'s "Source code" archives come from the fixed release anchor tag, not from this build; the source commit above is authoritative and may not yet be mirrored to GitHub.',
@@ -199,7 +195,7 @@ export async function publish(config, apk, api) {
   requireThat(apk.version.includes(config.sha.slice(0, 8)), 'APK version does not match pipeline SHA');
   const metadata = releaseMetadata(config, apk);
   const fresh = async () => requireThat((await api.currentBranch()).commit.id === config.sha,
-    'Source SHA is no longer canonical develop HEAD');
+    'Source SHA is no longer canonical main HEAD');
   await fresh();
   // The fixed tag is provisioned separately; never move or create source refs.
   await api.github(`/git/ref/tags/${TAG}`);
