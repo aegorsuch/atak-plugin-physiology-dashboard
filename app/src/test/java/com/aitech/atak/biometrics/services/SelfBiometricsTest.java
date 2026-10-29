@@ -15,8 +15,12 @@ public class SelfBiometricsTest {
     private static final String WATCH = "WEAROS_ffd863ef0fd282b4";
 
     private CotEvent event(String uid, String sampleTime, boolean alert) {
+        return event(uid, sampleTime, alert, "physiology");
+    }
+
+    private CotEvent event(String uid, String sampleTime, boolean alert, String name) {
         CotDetail root = new CotDetail("detail");
-        CotDetail biometrics = new CotDetail("biometrics");
+        CotDetail biometrics = new CotDetail(name);
         CotDetail device = new CotDetail("device");
         device.setAttribute("sampleTime", sampleTime);
         CotDetail model = new CotDetail("model");
@@ -45,6 +49,32 @@ public class SelfBiometricsTest {
         SelfBiometrics self = new SelfBiometrics();
         assertTrue(self.accept(event(SELF, "2026-10-27T01:52:40Z", false), SELF));
         assertEquals(WATCH, self.getWatchUid());
+    }
+
+    @Test
+    public void legacySelfMarkerRemainsSupportedWithoutDuplicateSamples() {
+        SelfBiometrics self = new SelfBiometrics();
+        assertTrue(self.accept(event(SELF, "t1", false, "biometrics"), SELF));
+        assertFalse(self.accept(event(SELF, "t1", false), SELF));
+        assertEquals(WATCH, self.getWatchUid());
+    }
+
+    @Test
+    public void physiologySelfMarkerTakesPrecedenceOverLegacyTelemetry() {
+        CotEvent event = event(SELF, "primary", false);
+        event.getDetail().addChild(event(SELF, "legacy", false, "biometrics")
+                .getDetail().getFirstChildByName(0, "biometrics"));
+        SelfBiometrics self = new SelfBiometrics();
+        assertTrue(self.accept(event, SELF));
+        assertFalse(self.accept(event(SELF, "primary", false), SELF));
+    }
+
+    @Test
+    public void physiologyAlertDoesNotFallBackToLegacySelfTelemetry() {
+        CotEvent event = event(SELF, "primary", true);
+        event.getDetail().addChild(event(SELF, "legacy", false, "biometrics")
+                .getDetail().getFirstChildByName(0, "biometrics"));
+        assertFalse(new SelfBiometrics().accept(event, SELF));
     }
 
     @Test
