@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { syncPersonalDevelop } from './sync-personal-github-develop.mjs';
+import { syncPersonalMain } from './sync-personal-github-main.mjs';
 
 const sourceSha = 'a'.repeat(40);
 const oldSha = 'b'.repeat(40);
@@ -14,7 +14,7 @@ const config = {
   host: 'git.tak.gov',
   projectId: '6557',
   projectPath: 'aegorsuch/atak-plugin-physiology-dashboard',
-  branch: 'develop',
+  branch: 'main',
   protected: 'true',
   pipelineSource: 'push',
   sha: sourceSha,
@@ -36,6 +36,7 @@ function fixture(failures = {}) {
   const fetcher = async (url, init) => {
     assert.equal(init.redirect, 'error');
     if (url.includes('git.tak.gov')) {
+      assert.equal(url, 'https://git.tak.gov/api/v4/projects/6557/repository/commits/main');
       assert.deepEqual(init.headers, { 'JOB-TOKEN': config.jobToken });
       state.canonicalCalls++;
       return new Response(JSON.stringify({
@@ -49,10 +50,10 @@ function fixture(failures = {}) {
         full_name: 'aegorsuch/atak-plugin-physiology-dashboard',
         visibility: 'public',
         archived: false,
-        default_branch: 'develop',
+        default_branch: failures.defaultBranch ?? 'main',
       }));
     }
-    assert.equal(url, 'https://api.github.com/repos/aegorsuch/atak-plugin-physiology-dashboard/branches/develop');
+    assert.equal(url, 'https://api.github.com/repos/aegorsuch/atak-plugin-physiology-dashboard/branches/main');
     assert.equal(init.headers.Authorization, `Bearer ${token}`);
     state.personalCalls++;
     return new Response(JSON.stringify({ commit: { sha: state.remoteSha } }));
@@ -87,7 +88,7 @@ function fixture(failures = {}) {
 
 test('already synchronized mirror is verified without any Git writes', async () => {
   const current = fixture({ remoteSha: sourceSha });
-  const result = await syncPersonalDevelop(config, current);
+  const result = await syncPersonalMain(config, current);
   assert.deepEqual(result, { synchronized: false, sha: sourceSha });
   assert.equal(current.state.git.length, 0);
   assert.equal(current.state.canonicalCalls, 2);
@@ -95,16 +96,16 @@ test('already synchronized mirror is verified without any Git writes', async () 
   assert.equal(current.state.personalRepoCalls, 2);
 });
 
-test('personal develop uses only a non-force fast-forward refspec, then rechecks both tips', async () => {
+test('personal main uses only a non-force fast-forward refspec, then rechecks both tips', async () => {
   const fastForward = fixture();
-  const result = await syncPersonalDevelop(config, fastForward);
+  const result = await syncPersonalMain(config, fastForward);
   assert.deepEqual(result, { synchronized: true, sha: sourceSha });
   const push = fastForward.state.git.find(args => args[0] === 'push');
   assert.ok(push);
   assert.deepEqual(push.slice(1), [
     '--no-follow-tags', '--recurse-submodules=no',
     'https://github.com/aegorsuch/atak-plugin-physiology-dashboard.git',
-    `${sourceSha}:refs/heads/develop`,
+    `${sourceSha}:refs/heads/main`,
   ]);
   assert.ok(!push.includes('--force'));
   assert.ok(!push.some(arg => arg.includes('refs/tags')));
@@ -113,26 +114,28 @@ test('personal develop uses only a non-force fast-forward refspec, then rechecks
   assert.equal(fastForward.state.personalCalls, 2);
   assert.equal(fastForward.state.personalRepoCalls, 2);
   const env = fastForward.state;
-  assert.ok(env.git.some(args => args[0] === 'fetch' &&
-    args.includes('--no-tags') && args.includes('--no-recurse-submodules')));
+  assert.deepEqual(env.git.find(args => args[0] === 'fetch'), [
+    'fetch', '--no-tags', '--no-recurse-submodules',
+    'https://github.com/aegorsuch/atak-plugin-physiology-dashboard.git', 'refs/heads/main',
+  ]);
 });
 
 test('stale pipelines are rejected before Git commands', async () => {
   const stale = fixture();
-  await assert.rejects(syncPersonalDevelop({ ...config, sha: divergentSha }, stale),
+  await assert.rejects(syncPersonalMain({ ...config, sha: divergentSha }, stale),
     /no longer canonical/);
   assert.equal(stale.state.git.length, 0);
 });
 
 test('a mismatched local checkout is rejected before fetching or pushing', async () => {
   const mismatch = fixture({ checkoutSha: divergentSha });
-  await assert.rejects(syncPersonalDevelop(config, mismatch), /checkout HEAD does not match/);
+  await assert.rejects(syncPersonalMain(config, mismatch), /checkout HEAD does not match/);
   assert.ok(!mismatch.state.git.some(args => ['fetch', 'push'].includes(args[0])));
 });
 
 test('divergent personal branch is never force-pushed or rewritten', async () => {
   const divergent = fixture({ divergent: true });
-  await assert.rejects(syncPersonalDevelop(config, divergent),
+  await assert.rejects(syncPersonalMain(config, divergent),
     /not an ancestor.*refusing non-fast-forward/);
   assert.ok(!divergent.state.git.some(args => args[0] === 'push'));
   assert.equal(divergent.state.remoteSha, oldSha);
@@ -140,13 +143,13 @@ test('divergent personal branch is never force-pushed or rewritten', async () =>
 
 test('a mirror branch change between API read and fetch is rejected', async () => {
   const changed = fixture({ fetchMismatch: true });
-  await assert.rejects(syncPersonalDevelop(config, changed), /changed while it was being fetched/);
+  await assert.rejects(syncPersonalMain(config, changed), /changed while it was being fetched/);
   assert.ok(!changed.state.git.some(args => args[0] === 'push'));
 });
 
 test('push rejection is surfaced and never retried with force', async () => {
   const rejected = fixture({ pushFails: true });
-  await assert.rejects(syncPersonalDevelop(config, rejected), /git push failed/);
+  await assert.rejects(syncPersonalMain(config, rejected), /git push failed/);
   assert.ok(rejected.state.git.some(args => args[0] === 'push'));
   assert.ok(!rejected.state.git.some(args => args.includes('--force')));
   assert.equal(rejected.state.remoteSha, oldSha);
@@ -154,30 +157,37 @@ test('push rejection is surfaced and never retried with force', async () => {
 
 test('a changed canonical head after sync blocks release continuation', async () => {
   const advanced = fixture({ canonicalChangesAfterSync: true });
-  await assert.rejects(syncPersonalDevelop(config, advanced), /advanced during personal mirror sync/);
+  await assert.rejects(syncPersonalMain(config, advanced), /advanced during personal mirror sync/);
   assert.equal(advanced.state.remoteSha, sourceSha);
 });
 
-test('only protected canonical develop push pipelines with separate personal credentials sync', async () => {
+test('only protected canonical main push pipelines with separate personal credentials sync', async () => {
   for (const patch of [
     { host: 'example.com' },
     { projectId: '1' },
     { projectPath: 'someone/repo' },
     { branch: 'feature' },
+    { branch: 'develop' },
     { protected: 'false' },
     { pipelineSource: 'web' },
     { personalToken: '' },
     { debugTrace: 'true' },
   ]) {
     const blocked = fixture({ remoteSha: sourceSha });
-    await assert.rejects(syncPersonalDevelop({ ...config, ...patch }, blocked));
+    await assert.rejects(syncPersonalMain({ ...config, ...patch }, blocked));
     assert.equal(blocked.state.git.length, 0);
   }
 });
 
+test('a personal repository still defaulting to develop blocks sync before Git writes', async () => {
+  const wrongDefault = fixture({ defaultBranch: 'develop' });
+  await assert.rejects(syncPersonalMain(config, wrongDefault), /expected active public main mirror/);
+  assert.equal(wrongDefault.state.git.length, 0);
+});
+
 test('personal credentials are repository-scoped and Git uses isolated safe configuration', async () => {
   const isolated = fixture();
-  await syncPersonalDevelop(config, isolated);
+  await syncPersonalMain(config, isolated);
   const encoded = Buffer.from(`x-access-token:${token}`).toString('base64');
   const expectedPrefix = [
     '-c', 'credential.helper=',

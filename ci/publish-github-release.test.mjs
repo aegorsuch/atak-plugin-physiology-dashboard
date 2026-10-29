@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  configuration, inspectApk, publish, releaseMetadata, transport, TAG, TITLE, REPO, PERSONAL_REPO,
+  configuration, inspectApk, publish, releaseMetadata, transport, TAG, TITLE, REPO,
 } from './publish-github-release.mjs';
 
 const sha = 'a'.repeat(40);
@@ -97,26 +97,31 @@ function mock(options = {}) {
   };
 }
 
-test('configuration restricts publication to canonical protected develop push', () => {
+test('configuration restricts publication to canonical protected main push and personal credentials', () => {
   const env = { CI_SERVER_HOST: 'git.tak.gov', CI_PROJECT_ID: '6557',
-    CI_PROJECT_PATH: 'aegorsuch/atak-plugin-physiology-dashboard', CI_COMMIT_BRANCH: 'develop',
+    CI_PROJECT_PATH: 'aegorsuch/atak-plugin-physiology-dashboard', CI_COMMIT_BRANCH: 'main',
     CI_COMMIT_REF_PROTECTED: 'true', CI_PIPELINE_SOURCE: 'push', CI_COMMIT_SHA: sha,
     CI_PIPELINE_ID: '100', CI_PIPELINE_IID: '3', ARTIFACTS_JOB_ID: '200',
-    TAK_SIGNER_SHA256: config.signer, GITHUB_RELEASE_TOKEN: config.token, CI_JOB_TOKEN: config.jobToken };
+    TAK_SIGNER_SHA256: config.signer, GITHUB_PERSONAL_RELEASE_TOKEN: config.token, CI_JOB_TOKEN: config.jobToken };
   assert.equal(configuration(env).iid, 3);
   assert.equal(configuration(env).repository, REPO);
   assert.equal(configuration({
-    ...env, GITHUB_RELEASE_REPOSITORY: PERSONAL_REPO,
-    GITHUB_PERSONAL_RELEASE_TOKEN: 'personal-token',
-  }).repository, PERSONAL_REPO);
+    ...env, GITHUB_RELEASE_REPOSITORY: REPO,
+  }).repository, REPO);
   assert.equal(configuration({
-    ...env, GITHUB_RELEASE_REPOSITORY: PERSONAL_REPO,
-    GITHUB_PERSONAL_RELEASE_TOKEN: 'personal-token',
+    ...env, GITHUB_RELEASE_REPOSITORY: REPO,
   }).tokenVariable, 'GITHUB_PERSONAL_RELEASE_TOKEN');
-  assert.throws(() => configuration({ ...env, GITHUB_RELEASE_REPOSITORY: PERSONAL_REPO }),
-    /credentials are missing/);
-  assert.throws(() => configuration({ ...env, GITHUB_RELEASE_REPOSITORY: 'someone/other-repo' }),
-    /not allowlisted/);
+  assert.throws(() => configuration({
+    ...env, GITHUB_PERSONAL_RELEASE_TOKEN: '', GITHUB_RELEASE_TOKEN: 'company-token',
+  }), /Configure protected, masked GITHUB_PERSONAL_RELEASE_TOKEN/);
+  for (const repository of ['Ascent-Integrated-Tech/biometrics-atak-plugin', 'someone/other-repo']) {
+    assert.throws(() => configuration({ ...env, GITHUB_RELEASE_REPOSITORY: repository }),
+      /not allowlisted/);
+    assert.throws(() => transport({ ...config, repository }), /not allowlisted/);
+  }
+  for (const branch of ['develop', 'feature']) {
+    assert.throws(() => configuration({ ...env, CI_COMMIT_BRANCH: branch }), /canonical main/);
+  }
   for (const key of Object.keys(env)) assert.throws(() => configuration({ ...env, [key]: '' }), undefined, key);
   for (const value of ['merge_request_event', 'web', 'schedule']) {
     assert.throws(() => configuration({ ...env, CI_PIPELINE_SOURCE: value }));
@@ -174,17 +179,17 @@ test('release formatting exposes artifact identity and provenance without owners
   assert.equal(metadata.title, 'TAK.gov Forge CI/CD Pipeline Release (0.35-p3)');
   assert.match(metadata.body, /APK version: \*\*0\.35 \(aaaaaaaa\) - \[5\.3\.0\]\*\* \(versionCode \*\*1792185138\*\*\)/);
   assert.match(metadata.body, /GitLab pipeline \*\*100\*\* \(project pipeline \*\*3\*\*\)/);
-  assert.ok(metadata.body.includes(`- Source commit: \`${sha}\` on TAK.gov \`develop\``));
+  assert.ok(metadata.body.includes(`- Source commit: \`${sha}\` on TAK.gov \`main\``));
   assert.ok(metadata.body.includes(`- SHA256: \`${hash}\``));
   assert.equal(metadata.name, 'Physiology-Dashboard-0.35-p3.apk');
   assert.match(metadata.body, /fixed release anchor tag/);
   assert.equal(metadata.body.replace(/<!--[\s\S]*?-->/g, '').trim(), [
-    'Automatically published stable Physiology Dashboard CIV develop-channel build.',
+    'Automatically published stable Physiology Dashboard CIV main-channel build.',
     '',
     `- APK version: **${apk.version}** (versionCode **${apk.versionCode}**)`,
     '- Build: GitLab pipeline **100** (project pipeline **3**)',
     '- Pipeline: https://git.tak.gov/aegorsuch/atak-plugin-physiology-dashboard/-/pipelines/100',
-    `- Source commit: \`${sha}\` on TAK.gov \`develop\``,
+    `- Source commit: \`${sha}\` on TAK.gov \`main\``,
     `- SHA256: \`${hash}\``,
     '',
     'Install the APK above. GitHub\'s "Source code" archives come from the fixed release anchor tag, not from this build; the source commit above is authoritative and may not yet be mirrored to GitHub.',
@@ -331,14 +336,16 @@ test('transport sends tokens only to their API, strips auth from approved downlo
     });
 
     if (String(url).includes('release-assets.')) return new Response(bytes);
+    if (String(url).includes('/branches/main')) return new Response(JSON.stringify({ commit: { sha } }));
     return new Response(JSON.stringify({ id: sha }));
   });
   assert.deepEqual(await api.currentBranch(), { commit: { id: sha } });
   await api.github('/releases/assets/1', 'GET', undefined, true);
   assert.deepEqual(seen[0][1].headers, { 'JOB-TOKEN': config.jobToken });
-  assert.equal(seen[0][0], 'https://git.tak.gov/api/v4/projects/6557/repository/commits/develop');
+  assert.equal(seen[0][0], 'https://git.tak.gov/api/v4/projects/6557/repository/commits/main');
   assert.equal(seen[1][1].headers.Authorization, `Bearer ${config.token}`);
-  assert.equal(seen[2][1].headers, undefined);
+  assert.equal(seen[2][0], `https://api.github.com/repos/${REPO}/releases/assets/1`);
+  assert.equal(seen[3][1].headers, undefined);
   const denied = transport(config, async () => new Response(null, {
     status: 302, headers: { location: 'https://evil.test/mock' },
   }));
@@ -349,7 +356,7 @@ test('transport sends tokens only to their API, strips auth from approved downlo
 
 test('personal destination uses the same publisher API with an allowlisted repository path', async () => {
   const seen = [];
-  const personalConfig = { ...config, repository: PERSONAL_REPO };
+  const personalConfig = { ...config, repository: REPO };
   const api = transport(personalConfig, async (url, init) => {
     seen.push([String(url), init]);
     return String(url).includes('git.tak.gov')
@@ -357,11 +364,11 @@ test('personal destination uses the same publisher API with an allowlisted repos
       : new Response(JSON.stringify({ commit: { sha } }));
   });
   await api.github('/releases');
-  assert.equal(seen[0][0], `https://api.github.com/repos/${PERSONAL_REPO}/releases`);
+  assert.equal(seen[0][0], `https://api.github.com/repos/${REPO}/releases`);
   assert.equal(seen[0][1].headers.Authorization, `Bearer ${config.token}`);
   assert.throws(() => transport({ ...config, repository: 'someone/other-repo' }), /not allowlisted/);
   assert.deepEqual(await api.currentBranch(), { commit: { id: sha } });
-  assert.ok(seen.some(([url]) => url === `https://api.github.com/repos/${PERSONAL_REPO}/branches/develop`));
+  assert.ok(seen.some(([url]) => url === `https://api.github.com/repos/${REPO}/branches/main`));
 
   const staleMirror = transport(personalConfig, async url => new Response(JSON.stringify(
     String(url).includes('git.tak.gov') ? { id: sha } : { commit: { sha: 'c'.repeat(40) } },
