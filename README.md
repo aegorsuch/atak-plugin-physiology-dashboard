@@ -3,6 +3,8 @@
 ## Summary
 Physiology Dashboard is an ATAK plugin that displays biometric information received from a variety of wearables, including WearTAK. It shows team members' physiological status, such as heart rate, skin temperature, exertion, and battery level, along with alert and clear events, on a phone or tablet running ATAK.
 
+Live and retained CoT readings use `detail/physiology/device`, with legacy `detail/biometrics/device` accepted only when `physiology` is absent. If both tags appear, physiology wins without duplicate telemetry processing. Alerts and cancellations also use `<physiology alertState="...">`, with legacy `<biometrics alertState="...">` still supported. Existing alert attributes, device children/attributes, and vital-value parsing are unchanged. Alert handling remains independent of telemetry selection: separate legacy alert metadata can accompany physiology telemetry, but when both tags carry alert metadata, only physiology is processed.
+
 Primary readings appear in Exertion, Heart Rate, then Skin Temperature order. Unavailable values (including `-1`) are hidden. Tap the sort button to cycle sort modes or hold it to select a named sort, including ascending/descending sorts for all three readings. Unavailable values sort last in either direction.
 
 Fractional exertion values from WearTAK (for example `0.22`) are normalized to percentages (`22%`). WEAROS skin-temperature CoT values are Fahrenheit and are converted to the dashboard's Celsius storage before display conversion to Fahrenheit.

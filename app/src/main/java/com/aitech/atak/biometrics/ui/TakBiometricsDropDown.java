@@ -26,8 +26,10 @@ import android.widget.Toast;
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,6 +54,7 @@ import com.aitech.atak.biometrics.plugin.R;
 import com.aitech.atak.biometrics.DeviceData;
 import com.aitech.atak.biometrics.services.LicenseManager;
 import com.aitech.atak.biometrics.services.PhysioDataLogger;
+import com.aitech.atak.biometrics.services.PhysiologyDetails;
 import com.aitech.atak.biometrics.services.RetainedBiometrics;
 import com.aitech.atak.biometrics.services.SelfBiometrics;
 import com.aitech.atak.biometrics.services.BiometricValues;
@@ -633,10 +636,9 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
         CotDetail detail = cotEvent.getDetail();
 
         if (detail != null) {
-            CotDetail biometrics = detail.getFirstChildByName(0,"biometrics");
-            // Ensure the biometrics child exists
+            CotDetail biometrics = PhysiologyDetails.find(detail);
             if (biometrics == null) {
-                Log.d("WEARTAK_COT", "No biometrics detail found");
+                Log.d("WEARTAK_COT", "No physiology or legacy biometrics detail found");
                 Log.d("WEARTAK_COT", cotEvent.toString());
                 return;
             }
@@ -1118,7 +1120,8 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
             return;
         }
 
-        biometricsDetailHandler = new CotDetailHandler("biometrics") {
+        biometricsDetailHandler = new CotDetailHandler(new HashSet<>(Arrays.asList(
+                PhysiologyDetails.PRIMARY_NAME, PhysiologyDetails.LEGACY_NAME))) {
             private final String TAG = "BiometricsDetailHandler";
 
             @Override
@@ -1130,13 +1133,17 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
 //                    Log.d(TAG, "License is invalid, not processing CotDetail");
 //                    return CommsMapComponent.ImportResult.FAILURE;
 //                }
+                if (!PhysiologyDetails.isSelected(event.getDetail(), detail)) {
+                    return CommsMapComponent.ImportResult.SUCCESS;
+                }
                 Log.d("BIOMETRICS_HANDLER", "Received detail: " + detail.toString());
 
                 // grab the cot detail
                 CotDetail deviceDetail = detail.getFirstChildByName(0, "device");
                 boolean isBiometricsAlert = detail.getAttribute("alertState") != null;
                 if (deviceDetail != null && !isBiometricsAlert) {
-                    Log.d(TAG, "Handling <biometrics> detail with device child: " + deviceDetail.toString());
+                    Log.d(TAG, "Handling <" + detail.getElementName()
+                            + "> detail with device child: " + deviceDetail.toString());
                     CotDetail contact = event.getDetail().getFirstChildByName(0, "contact");
                     if (contact != null) {
                         processBiometrics(event, false);
@@ -1152,7 +1159,7 @@ public class TakBiometricsDropDown extends DropDownReceiver implements com.atakm
                 return false;
             }
         };
-        Log.d("BIOMETRICS_HANDLER", "Registering biometrics handler");
+        Log.d("BIOMETRICS_HANDLER", "Registering physiology and legacy biometrics handler");
         CotDetailManager.getInstance().registerHandler(biometricsDetailHandler);
         Log.d(TAG, "Registered the biometricsDetailHandler");
     }
