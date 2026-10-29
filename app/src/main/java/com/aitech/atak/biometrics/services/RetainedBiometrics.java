@@ -10,7 +10,7 @@ public final class RetainedBiometrics {
 
     public static CotEvent snapshot(String uid, String callsign, CotDetail details,
                                     long lastUpdateTime) {
-        CotDetail biometrics = details.getFirstChildByName(0, "biometrics");
+        CotDetail biometrics = PhysiologyDetails.find(details);
         if (uid == null || callsign == null || lastUpdateTime < 0 || biometrics == null
                 || biometrics.getAttribute("alertState") != null
                 || biometrics.getFirstChildByName(0, "device") == null) {
