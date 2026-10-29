@@ -60,7 +60,7 @@ public class SelfBiometrics {
         if (detail == null) {
             return null;
         }
-        CotDetail biometrics = detail.getFirstChildByName(0, "biometrics");
+        CotDetail biometrics = PhysiologyDetails.find(detail);
         if (biometrics == null || biometrics.getAttribute("alertState") != null) {
             return null;
         }
